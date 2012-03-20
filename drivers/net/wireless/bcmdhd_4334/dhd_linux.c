@@ -3477,7 +3477,9 @@ static struct net_device_ops dhd_ops_virt = {
 #endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 31)) */
 
 /*HTC_CSP_START*/
+/*
 extern int system_rev;
+*/
 #define XA		0
 #define XB		1
 #define XC		2
