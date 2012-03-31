@@ -531,15 +531,15 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 		return -ENODEV;
 
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
-
-		policy->cpuinfo.min_freq = 192000;
-		policy->cpuinfo.max_freq = 1674000;
-
+#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+		policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
+		policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
+#endif
 	}
-
-	policy->min = 192000;
-	policy->max = 1674000;
-
+#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
+	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
+#endif
 
 	cur_freq = acpuclk_get_rate(policy->cpu);
 	if (cpufreq_frequency_table_target(policy, table, cur_freq,
@@ -572,8 +572,8 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 	init_completion(&cpu_work->complete);
 #endif
 	/* set safe default min and max speeds */
-	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
-	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
+	policy->max = 1674000;
+	policy->min = 192000;
 
 	return 0;
 }
