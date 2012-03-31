@@ -87,7 +87,7 @@ char cmdline_gov[16] = "userspace";
 char cmdline_gov[16] = "powersave";
 #endif
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_LIONHEART
-char cmdline_gov[16] = "Lionheart";
+char cmdline_gov[16] = "lionheart";
 #endif
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND
 char cmdline_gov[16] = "ondemand";
@@ -352,7 +352,7 @@ static void msm_cpufreq_late_resume(struct early_suspend *h)
 }
 
 static struct early_suspend msm_cpufreq_early_suspend_handler = {
-	.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 2,
+	.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 10,
 	.suspend = msm_cpufreq_early_suspend,
 	.resume = msm_cpufreq_late_resume,
 };
@@ -526,8 +526,15 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 		cpumask_setall(policy->cpus);
 
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
+#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+		policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
+		policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
+#endif
 	}
-
+#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
+	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
+#endif
 
 	cur_freq = acpuclk_get_rate(policy->cpu);
 	if (cpufreq_frequency_table_target(policy, table, cur_freq,
@@ -560,10 +567,10 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 	init_completion(&cpu_work->complete);
 #endif
 	/* set safe default min and max speeds */
-#ifdef CONFIG_CMDLINE_OPTIONS 
+ 
 	policy->max = 1512000;
-	policy->min = 192000;
-#endif
+	policy->min = 384000;
+
 	return 0;
 }
 
@@ -605,7 +612,7 @@ static int msm_cpufreq_pm_event(struct notifier_block *this,
 		return NOTIFY_DONE;
 	}
 }
-#ifdef CONFIG_CMDLINE_OPTIONS
+#if 0
 static ssize_t show_max_screen_off_khz(struct cpufreq_policy *policy, char *buf)
 {
 	return sprintf(buf, "%u\n", cmdline_maxscroff);
@@ -652,7 +659,7 @@ struct freq_attr msm_cpufreq_attr_max_screen_off_khz = {
 #endif
 static struct freq_attr *msm_freq_attr[] = {
 	&cpufreq_freq_attr_scaling_available_freqs,
-#ifdef CONFIG_CMDLINE_OPTIONS 
+#if 0
 	&msm_cpufreq_attr_max_screen_off_khz,
 #endif
 	NULL,
