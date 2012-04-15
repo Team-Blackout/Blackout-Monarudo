@@ -2650,6 +2650,12 @@ config MSM_NONSMD_PACKET_FILTER
 	  The white TCP port list is updated in attribute
 	  repying on RIL to notify modem.
 
+config CMDLINE_OPTIONS
+	bool "Enable cmdline khz/gov/maxscroff command parsing"
+	default y
+	help
+	  This enables the parsing of maxkhz=<VALUEinKHZ>,
+	  minkhz=<VALUEinKHZ>, governor=<GOVERNOR.NAME> and
 config IO_FOOTPRINT
 	bool "Trace I/O for each CPU"
 	default n

@@ -1,7 +1,8 @@
 VERSION = 3
 PATCHLEVEL = 4
-SUBLEVEL = 10
-EXTRAVERSION =
+SUBLEVEL = 35
+EXTRAVERSION =-Blackout-Viverrine-
+BEASTMODE_VERSION = Blackout-Viverrine-B1.3-DLXU
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
@@ -353,12 +354,11 @@ CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-MODFLAGS	= -DMODULE -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a8 -march=armv7-a -mfpu=neon -ftree-vectorize -funswitch-loops
+MODFLAGS	= -DMODULE -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a15 -mcpu=cortex-a15 -mfpu=neon -mfpu=neon -ftree-vectorize -funswitch-loops
 CFLAGS_MODULE   = $(MODFLAGS)
 AFLAGS_MODULE   = $(MODFLAGS)
-LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
-CFLAGS_KERNEL	= -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a8 -march=armv7-a -mfpu=neon -ftree-vectorize -funswitch-loops
-AFLAGS_KERNEL	=
+CFLAGS_KERNEL	= -mcpu=cortex-a15 -mfpu=neon -ftree-vectorize
+AFLAGS_KERNEL	= -mcpu=cortex-a15 -mfpu=neon -ftree-vectorize
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
@@ -1574,7 +1574,35 @@ endif
 clean := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.clean obj
 
 endif	# skip-makefile
+# Droid DNA specific target to build the update.zip
 
+DNA_ZIP = dna/update/$(BEASTMODE_VERSION).zip
+UPDATE_ROOT = dna/update
+CERT = dna/keys/certificate.pem
+KEY = dna/keys/key.pk8
+
+dna/update-this-version.zip:
+	make $(DNA_ZIP)
+
+$(CERT):
+	
+
+$(DNA_ZIP): arch/arm/boot/zImage dna/bootimg.cfg dna/aroma/updater-script $(CERT)
+	-rm -rf $(UPDATE_ROOT)
+	mkdir -p $(UPDATE_ROOT)/system/lib/modules
+	cp `find . -name '*.ko'` $(UPDATE_ROOT)/system/lib/modules
+	mkdir -p $(UPDATE_ROOT)/META-INF/com/google/android
+	cp dna/aroma/update-binary $(UPDATE_ROOT)/META-INF/com/google/android
+	cp dna/aroma/update-binary-installer $(UPDATE_ROOT)/META-INF/com/google/android
+	cp -r dna/aroma/aroma $(UPDATE_ROOT)/META-INF/com/google/android
+	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/aroma/aroma-config > $(UPDATE_ROOT)/META-INF/com/google/android/aroma-config
+	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/aroma/updater-script > $(UPDATE_ROOT)/META-INF/com/google/android/updater-script
+	abootimg --create $(UPDATE_ROOT)/boot.img -k arch/arm/boot/zImage -f dna/bootimg.cfg -r dna/initrd.img
+	-rm -f dna/*.zip
+	cd $(UPDATE_ROOT) && zip -r ../out/$(BEASTMODE_VERSION).zip .
+	 $
+	
+	
 PHONY += FORCE
 FORCE:
 
