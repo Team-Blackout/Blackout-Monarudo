@@ -230,6 +230,18 @@ static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq)
 	struct cpufreq_freqs freqs;
 	struct cpu_freq *limit = &per_cpu(cpu_freq_info, policy->cpu);
 
+	if (limit->limits_init) {
+		if (new_freq > limit->allowed_max) {
+			new_freq = limit->allowed_max;
+			pr_debug("max: limiting freq to %d\n", new_freq);
+		}
+
+		if (new_freq < limit->allowed_min) {
+			new_freq = limit->allowed_min;
+			pr_debug("min: limiting freq to %d\n", new_freq);
+		}
+	}
+
 	freqs.old = policy->cur;
 #ifdef CONFIG_PERFLOCK
 	perf_freq = perflock_override(policy, new_freq);
@@ -521,12 +533,12 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
 
 		policy->cpuinfo.min_freq = 192000;
-		policy->cpuinfo.max_freq = 1512000;
+		policy->cpuinfo.max_freq = 1674000;
 
 	}
 
 	policy->min = 192000;
-	policy->max = 1512000;
+	policy->max = 1674000;
 
 
 	cur_freq = acpuclk_get_rate(policy->cpu);

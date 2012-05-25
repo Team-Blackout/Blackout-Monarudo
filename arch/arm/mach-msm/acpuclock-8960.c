@@ -117,7 +117,7 @@ static void set_acpuclk_foot_print(unsigned cpu, unsigned state)
 
 static void set_acpuclk_cpu_freq_foot_print(unsigned cpu, unsigned khz)
 {
-	unsigned *status = (unsigned *)(CPU_FOOT_PRINT_BASE_CPU0_VIRT + 0x58) + cpu;
+	unsigned *status = (unsigned *)(CPU_FOOT_PRINT_BASE_CPU0_VIRT + 0x44) + cpu;
 	*status = khz;
 	mb();
 }
