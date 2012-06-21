@@ -20,26 +20,28 @@
 #include <linux/workqueue.h>
 #include <linux/cpu.h>
 #include <linux/reboot.h>
+#include <linux/earlysuspend.h>
 
-#define DEF_TEMP_SENSOR      0
+#define DEF_TEMP_SENSOR0      0
+#define DEF_TEMP_SENSOR1      1
 
 //shutdown temp
 #define DEF_SHUTDOWNTEMP 80
 
 //max thermal limit
-#define DEF_ALLOWED_MAX_HIGH 76
+#define DEF_ALLOWED_MAX_HIGH 75
 #define DEF_ALLOWED_MAX_FREQ 384000
 
 //mid thermal limit
 #define DEF_ALLOWED_MID_HIGH 72
-#define DEF_ALLOWED_MID_FREQ 648000
+#define DEF_ALLOWED_MID_FREQ 810000
 
 //low thermal limit
 #define DEF_ALLOWED_LOW_HIGH 70
-#define DEF_ALLOWED_LOW_FREQ 972000
+#define DEF_ALLOWED_LOW_FREQ 1350000
 
 //Sampling interval
-#define DEF_THERMAL_CHECK_MS 250
+#define DEF_THERMAL_CHECK_MS 100
 
 static DEFINE_MUTEX(emergency_shutdown_mutex);
 
@@ -48,8 +50,11 @@ static int enabled;
 //Throttling indicator, 0=not throttled, 1=low, 2=mid, 3=max
 static int thermal_throttled = 0;
 
-//Safe the cpu max freq before throttling
+//Save the cpu max freq before throttling
 static int pre_throttled_max = 0;
+
+//screen status
+static bool screen_blank = false;
 
 static struct delayed_work check_temp_work;
 static struct workqueue_struct *check_temp_workq;
@@ -74,7 +79,7 @@ static struct msm_thermal_tuners {
 	.shutdown_temp = DEF_SHUTDOWNTEMP,
 
 	.allowed_max_high = DEF_ALLOWED_MAX_HIGH,
-	.allowed_max_low = (DEF_ALLOWED_MAX_HIGH - 5),
+	.allowed_max_low = (DEF_ALLOWED_MAX_HIGH - 4),
 	.allowed_max_freq = DEF_ALLOWED_MAX_FREQ,
 
 	.allowed_mid_high = DEF_ALLOWED_MID_HIGH,
@@ -102,46 +107,64 @@ static int update_cpu_max_freq(struct cpufreq_policy *cpu_policy,
 
 	ret = cpufreq_update_policy(cpu);
 	if (!ret)
-		pr_info("msm_thermal: Limiting core%d max frequency to %d\n",
+		pr_debug("msm_thermal: Setting CPU%d max frequency to %d\n",
 			cpu, max_freq);
-
 	return ret;
 }
 
 static void check_temp(struct work_struct *work)
 {
 	struct cpufreq_policy *cpu_policy = NULL;
-	struct tsens_device tsens_dev;
-	unsigned long temp = 0;
+	struct tsens_device tsens_dev0;
+	struct tsens_device tsens_dev1;
+	unsigned long temp = 0, temp0 = 0, temp1 = 0;
 	unsigned int max_freq = 0;
-	int update_policy = 0;
-	int cpu = 0;
-	int ret = 0;
+	bool update_policy = false;
+	int i = 0, cpu = 0;
+	int ret0 = 0, ret1 = 0;
+        bool sensor_fail = true;
 
-	tsens_dev.sensor_num = DEF_TEMP_SENSOR;
-	ret = tsens_get_temp(&tsens_dev, &temp);
-	if (ret) {
-		pr_err("msm_thermal: Unable to read TSENS sensor %d\n",
-				tsens_dev.sensor_num);
+	tsens_dev0.sensor_num = DEF_TEMP_SENSOR0;
+	ret0 = tsens_get_temp(&tsens_dev0, &temp0);
+	tsens_dev1.sensor_num = DEF_TEMP_SENSOR1;
+	ret1 = tsens_get_temp(&tsens_dev1, &temp1);
+	if (ret0 && ret1) {
+		pr_err("msm_thermal: FATAL: Unable to read TSENS sensor %d & %d\n",
+				tsens_dev0.sensor_num, tsens_dev1.sensor_num);
 		goto reschedule;
 	}
 
-        if (temp >= (msm_thermal_tuners_ins.shutdown_temp)) {
+        if ((screen_blank) || (temp1 < 0) || (temp1 > 150)) {
+                sensor_fail = true;
+                temp = temp0;
+        } else {
+                sensor_fail = false;
+                temp = (max(temp0, temp1));
+        }
+
+        if (temp >= msm_thermal_tuners_ins.shutdown_temp) {
                 mutex_lock(&emergency_shutdown_mutex);
                 pr_warn("################################\n");
                 pr_warn("################################\n");
                 pr_warn("- %u OVERTEMP! SHUTTING DOWN! -\n", msm_thermal_tuners_ins.shutdown_temp);
+                pr_warn("- cur temp:%lu measured by:%s -\n", temp, ((sensor_fail) || (temp0>temp1)) ? "0" : "1");
                 pr_warn("################################\n");
                 pr_warn("################################\n");
                 /* orderly poweroff tries to power down gracefully
                    if it fails it will force it. */
                 orderly_poweroff(true);
-                cancel_delayed_work_sync(&check_temp_work);
+                for_each_possible_cpu(cpu) {
+                        update_policy = true;
+                        max_freq = msm_thermal_tuners_ins.allowed_max_freq;
+                        thermal_throttled = 3;
+                        pr_warn("msm_thermal: Emergency throttled CPU%i to %u! temp:%lu\n",
+                                cpu, msm_thermal_tuners_ins.allowed_max_freq, temp);
+                }
                 mutex_unlock(&emergency_shutdown_mutex);
         }
 
 	for_each_possible_cpu(cpu) {
-		update_policy = 0;
+		update_policy = false;
 		cpu_policy = cpufreq_cpu_get(cpu);
 		if (!cpu_policy) {
 			pr_debug("msm_thermal: NULL policy on cpu %d\n", cpu);
@@ -149,70 +172,80 @@ static void check_temp(struct work_struct *work)
 		}
 
 		/* save pre-throttled max freq value */
-                if (thermal_throttled == 0)
+                if ((thermal_throttled == 0) && (cpu == 0))
                         pre_throttled_max = cpu_policy->max;
 
 		//low trip point
 		if ((temp >= msm_thermal_tuners_ins.allowed_low_high) &&
 		    (temp < msm_thermal_tuners_ins.allowed_mid_high) &&
-		    (cpu_policy->max > msm_thermal_tuners_ins.allowed_low_freq)) {
-			update_policy = 1;
+                    (thermal_throttled < 1)) {
+			update_policy = true;
 			max_freq = msm_thermal_tuners_ins.allowed_low_freq;
-			thermal_throttled = 1;
-			pr_warn("msm_thermal: Thermal Throttled (low)! temp: %lu\n", temp);
+                        if (cpu == (CONFIG_NR_CPUS-1)) {
+                                thermal_throttled = 1;
+                                pr_warn("msm_thermal: Thermal Throttled (low)! temp:%lu by:%s\n",
+                                        temp, ((sensor_fail) || (temp0>temp1)) ? "0" : "1");
+                        }
 		//low clr point
 		} else if ((temp < msm_thermal_tuners_ins.allowed_low_low) &&
 			   (thermal_throttled > 0)) {
-			if (cpu_policy->max < cpu_policy->cpuinfo.max_freq) {
-				if (pre_throttled_max != 0)
-					max_freq = pre_throttled_max;
-				else {
-					max_freq = CONFIG_MSM_CPU_FREQ_MAX;
-					pr_warn("msm_thermal: ERROR! pre_throttled_max=0, falling back to %u\n", max_freq);
-				}
-				update_policy = 1;
-				/* wait until 4th core is unthrottled */
-				if (cpu == 3)
-					thermal_throttled = 0;
-				pr_warn("msm_thermal: Low Thermal Throttling Ended! temp: %lu\n", temp);
+			if (pre_throttled_max != 0)
+				max_freq = pre_throttled_max;
+			else {
+				max_freq = CONFIG_MSM_CPU_FREQ_MAX;
+				pr_warn("msm_thermal: ERROR! pre_throttled_max=0, falling back to %u\n", max_freq);
 			}
+			update_policy = true;
+                        for (i = 1; i < CONFIG_NR_CPUS; i++) {
+                                if (cpu_online(i))
+                                        continue;
+                                cpu_up(i);
+                        }
+                        if (cpu == (CONFIG_NR_CPUS-1)) {
+                                thermal_throttled = 0;
+                                pr_warn("msm_thermal: Low thermal throttle ended! temp:%lu by:%s\n",
+                                        temp, ((sensor_fail) || (temp0>temp1)) ? "0" : "1");
+                        }
 		//mid trip point
-		} else if ((temp >= msm_thermal_tuners_ins.allowed_low_high) &&
-			   (temp < msm_thermal_tuners_ins.allowed_mid_low) &&
-			   (cpu_policy->max > msm_thermal_tuners_ins.allowed_mid_freq)) {
-			update_policy = 1;
-			max_freq = msm_thermal_tuners_ins.allowed_low_freq;
-			thermal_throttled = 2;
-			pr_warn("msm_thermal: Thermal Throttled (mid)! temp: %lu\n", temp);
+		} else if ((temp >= msm_thermal_tuners_ins.allowed_mid_high) &&
+			   (temp < msm_thermal_tuners_ins.allowed_max_high) &&
+			   (thermal_throttled < 2)) {
+			update_policy = true;
+			max_freq = msm_thermal_tuners_ins.allowed_mid_freq;
+                        if (cpu == (CONFIG_NR_CPUS-1)) {
+                                thermal_throttled = 2;
+                                pr_warn("msm_thermal: Thermal Throttled (mid)! temp:%lu by:%s\n",
+                                        temp, ((sensor_fail) || (temp0>temp1)) ? "0" : "1");
+                        }
 		//mid clr point
-		} else if ( (temp < msm_thermal_tuners_ins.allowed_mid_low) &&
+		} else if ((temp < msm_thermal_tuners_ins.allowed_mid_low) &&
 			   (thermal_throttled > 1)) {
-			if (cpu_policy->max < cpu_policy->cpuinfo.max_freq) {
-				max_freq = msm_thermal_tuners_ins.allowed_low_freq;
-				update_policy = 1;
-				/* wait until 4th core is unthrottled */
-				if (cpu == 3)
-					thermal_throttled = 1;
-				pr_warn("msm_thermal: Mid Thermal Throttling Ended! temp: %lu\n", temp);
-			}
+			max_freq = msm_thermal_tuners_ins.allowed_low_freq;
+			update_policy = true;
+                        if (cpu == (CONFIG_NR_CPUS-1)) {
+                                thermal_throttled = 1;
+                                pr_warn("msm_thermal: Mid thermal throttle ended! temp:%lu by:%s\n",
+                                        temp, ((sensor_fail) || (temp0>temp1)) ? "0" : "1");
+                        }
 		//max trip point
-		} else if ((temp >= msm_thermal_tuners_ins.allowed_max_high) &&
-			   (cpu_policy->max > msm_thermal_tuners_ins.allowed_max_freq)) {
-			update_policy = 1;
+		} else if (temp >= msm_thermal_tuners_ins.allowed_max_high) {
+			update_policy = true;
 			max_freq = msm_thermal_tuners_ins.allowed_max_freq;
-			thermal_throttled = 3;
-			pr_warn("msm_thermal: Thermal Throttled (max)! temp: %lu\n", temp);
+                        if (cpu == (CONFIG_NR_CPUS-1)) {
+			        thermal_throttled = 3;
+                                pr_warn("msm_thermal: Thermal Throttled (max)! temp:%lu by:%s\n",
+                                        temp, ((sensor_fail) || (temp0>temp1)) ? "0" : "1");
+                        }
 		//max clr point
 		} else if ((temp < msm_thermal_tuners_ins.allowed_max_low) &&
 			   (thermal_throttled > 2)) {
-			if (cpu_policy->max < cpu_policy->cpuinfo.max_freq) {
-				max_freq = msm_thermal_tuners_ins.allowed_mid_freq;
-				update_policy = 1;
-				/* wait until 4th core is unthrottled */
-				if (cpu == 3)
-					thermal_throttled = 2;
-				pr_warn("msm_thermal: Max Thermal Throttling Ended! temp: %lu\n", temp);
-			}
+			max_freq = msm_thermal_tuners_ins.allowed_mid_freq;
+			update_policy = true;
+                        if (cpu == (CONFIG_NR_CPUS-1)) {
+                                thermal_throttled = 2;
+                                pr_warn("msm_thermal: Max thermal throttle ended! temp:%lu by:%s\n",
+                                        temp, ((sensor_fail) || (temp0>temp1)) ? "0" : "1");
+                        }
 		}
 
 		if (update_policy)
@@ -225,6 +258,7 @@ reschedule:
 	if (enabled)
 		queue_delayed_work(check_temp_workq, &check_temp_work,
 				msecs_to_jiffies(msm_thermal_tuners_ins.check_interval_ms));
+        return;
 }
 
 static void disable_msm_thermal(void)
@@ -481,6 +515,22 @@ static struct attribute_group msm_thermal_attr_group = {
 };
 /**************************** SYSFS END ****************************/
 
+static void msm_thermal_early_suspend(struct early_suspend *h)
+{
+        screen_blank = true;
+}
+
+static void msm_thermal_late_resume(struct early_suspend *h)
+{
+        screen_blank = false;
+}
+
+static struct early_suspend msm_thermal_early_suspend_handler = {
+	.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN,
+	.suspend = msm_thermal_early_suspend,
+	.resume = msm_thermal_late_resume,
+};
+
 static int __init msm_thermal_init(void)
 {
 	int rc, ret = 0;
@@ -502,6 +552,8 @@ static int __init msm_thermal_init(void)
 		}
 	} else
 		pr_warn("msm_thermal: sysfs: ERROR, could not create sysfs kobj");
+
+        register_early_suspend(&msm_thermal_early_suspend_handler);
 
 	return ret;
 }
