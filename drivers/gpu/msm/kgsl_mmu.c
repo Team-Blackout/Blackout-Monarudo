@@ -321,12 +321,7 @@ unsigned int kgsl_mmu_get_ptsize(void)
 	if (KGSL_MMU_TYPE_GPU == kgsl_mmu_type)
 		return CONFIG_MSM_KGSL_PAGE_TABLE_SIZE;
 	else if (KGSL_MMU_TYPE_IOMMU == kgsl_mmu_type)
-#ifdef CONFIG_KGSL_PER_PROCESS_PAGE_TABLE
-		return CONFIG_MSM_KGSL_PAGE_TABLE_SIZE_FOR_IOMMU;
-#else
-                return SZ_2G - KGSL_PAGETABLE_BASE;
-#endif
-
+		return SZ_2G - KGSL_PAGETABLE_BASE;
 	else
 		return 0;
 }
