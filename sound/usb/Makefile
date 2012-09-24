@@ -1,7 +1,7 @@
 #
 # Makefile for ALSA
 #
-
+CFLAGS_mixer.o += -Os
 snd-usb-audio-objs := 	card.o \
 			clock.o \
 			endpoint.o \
