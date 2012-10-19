@@ -1043,26 +1043,18 @@ static void mdp4_dsi_video_do_blt(struct msm_fb_data_type *mfd, int enable)
 
 	if (mdp_ov0_blt_ctl == MDP4_BLT_SWITCH_TG_OFF) {
 		int tg_enabled;
-		pr_debug("%s: blt enabled by switching TG off\n", __func__);
+		long long  vtime;
 		tg_enabled = inpdw(MDP_BASE + DSI_VIDEO_BASE) & 0x01;
 		if (tg_enabled) {
-			mdp4_dsi_video_wait4dmap_done(0);
+			mdp4_dsi_video_wait4vsync(0, &vtime);
 			MDP_OUTP(MDP_BASE + DSI_VIDEO_BASE, 0);
-			msleep(20);
-			mipi_dsi_controller_cfg(0);
+			mdp4_dsi_video_wait4dmap_done(0);
 		}
 		mdp4_overlayproc_cfg(pipe);
 		mdp4_overlay_dmap_xy(pipe);
 		vctrl->blt_change = 0;
 		if (tg_enabled) {
-			if (pipe->ov_blt_addr) {
-				if ((inpdw(MDP_BASE + DTV_BASE) & 0x1) == 0) {
-					outpdw(MDP_BASE + 0x0004, 0); /* kickoff a frame to prevent flicker */
-					msleep(10); /* 10ms */
-				}
-			}
 			mipi_dsi_sw_reset();
-			mipi_dsi_controller_cfg(1);
 			MDP_OUTP(MDP_BASE + DSI_VIDEO_BASE, 1);
 		}
 	}
