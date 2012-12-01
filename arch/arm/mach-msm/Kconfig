@@ -2650,6 +2650,13 @@ config MSM_NONSMD_PACKET_FILTER
 	  The white TCP port list is updated in attribute
 	  repying on RIL to notify modem.
 
+config FORCE_FAST_CHARGE
+	bool "Force AC charge mode at will"
+	default y
+	help
+		A simple sysfs interface to force adapters that
+		are detected as USB to charge as AC.
+
 config CMDLINE_OPTIONS
 	bool "Enable cmdline khz/gov/maxscroff command parsing"
 	default y
