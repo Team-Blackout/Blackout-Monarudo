@@ -1056,12 +1056,7 @@ static void dbs_input_event(struct input_handle *handle, unsigned int type,
 	}
 
 	for_each_online_cpu(i) {
-		/* Only allow queue work when cpufreq initialization has finished */
-		if (per_cpu(cpufreq_init_done, i))
 		queue_work_on(i, input_wq, &per_cpu(dbs_refresh_work, i));
-		else
-			pr_err("%s: cpu %d initialization not done! Skip queue work...\n",
-				__func__, i);
 	}
 }
 
