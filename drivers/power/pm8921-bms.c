@@ -1360,7 +1360,10 @@ EXPORT_SYMBOL(pm8921_bms_get_vsense_avg);
 
 int pm8921_bms_get_battery_current(int *result_ua)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> 65dd241... drivers/power/pm8921-bms: fix: 'warning: 'vsense' may be used uninitialized in this function'
 	int vsense = 0;
 
 	if (!the_chip) {
