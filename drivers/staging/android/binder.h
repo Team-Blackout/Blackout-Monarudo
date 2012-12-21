@@ -129,7 +129,7 @@ struct binder_pri_ptr_cookie {
 	void *cookie;
 };
 
-enum BinderDriverReturnProtocol {
+enum binder_driver_return_protocol {
 	BR_ERROR = _IOR('r', 0, int),
 
 	BR_OK = _IO('r', 1),
@@ -163,7 +163,7 @@ enum BinderDriverReturnProtocol {
 	BR_FAILED_REPLY = _IO('r', 17),
 };
 
-enum BinderDriverCommandProtocol {
+enum binder_driver_command_protocol {
 	BC_TRANSACTION = _IOW('c', 0, struct binder_transaction_data),
 	BC_REPLY = _IOW('c', 1, struct binder_transaction_data),
 
