@@ -1954,7 +1954,7 @@ SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
 	int ret;
 	char *kernel_type;
 	char *kernel_dir;
-	char *kernel_dev;
+	char *kernel_dev  = 0;
 	unsigned long data_page;
 
 	ret = copy_mount_string(type, &kernel_type);
