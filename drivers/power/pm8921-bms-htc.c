@@ -2667,7 +2667,7 @@ static int dump_cc_uah(void)
 int prev_cc_uah = 0;
 static int pm8921_bms_suspend(struct device *dev)
 {
-	u64 val;
+	u64 val = 0;
 	int rc;
 	struct pm8xxx_adc_chan_result result;
 	struct pm8921_bms_chip *chip = dev_get_drvdata(dev);
