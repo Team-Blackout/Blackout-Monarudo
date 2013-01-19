@@ -413,7 +413,7 @@ static int bma250_get_mode(struct i2c_client *client, unsigned char *Mode)
 static int bma250_set_range(struct i2c_client *client, unsigned char Range)
 {
 	int comres = 0;
-	unsigned char data1;
+	unsigned char data1 = 0;
 
 
 	if (Range < 4) {
