@@ -511,7 +511,7 @@ static int bma250_set_bandwidth(struct i2c_client *client, unsigned char BW)
 static int bma250_get_bandwidth(struct i2c_client *client, unsigned char *BW)
 {
 	int comres = 0;
-	unsigned char data;
+	unsigned char data = 0;
 
 
 	comres = bma250_smbus_read_byte(client, BMA250_BANDWIDTH__REG,
