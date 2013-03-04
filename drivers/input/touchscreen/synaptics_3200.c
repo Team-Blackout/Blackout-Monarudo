@@ -140,7 +140,7 @@ static int synaptics_init_panel(struct synaptics_ts_data *ts);
 static irqreturn_t synaptics_irq_thread(int irq, void *ptr);
 
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
-#define BACK_BUTTON		180
+#define BACK_BUTTON		240
 #define HOME_BUTTON		540
 #define MENU_BUTTON		900
 
