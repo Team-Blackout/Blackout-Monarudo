@@ -123,6 +123,8 @@ config CPU_FREQ_DEFAULT_GOV_LIONHEART
 	 Use the CPUFreq governor 'lionheart' as default.
 
 
+
+endchoice
 config CPU_FREQ_GOV_LIONHEART
 	tristate "lionheart"
 	depends on CPU_FREQ
@@ -130,8 +132,6 @@ config CPU_FREQ_GOV_LIONHEART
 	 Use the CPUFreq governor 'lionheart' as default.
 
 	  If in doubt, say N.
-
-endchoice
 
 config CPU_FREQ_GOV_BADASS
 	tristate "'badass' cpufreq governor"
