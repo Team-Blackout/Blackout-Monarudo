@@ -40,7 +40,7 @@ config CPU_FREQ_STAT_DETAILS
 	  This will show detail CPU frequency translation table in sysfs file
 	  system.
 
-	  If in doubt, say N.
+	  If in doubt, say Y.
 
 choice
 	prompt "Default CPUFreq governor"
