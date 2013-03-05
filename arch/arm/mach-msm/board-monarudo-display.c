@@ -77,7 +77,7 @@ struct msm_xo_voter *wa_xo;
 
 static int monarudo_detect_panel(const char *name)
 {
-#if 0
+
 	if (panel_type == PANEL_ID_DLX_SONY_RENESAS) {
 		if (!strncmp(name, MIPI_RENESAS_PANEL_NAME,
 			strnlen(MIPI_RENESAS_PANEL_NAME,
@@ -93,7 +93,7 @@ static int monarudo_detect_panel(const char *name)
 			return 0;
 		}
 	}
-#endif
+
 	if (!strncmp(name, HDMI_PANEL_NAME,
 		strnlen(HDMI_PANEL_NAME,
 			PANEL_NAME_MAX_LEN)))
@@ -127,7 +127,7 @@ void __init monarudo_allocate_fb_region(void)
 			size, addr, __pa(addr));
 }
 
-#define MDP_VSYNC_GPIO 0
+#define MDP_VSYNC_GPIO 1
 
 #ifdef CONFIG_MSM_BUS_SCALING
 static struct msm_bus_vectors mdp_init_vectors[] = {
@@ -737,14 +737,14 @@ static struct dsi_cmd_desc renesas_display_on_cmds[] = {
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0, sizeof(display_on), display_on},
 };
 static char interface_setting_0[2] = {0xB0, 0x04};
-#if 0
+
 //Reg2
-static char Backlght_Control_2[8]= {
-	0xB9, 0x0F, 0x18, 0x04,
-	0x40, 0x9F, 0x1F, 0x80};
+/* static char Backlght_Control_2[8]= {
+ 	0xB9, 0x0F, 0x18, 0x04,
+ 	0x40, 0x9F, 0x1F, 0x80};
 static char BackLight_Control_4[8]= {
 	0xBA, 0x0F, 0x18, 0x04,
-	0x40, 0x9F, 0x1F, 0xD7};
+	0x40, 0x9F, 0x1F, 0xD7}; 
 static char ContrastOptimize[7]= {
 	0xD8, 0x01, 0x80, 0x80,
 	0x40, 0x42, 0x21};
@@ -776,7 +776,7 @@ static char gamma_setting_blue[25]= {
 	0x1A, 0x28, 0x41, 0x38,
 	0x4C, 0x59, 0x63, 0x6B,
 	0x74};
-#endif
+*/
 
 static char Color_enhancement[33]= {
 	0xCA, 0x01, 0x02, 0xA4,
@@ -1149,6 +1149,8 @@ static int __init mipi_video_sharp_init(void)
 	pinfo.bl_min = 1;
 	pinfo.fb_num = 2;
 	pinfo.clk_rate = 848000000;
+	pinfo.lcd.vsync_enable = TRUE;
+	pinfo.lcd.hw_vsync_mode = TRUE;
 
 	pinfo.mipi.mode = DSI_VIDEO_MODE;
 	pinfo.mipi.pulse_mode_hsa_he = TRUE;
