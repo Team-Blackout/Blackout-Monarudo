@@ -1,7 +1,7 @@
 VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 33
-EXTRAVERSION =-Blackout-Monarudo-
+EXTRAVERSION =-Blackout-Viverrine-
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
