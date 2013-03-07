@@ -158,9 +158,9 @@ typedef struct {
 } button;
 
 static button buttons[] = {
-			{180, "BACK"},			
-			{540, "HOME"},
-			{900, "MENU"},
+			{BACK_BUTTON, "BACK"},			
+			{HOME_BUTTON, "HOME"},
+			{MENU_BUTTON, "MENU"},
 };
 				
 int s2w_startbutton = -1;
