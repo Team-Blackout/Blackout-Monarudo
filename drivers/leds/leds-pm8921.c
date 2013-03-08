@@ -735,8 +735,8 @@ static int __devinit pm8xxx_led_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, led);
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
 	if (!strcmp(led_dat->cdev.name, "button-backlight")) {
-		sweep2wake_setleddev(&led_dat[2]);
-		printk(KERN_INFO "[sweep2wake]: set led device %s, bank %d\n", led_dat->cdev.name, led_dat[2].bank);
+		sweep2wake_setleddev(&led_dat[6].bank);
+		printk(KERN_INFO "[sweep2wake]: set led device %s, bank %d\n", led_dat->cdev.name, led_dat[6].bank);
 	}
 #endif
 	return 0;
