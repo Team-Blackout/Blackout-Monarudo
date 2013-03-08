@@ -35,6 +35,8 @@
 #include <linux/pl_sensor.h>
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
 #include <linux/ctype.h>
+#include <linux/leds.h>
+#include <linux/leds-pm8921.h>
 #endif
 #define SYN_I2C_RETRY_TIMES 10
 #define SYN_WIRELESS_DEBUG
@@ -2110,7 +2112,7 @@ static void synaptics_ts_finger_func(struct synaptics_ts_data *ts)
 				    (finger_data[i][0] < barrier2) &&
 				    (finger_data[i][1] > 2715))) {
 					if ((led_exec_count == true) && (scr_on_touch == false) && (s2w_switch == 2)) {
-// 						pm8058_drvx_led_brightness_set(sweep2wake_leddev, 255);
+ 						pm8xxx_led_current_set(sweep2wake_leddev, 255);
 						printk(KERN_INFO "[sweep2wake]: activated button backlight.\n");
 						led_exec_count = false;
 					}
