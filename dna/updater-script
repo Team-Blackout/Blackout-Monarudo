@@ -1,6 +1,6 @@
 ui_print("********************************************");
 ui_print("                                            ");
-ui_print("           Beastmode Viverrine              ");
+ui_print("           Beastmode By Zarboz              ");
 ui_print("                                            ");
 ui_print("Version: @@VERSION@@                        ");
 ui_print("                                            ");
