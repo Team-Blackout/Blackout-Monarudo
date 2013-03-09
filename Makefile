@@ -2,6 +2,7 @@ VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 35
 EXTRAVERSION =-Blackout-Viverrine-
+BEASTMODE_VERSION = Blackout-Viverrine-B3.3
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
@@ -1575,10 +1576,10 @@ clean := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.clean obj
 endif	# skip-makefile
 # Droid DNA specific target to build the update.zip
 
-DNA_ZIP=~/dna/updates/update-$(BEASTMODE_VERSION).zip
-UPDATE_ROOT=dna/update
-CERT=dna/keys/certificate.pem
-KEY=dna/keys/key.pk8
+DNA_ZIP = dna/update/$(BEASTMODE_VERSION).zip
+UPDATE_ROOT = dna/update
+CERT = dna/keys/certificate.pem
+KEY = dna/keys/key.pk8
 
 dna/update-this-version.zip:
 	make $(DNA_ZIP)
@@ -1600,8 +1601,8 @@ $(DNA_ZIP): arch/arm/boot/zImage dna/bootimg.cfg dna/updater-script $(CERT)
 	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/updater-script > $(UPDATE_ROOT)/META-INF/com/google/android/updater-script
 	abootimg --create $(UPDATE_ROOT)/boot.img -k arch/arm/boot/zImage -f dna/bootimg.cfg -r dna/initrd.img
 	-rm -f dna/update.zip
-	cd $(UPDATE_ROOT) && zip -r ../update.zip .
-	java -jar dna/signapk.jar $(CERT) $(KEY) dna/update.zip $@
+	cd $(UPDATE_ROOT) && zip -r ../$(BEASTMODE_VERSION).zip .
+	 $
 	
 	
 PHONY += FORCE
