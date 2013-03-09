@@ -1573,7 +1573,37 @@ endif
 clean := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.clean obj
 
 endif	# skip-makefile
+# Droid DNA specific target to build the update.zip
 
+DNA_ZIP=~/dna/updates/update-$(BEASTMODE_VERSION).zip
+UPDATE_ROOT=dna/update
+CERT=dna/keys/certificate.pem
+KEY=dna/keys/key.pk8
+
+dna/update-this-version.zip:
+	make $(DNA_ZIP)
+
+$(CERT):
+	mkdir -p dna/keys
+	cd dna/keys && \
+		openssl genrsa -out key.pem 1024 && \
+		openssl req -new -key key.pem -out request.pem && \
+		openssl x509 -req -days 9999 -in request.pem -signkey key.pem -out certificate.pem && \
+		openssl pkcs8 -topk8 -outform DER -in key.pem -inform PEM -out key.pk8 -nocrypt
+
+$(DNA_ZIP): arch/arm/boot/zImage dna/bootimg.cfg dna/updater-script $(CERT)
+	-rm -rf $(UPDATE_ROOT)
+	mkdir -p $(UPDATE_ROOT)/system/lib/modules
+	cp `find . -name '*.ko'` $(UPDATE_ROOT)/system/lib/modules
+	mkdir -p $(UPDATE_ROOT)/META-INF/com/google/android
+	cp dna/update-binary $(UPDATE_ROOT)/META-INF/com/google/android
+	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/updater-script > $(UPDATE_ROOT)/META-INF/com/google/android/updater-script
+	abootimg --create $(UPDATE_ROOT)/boot.img -k arch/arm/boot/zImage -f dna/bootimg.cfg -r dna/initrd.img
+	-rm -f dna/update.zip
+	cd $(UPDATE_ROOT) && zip -r ../update.zip .
+	java -jar dna/signapk.jar $(CERT) $(KEY) dna/update.zip $@
+	
+	
 PHONY += FORCE
 FORCE:
 

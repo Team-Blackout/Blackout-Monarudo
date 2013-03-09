@@ -160,7 +160,7 @@ typedef struct {
 } button;
 
 static button buttons[] = {
-			{180, "BACK"},			
+			{240, "BACK"},			
 			{540, "HOME"},
 			{900, "MENU"},
 };
