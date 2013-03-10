@@ -580,7 +580,7 @@ static int msm_cpufreq_pm_event(struct notifier_block *this,
 		return NOTIFY_DONE;
 	}
 }
-#ifdef CONFIG_CMDLINE_OPTIONS
+#if 0
 static ssize_t show_max_screen_off_khz(struct cpufreq_policy *policy, char *buf)
 {
 	return sprintf(buf, "%u\n", cmdline_maxscroff);
@@ -627,7 +627,7 @@ struct freq_attr msm_cpufreq_attr_max_screen_off_khz = {
 #endif
 static struct freq_attr *msm_freq_attr[] = {
 	&cpufreq_freq_attr_scaling_available_freqs,
-#ifdef CONFIG_CMDLINE_OPTIONS
+#if 0
 	&msm_cpufreq_attr_max_screen_off_khz,
 #endif
 	NULL,

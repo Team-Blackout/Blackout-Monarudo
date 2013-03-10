@@ -113,7 +113,7 @@ struct flash_platform_data msm_nand_data = {
 };
 
 /* cmdline_gpu */
-#ifdef CONFIG_CMDLINE_OPTIONS
+#if 0
 unsigned int cmdline_2dgpu = CMDLINE_2DGPU_DEFKHZ;
 unsigned int cmdline_3dgpu[2] = {CMDLINE_3DGPU_DEFKHZ_0, CMDLINE_3DGPU_DEFKHZ_1};
 
