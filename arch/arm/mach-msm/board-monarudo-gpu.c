@@ -18,6 +18,7 @@
 #include <mach/board.h>
 #include <mach/msm_dcvs.h>
 
+
 #include "devices.h"
 #include "board-monarudo.h"
 
@@ -503,6 +504,28 @@ struct platform_device msm_kgsl_2d1 = {
 		.platform_data = &kgsl_2d1_pdata,
 	},
 };
+
+
+#ifdef CONFIG_CMDLINE_OPTIONS
+/* setters for cmdline_gpu */
+int set_kgsl_3d0_freq(unsigned int freq0, unsigned int freq1)
+{
+	kgsl_3d0_pdata.pwrlevel[0].gpu_freq = freq0;
+	kgsl_3d0_pdata.pwrlevel[1].gpu_freq = freq1;
+	return 0;
+}
+int set_kgsl_2d0_freq(unsigned int freq)
+{
+	kgsl_2d0_pdata.pwrlevel[0].gpu_freq = freq;
+	return 0;
+}
+int set_kgsl_2d1_freq(unsigned int freq)
+{
+	kgsl_2d1_pdata.pwrlevel[0].gpu_freq = freq;
+	return 0;
+}
+#endif
+
 void __init monarudo_init_gpu(void)
 {
 	platform_device_register(&device_kgsl_3d0);
