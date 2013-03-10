@@ -1593,6 +1593,9 @@ $(DNA_ZIP): arch/arm/boot/zImage dna/bootimg.cfg dna/updater-script $(CERT)
 	cp `find . -name '*.ko'` $(UPDATE_ROOT)/system/lib/modules
 	mkdir -p $(UPDATE_ROOT)/META-INF/com/google/android
 	cp dna/update-binary $(UPDATE_ROOT)/META-INF/com/google/android
+	cp dna/update-binary-installer $(UPDATE_ROOT)/META-INF/com/google/android
+	cp -r dna/aroma $(UPDATE_ROOT)/META-INF/com/google/android
+	cp dna/aroma-config $(UPDATE_ROOT)/META-INF/com/google/android
 	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/updater-script > $(UPDATE_ROOT)/META-INF/com/google/android/updater-script
 	abootimg --create $(UPDATE_ROOT)/boot.img -k arch/arm/boot/zImage -f dna/bootimg.cfg -r dna/initrd.img
 	-rm -f dna/update.zip
