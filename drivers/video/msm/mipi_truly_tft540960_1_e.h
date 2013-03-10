@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2012, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -11,11 +11,10 @@
  *
  */
 
-#ifndef __ADRENO_POSTMORTEM_H
-#define __ADRENO_POSTMORTEM_H
+#ifndef MIPI_TRULY_H
+#define MIPI_TRULY_H
 
-struct kgsl_device;
+int mipi_truly_tft540960_1_e_device_register(struct msm_panel_info *pinfo,
+					u32 channel, u32 panel);
 
-int adreno_postmortem_dump(struct kgsl_device *device, int manual);
-
-#endif /* __ADRENO_POSTMORTEM_H */
+#endif  /* MIPI_TRULY_H */
