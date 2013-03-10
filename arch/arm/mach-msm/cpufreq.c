@@ -104,7 +104,7 @@ bool cmdline_scroff = false;
 
 /* only override the governor 2 times, when
  * initially bringing up cpufreq on the cpus */
-int cmdline_gov_cnt = 2;
+int cmdline_gov_cnt = CONFIG_NR_CPUS;
 
 static int __init cpufreq_read_maxkhz_cmdline(char *maxkhz)
 {
