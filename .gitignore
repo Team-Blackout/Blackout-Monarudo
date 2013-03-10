@@ -32,6 +32,14 @@ modules.builtin
 *.patch
 *.gcno
 *.cmd
+*.rej
+*.zip
+*.orig
+*.bak
+*.~
+
+
+
 
 #
 # Top-level generic files
