@@ -1098,7 +1098,9 @@ int msm_pm_idle_enter(enum msm_pm_sleep_mode sleep_mode)
 	msm_pm_add_stat(exit_stat, time);
 	do_div(time, 1000);
 	if ((get_kernel_flag() & KERNEL_FLAG_PM_MONITOR) || !(get_kernel_flag() & KERNEL_FLAG_TEST_PWR_SUPPLY))
+#ifdef CONFIG_HTC_UTIL
 		htc_idle_stat_add(sleep_mode, (u32)time);
+#endif
 
 	return (int) time;
 
