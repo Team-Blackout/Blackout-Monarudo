@@ -318,21 +318,26 @@ obj-$(CONFIG_MACH_DELUXE_J) += board-deluxe_j-all.o board-deluxe_j-regulator.o
 obj-$(CONFIG_MACH_DELUXE_U) += board-deluxe_u-all.o board-deluxe_u-regulator.o
 obj-$(CONFIG_FORCE_FAST_CHARGE) += fastchg.o
 
-obj-$(CONFIG_MACH_MONARUDO) += htc_util.o
+ifdef CONFIG_HTC_UTIL
 obj-$(CONFIG_MACH_DELUXE_J) += htc_util.o
 obj-$(CONFIG_MACH_DELUXE_J) += ADP5585_ioextender.o
 obj-$(CONFIG_MACH_DELUXE_U) += htc_util.o
 obj-$(CONFIG_MACH_ELITE) += board-elite.o board-elite-regulator.o board-elite-gpiomux.o board-elite-storage.o board-elite-audio.o board-elite-camera.o
 obj-$(CONFIG_MACH_ELITE) += board-elite-keypad.o
 obj-$(CONFIG_MACH_ELITE) += htc_bdaddress.o
+ifdef CONFIG_HTC_UTIL
 obj-$(CONFIG_MACH_ELITE) += htc_util.o
+endif
 obj-$(CONFIG_MACH_VILLE) += board-ville.o board-ville-regulator.o board-ville-gpiomux.o board-ville-storage.o board-ville-audio.o board-ville-camera.o
 obj-$(CONFIG_MACH_VILLE) += board-ville-keypad.o
 obj-$(CONFIG_MACH_VILLE) += htc_bdaddress.o
+ifdef CONFIG_HTC_UTIL
 obj-$(CONFIG_MACH_VILLE) += htc_util.o
+endif
 obj-$(CONFIG_MACH_JET) += board-jet.o board-jet-regulator.o board-jet-gpiomux.o board-jet-storage.o board-jet-audio.o board-jet-camera.o
 obj-$(CONFIG_MACH_JET) += board-jet-keypad.o
 obj-$(CONFIG_MACH_JET) += htc_bdaddress.o
+ifdef CONFIG_HTC_UTIL
 obj-$(CONFIG_MACH_JET) += htc_util.o
 obj-$(CONFIG_MACH_JEWEL_DD) += board-jel_dd.o board-jel_dd-regulator.o board-jel_dd-gpiomux.o board-jel_dd-storage.o board-jel_dd-audio.o board-jel_dd-camera.o
 obj-$(CONFIG_MACH_JEWEL_DD) += board-jel_dd-keypad.o
