@@ -78,7 +78,7 @@ uint32_t cmdline_maxkhz = CONFIG_MSM_CPU_FREQ_MAX, cmdline_minkhz = 192000;
 char cmdline_gov[16] = "AssWax";
 #endif
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_BADASS
-char cmdline_gov[16] = "Badass";
+char cmdline_gov[16] = "badass";
 #endif
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE
 char cmdline_gov[16] = "userspace";
