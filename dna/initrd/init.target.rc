@@ -483,12 +483,12 @@ service mpdecision /system/bin/mpdecision.is-disabled-and-built-into-kernel
 		user root
 		disabled
 
-service pnpmgr /system/bin/pnpmgr.disabled_because_all_htc_decisions_moved_to_kernel_code
+service pnpmgr /system/bin/pnpmgr
     class core
     user root
     disabled
 
-service adaptive /system/bin/adaptive.disabled_because_all_htc_decisions_moved_to_kernel_code -c 0 -s 150 -b 210
+service adaptive /system/bin/adaptive -c 0 -s 150 -b 210
                 class core
                 user root
                 disabled
