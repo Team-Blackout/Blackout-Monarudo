@@ -2,7 +2,7 @@ VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 35
 EXTRAVERSION =-Blackout-Viverrine-
-BEASTMODE_VERSION = Blackout-Viverrine-B4.0
+BEASTMODE_VERSION = Blackout-Viverrine-B4.1
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
