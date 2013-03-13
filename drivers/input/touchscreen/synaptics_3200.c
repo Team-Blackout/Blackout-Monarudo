@@ -160,9 +160,9 @@ typedef struct {
 } button;
 
 static button buttons[] = {
-			{240, "BACK"},			
-			{540, "HOME"},
-			{900, "MENU"},
+			{BACK_BUTTON, "BACK"},			
+			{HOME_BUTTON, "HOME"},
+			{MENU_BUTTON, "MENU"},
 };
 				
 int s2w_startbutton = -1;
@@ -1584,7 +1584,7 @@ static ssize_t atmel_sweep2wake_startbutton_show(struct device *dev,
 	}
 	
 	if (!found) 
-		count += sprintf(buf, "%s\n","UNKNOWN");
+		count += sprintf(buf, "%s\n","BACK");
 
 	return count;
 }
@@ -1607,11 +1607,11 @@ static ssize_t atmel_sweep2wake_startbutton_dump(struct device *dev,
 	} else 
 		s2w_startbutton = s2w_tempbutton;
 
-	barrier1 = s2w_startbutton - 100; //0;
-	barrier2 = ((s2w_endbutton - s2w_startbutton) / 4) + s2w_startbutton; //333;
-	barrier3 = (((s2w_endbutton - s2w_startbutton) / 4) * 3) + s2w_startbutton; //667;
-	barrier4 = s2w_endbutton + 100; //1000;
-
+	barrier1 = s2w_startbutton - 100; 
+	barrier2 = ((s2w_endbutton - s2w_startbutton) / 4) + s2w_startbutton; 
+	barrier3 = (((s2w_endbutton - s2w_startbutton) / 4) * 3) + s2w_startbutton; 
+	barrier4 = s2w_endbutton + 100; 
+	
 	return count;
 }
 
@@ -1635,7 +1635,7 @@ static ssize_t atmel_sweep2wake_endbutton_show(struct device *dev,
 	}
 	
 	if (!found) 
-		count += sprintf(buf, "%s\n","UNKNOWN");
+		count += sprintf(buf, "%s\n","HOME");
 
 	return count;
 }
@@ -2139,12 +2139,6 @@ static void synaptics_ts_finger_func(struct synaptics_ts_data *ts)
 								printk(KERN_INFO "[sweep2wake]: POWER ON.\n");
 								sweep2wake_pwrtrigger();
 								exec_count = false;
-								if ((s2w_switch == 2) &&
-								  (led_exec_count == false) &&
-								  (exec_count == false)) {
-								  pm8xxx_led_current_set(sweep2wake_leddev, 0);
-								    printk(KERN_INFO "[sweep2wake]: deactivated button backlight.\n");
-								    }
 								break;
 							}
 						}
@@ -3099,6 +3093,11 @@ static int synaptics_ts_suspend(struct i2c_client *client, pm_message_t mesg)
                 //screen off, enable_irq_wake
                 scr_suspended = true;
                 enable_irq_wake(client->irq);
+		 printk(KERN_INFO "[SWEEP2WAKE]: suspend but keep interupt wake going.\n");
+                if (s2w_switch == 2) {
+		  pm8xxx_led_current_set(sweep2wake_leddev, 0);
+		  printk(KERN_INFO "[SWEEP2WAKE]: deactivated button backlight. \n");
+		}
         }
 #endif
 	
