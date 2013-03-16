@@ -2320,10 +2320,7 @@ int vfs_unlink(struct inode *dir, struct dentry *dentry)
 	if (!dir->i_op->unlink)
 		return -EPERM;
 
-	trace_vfs_unlink(dentry, dentry->d_inode->i_size);
-	mutex_lock(&dentry->d_inode->i_mutex);
-	if (d_mountpoint(dentry))
-		error = -EBUSY;
+
 	else {
 		error = security_inode_unlink(dir, dentry);
 		if (!error) {
@@ -2332,8 +2329,7 @@ int vfs_unlink(struct inode *dir, struct dentry *dentry)
 				dont_mount(dentry);
 		}
 	}
-	mutex_unlock(&dentry->d_inode->i_mutex);
-	trace_vfs_unlink_done(dentry);
+	
 
 	
 	if (!error && !(dentry->d_flags & DCACHE_NFSFS_RENAMED)) {
