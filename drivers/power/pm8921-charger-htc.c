@@ -5208,7 +5208,7 @@ static const struct dev_pm_ops pm8921_charger_pm_ops = {
 
 static void ext_usb_vbatdet_irq_handler(struct work_struct *w)
 {
-	int result;
+	int result = {0};
 
 	pm8921_get_batt_voltage(&result);
 
