@@ -38,9 +38,6 @@
 #define LINFO(fmt, args...) CDBG(fmt, ##args)
 #endif
 
-#ifdef CONFIG_RAWCHIP
-#define USE_RAWCHIP_AF
-#endif
 
 struct msm_actuator_ctrl_t;
 
@@ -94,6 +91,7 @@ struct msm_actuator_ctrl_t {
 	void *user_data;
 	uint32_t vcm_pwd;
 	uint32_t vcm_enable;
+	af_algo_t af_algo; 
 };
 
 int32_t msm_actuator_i2c_write_b_af(struct msm_actuator_ctrl_t *a_ctrl,
@@ -101,7 +99,7 @@ int32_t msm_actuator_i2c_write_b_af(struct msm_actuator_ctrl_t *a_ctrl,
 		uint8_t lsb);
 int32_t msm_actuator_config(struct msm_actuator_ctrl_t *a_ctrl,
 		struct msm_actuator_info *board_info,
-		void __user *cfg_data); /* HTC Angie 20111212 - Rawchip */
+		void __user *cfg_data); 
 int32_t msm_actuator_move_focus(struct msm_actuator_ctrl_t *a_ctrl,
 		int direction,
 		int32_t num_steps);

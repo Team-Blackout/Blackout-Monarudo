@@ -18,6 +18,8 @@
 #include <mach/camera.h>
 #include <mach/gpiomux.h>
 
+#define BUFF_SIZE_128 128
+
 int msm_cam_clk_enable(struct device *dev, struct msm_cam_clk_info *clk_info,
 		struct clk **clk_ptr, int num_clk, int enable)
 {
@@ -35,8 +37,8 @@ int msm_cam_clk_enable(struct device *dev, struct msm_cam_clk_info *clk_info,
 				rc = clk_set_rate(clk_ptr[i],
 							clk_info[i].clk_rate);
 				if (rc < 0) {
-					pr_err("%s set failed\n",
-						   clk_info[i].clk_name);
+					pr_err("%s set failed rate %ld\n",
+						   clk_info[i].clk_name, clk_info[i].clk_rate);
 					goto cam_clk_set_err;
 				}
 			}
@@ -299,3 +301,4 @@ int msm_camera_config_gpio_table(struct msm_camera_sensor_info *sinfo,
 	}
 	return rc;
 }
+

@@ -10,10 +10,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-/*
- * Qualcomm TSENS Header file
- *
- */
 
 #ifndef __MSM_TSENS_H
 #define __MSM_TSENS_H
@@ -31,6 +27,8 @@ enum platform_type {
 struct tsens_platform_data {
 	int				slope[TSENS_MAX_SENSORS];
 	int				tsens_factor;
+	int				patherm0;
+	int				patherm1;
 	uint32_t			tsens_num_sensor;
 	enum platform_type		hw_type;
 };
@@ -42,4 +40,4 @@ struct tsens_device {
 int32_t tsens_get_temp(struct tsens_device *dev, unsigned long *temp);
 int msm_tsens_early_init(struct tsens_platform_data *pdata);
 
-#endif /*MSM_TSENS_H */
+#endif 

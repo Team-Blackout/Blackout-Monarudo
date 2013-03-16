@@ -19,7 +19,6 @@
 #include "kgsl.h"
 #include "kgsl_pwrscale.h"
 #include "kgsl_device.h"
-#include <mach/msm_rtb_enable.h>
 
 struct kgsl_pwrscale_attribute {
 	struct attribute attr;
@@ -40,7 +39,6 @@ container_of(a, struct kgsl_pwrscale_policy_attribute, attr)
 struct kgsl_pwrscale_attribute pwrscale_attr_##_name = \
 __ATTR(_name, _mode, _show, _store)
 
-/* Master list of available policies */
 
 static struct kgsl_pwrscale_policy *kgsl_pwrscale_policies[] = {
 #ifdef CONFIG_MSM_SCM
@@ -61,8 +59,6 @@ static ssize_t pwrscale_policy_store(struct kgsl_device *device,
 	int i;
 	struct kgsl_pwrscale_policy *policy = NULL;
 
-	/* The special keyword none allows the user to detach all
-	   policies */
 	if (!strncmp("none", buf, 4)) {
 		kgsl_pwrscale_detach_policy(device);
 		return count;
@@ -337,7 +333,7 @@ int kgsl_pwrscale_attach_policy(struct kgsl_device *device,
 
 	device->pwrscale.policy = policy;
 
-	/* Pwrscale is enabled by default at attach time */
+	
 	kgsl_pwrscale_enable(device);
 
 	if (policy) {

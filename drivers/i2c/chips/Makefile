@@ -12,8 +12,9 @@
 
 obj-$(CONFIG_SENSORS_NFC_PN544) += pn544.o
 obj-$(CONFIG_AMP_TFA9887)	+= tfa9887.o
+obj-$(CONFIG_AMP_RT5501)        += rt5501.o
 obj-$(CONFIG_AMP_TFA9887L)	+= tfa9887l.o
-obj-$(CONFIG_AMP_TPA6185)       += tpa6185.o  rt5501.o
+obj-$(CONFIG_AMP_TPA6185)       += tpa6185.o
 obj-$(CONFIG_INPUT_CAPELLA_CM3629)      += cm3629.o
 obj-$(CONFIG_SENSORS_AKM8975)   += akm8975.o
 obj-$(CONFIG_SENSORS_AKM8975_PANA_GYRO)   += akm8975_pana_gyro.o
@@ -23,6 +24,7 @@ obj-$(CONFIG_SENSORS_R3GD20)    += r3gd20.o
 obj-$(CONFIG_SENSORS_BMA250)	+= bma250.o
 obj-$(CONFIG_BOSCH_BMA250)      += bma250_bosch.o
 obj-$(CONFIG_VP_A1028)          += a1028.o
+obj-$(CONFIG_TPS65200)          += tps65200.o
 ifeq ($(CONFIG_I2C_DEBUG_CHIP),y)
 EXTRA_CFLAGS += -DDEBUG
 endif

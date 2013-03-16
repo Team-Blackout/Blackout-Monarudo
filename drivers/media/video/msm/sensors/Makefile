@@ -1,4 +1,4 @@
-#GCC_VERSION      := $(shell $(CONFIG_SHELL) $(PWD)/scripts/gcc-version.sh $(CROSS_COMPILE)gcc)
+GCC_VERSION      := $(shell $(CONFIG_SHELL) $(PWD)/scripts/gcc-version.sh $(CROSS_COMPILE)gcc)
 EXTRA_CFLAGS += -Idrivers/media/video/msm
 EXTRA_CFLAGS += -Idrivers/media/video/msm/io
 EXTRA_CFLAGS += -Idrivers/media/video/msm/csi
@@ -6,7 +6,10 @@ obj-$(CONFIG_MSM_CAMERA_SENSOR) += msm_sensor.o
 obj-$(CONFIG_OV5647) += ov5647_v4l2.o
 obj-$(CONFIG_IMX091) += imx091_v4l2.o
 obj-$(CONFIG_IMX175) += imx175_v4l2.o
+obj-$(CONFIG_MACH_ELITE) += imx175_2lane_v4l2.o
+obj-$(CONFIG_MACH_JET) += imx175_2lane_v4l2.o
 obj-$(CONFIG_IMX135) += imx135_v4l2.o
+obj-$(CONFIG_VD6869) += vd6869_v4l2.o
 obj-$(CONFIG_OV8838) += ov8838_v4l2.o
 obj-$(CONFIG_S5K3H2YX) += s5k3h2yx_v4l2.o
 obj-$(CONFIG_S5K6A1GX) += s5k6a1gx_v4l2.o
@@ -21,5 +24,6 @@ obj-$(CONFIG_WEBCAM_OV9726) += ov9726_v4l2.o
 obj-$(CONFIG_WEBCAM_OV7692_QRD) += ov7692_qrd_v4l2.o
 obj-$(CONFIG_MT9V113) += mt9v113_v4l2.o mt9v113_reg_lens_9251.o
 obj-$(CONFIG_OV2722) += ov2722_v4l2.o
-
+obj-$(CONFIG_OV5693) += ov5693_v4l2.o
+obj-$(CONFIG_S5K6A2YA) += s5k6a2ya_v4l2.o
 

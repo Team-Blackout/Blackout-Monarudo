@@ -5,7 +5,4 @@ void htc_monitor_init(void);
 void htc_idle_stat_add(int sleep_mode, u32 time);
 void htc_xo_block_clks_count(void);
 
-int has_htc_idle_wakelock(void);
-void htc_idle_wake_lock(void);
-void htc_idle_wake_unlock(void);
 #endif

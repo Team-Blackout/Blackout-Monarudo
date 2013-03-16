@@ -107,3 +107,7 @@ config MSM_KGSL_DISABLE_SHADOW_WRITES
 config MSM_KGSL_GPU_USAGE
 	bool "Enable sysfs node of GPU usage per process"
 	default n
+
+config MSM_KGSL_DEFAULT_GPUMMU
+	bool "Prefer gpummu than iommu"
+	default n

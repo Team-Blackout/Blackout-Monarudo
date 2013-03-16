@@ -1047,6 +1047,11 @@ static u32 ddl_set_enc_property(struct ddl_client_context *ddl,
 	case VCD_REQ_PERF_LEVEL:
 		vcd_status = VCD_S_SUCCESS;
 		break;
+    case VCD_I_SET_TURBO_CLK:
+    {
+        vcd_status = VCD_S_SUCCESS;
+        break;
+    }
 	default:
 		DDL_MSG_ERROR("INVALID ID %d\n", (int)property_hdr->prop_id);
 		vcd_status = VCD_ERR_ILLEGAL_OP;
@@ -1993,7 +1998,7 @@ static u32 ddl_valid_buffer_requirement(struct vcd_buffer_requirement
 		req_buf_req->actual_count &&
 		!((original_buf_req->align - (u32)0x1) &
 		req_buf_req->align) &&
-		/*original_buf_req->align <= req_buf_req->align,*/
+		
 		original_buf_req->sz <= req_buf_req->sz)
 		status = true;
 	else {

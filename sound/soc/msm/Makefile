@@ -66,14 +66,15 @@ ifdef CONFIG_ARCH_APQ8064
 snd-soc-msm8960-objs := apq8064.o mpq8064.o
 obj-$(CONFIG_SND_SOC_MSM8960) += snd-soc-msm8960.o
 else
-ifdef CONFIG_ARCH_MSM8930
-snd-soc-msm8960-objs := msm8930.o
-obj-$(CONFIG_SND_SOC_MSM8960) += snd-soc-msm8960.o
-else
+# Move board-specific msm8930.o to mach-msm
+#ifdef CONFIG_ARCH_MSM8930
+#snd-soc-msm8960-objs := msm8930.o
+#obj-$(CONFIG_SND_SOC_MSM8960) += snd-soc-msm8960.o
+#else
 # Move board-specific msm8960.o to mach-msm
 #snd-soc-msm8960-objs := msm8960.o
 #obj-$(CONFIG_SND_SOC_MSM8960) += snd-soc-msm8960.o
-endif
+#endif
 endif
 
 # Generic MSM drivers

@@ -173,6 +173,7 @@ config ARCH_MSM8960
 	select MSM_RUN_QUEUE_STATS
 	select ARM_HAS_SG_CHAIN
 	select MSM_KRAIT_WFE_FIXUP
+	select MSM_IOMMU_GPU_SYNC
 
 config ARCH_MSM8930
 	bool "MSM8930"
@@ -205,6 +206,7 @@ config ARCH_MSM8930
 	select HOLES_IN_ZONE if SPARSEMEM
 	select ARM_HAS_SG_CHAIN
 	select MSM_KRAIT_WFE_FIXUP
+	select MSM_IOMMU_GPU_SYNC
 
 config ARCH_APQ8064
 	bool "APQ8064"
@@ -232,6 +234,7 @@ config ARCH_APQ8064
 	select ARCH_SUPPORTS_MSI
 	select ARM_HAS_SG_CHAIN
 	select MSM_KRAIT_WFE_FIXUP
+	select MSM_IOMMU_GPU_SYNC
 
 config ARCH_MSM8974
 	bool "MSM8974"
@@ -269,29 +272,17 @@ config MACH_VILLE
 	help
 	  Support for the HTC Ville
 
+config MACH_FIGHTER
+	depends on ARCH_MSM8960
+	bool "Fighter"
+	help
+	  Support for the HTC Fighter
+
 config MACH_JET
 	depends on ARCH_MSM8960
 	bool "Jet"
 	help
 	  Support for the HTC Jet
-
-config MACH_JEWEL_DD
-        depends on ARCH_MSM8960
-        bool "Jel_dd"
-        help
-          Support for the HTC Jewel_DD
-
-config MACH_TC2
-	depends on ARCH_MSM8930
-	bool "TC2"
-	help
-	  Support for the HTC TC2
-
-config MACH_OPERAUL
-	depends on ARCH_MSM8930
-	bool "OPERAUL"
-	help
-	  Support for the HTC OPERAUL
 
 config ARCH_FSM9XXX
 	bool "FSM9XXX"
@@ -1083,6 +1074,11 @@ config HTC_BATT_CORE
 	default n
 	bool "HTC battery core driver"
 
+config HTC_BATT8x60
+	depends on HTC_BATT_CORE
+	default n
+	bool "HTC battery driver for 8x60"
+
 config HTC_BATT_8960
 	depends on HTC_BATT_CORE
 	default n
@@ -1236,6 +1232,11 @@ config HTC_HEADSET
 	 headset, on the trout platform. Can be used with the msm serial
 	 debugger, but not with serial console.
 
+config GSBI5_UARTDM
+	tristate "GSBI5 as UARTDM support"
+	help
+	  Say Y here if you want to support felica feature...
+
 config HTC_HEADSET_MGR
 	tristate "HTC headset manager driver"
 	default n
@@ -1255,6 +1256,13 @@ config HTC_HEADSET_PMIC
 	default n
 	help
 	  Provides support of HTC PMIC headset detection.
+
+config HTC_HEADSET_8X60
+	tristate "HTC 8X60 headset detection driver"
+	depends on HTC_HEADSET_MGR
+	default n
+	help
+	  Provides support of HTC 8X60 headset detection.
 
 config GSBI4_UARTDM
 	tristate "GSBI4 as UARTDM support"
@@ -1338,6 +1346,13 @@ choice
 	  bool
 	    prompt "Package 4"
 endchoice
+
+config MSM_SMD0_WQ
+	bool "SMD0 TTY Workqueue"
+	depends on (MSM_SMD)
+	default y
+	help
+	Independent tty workqueue for SMD0
 
 config MSM_PCIE
 	bool "MSM PCIe Controller driver"
@@ -1917,6 +1932,13 @@ config MSM_RPM_REGULATOR_SMD
 	  be used on systems which contain an RPM which communicates with the
 	  application processor over SMD.
 
+config HTC_HEADSET_ONE_WIRE
+	tristate "HTC 1-wire headset detection driver"
+	depends on HTC_HEADSET_MGR
+	default n
+	help
+	  Provides support of HTC 1-wire headset detection.
+
 config MSM_PIL
 	bool "Peripheral image loading"
 	select FW_LOADER
@@ -2130,6 +2152,15 @@ config MSM_BUSPM_DEV
 	  allocate physical memory which is used by bus performance hardware to
 	  dump performance data.
 
+config MSM_8X60_TZ_LOG
+	tristate "MSM Trust Zone (TZ) Log Driver for msm8x60"
+	depends on DEBUG_FS
+	default n
+	help
+	  This option enables a driver with a debugfs interface for messages
+	  produced by the Secure code (Trust zone). For 8960/8930/8064 series,
+	  please use configure MSM_TZ_LOG instead.
+
 config MSM_TZ_LOG
 	tristate "MSM Trust Zone (TZ) Log Driver"
 	depends on DEBUG_FS
@@ -2294,6 +2325,12 @@ config BT_MSM_PINTEST
 	  Bluetooth MSM Pin Connectivity test module.
 	  This driver provides support for verifying the MSM to BT pin
 	  connectivity.
+
+config SUPPORT_DQ_BATTERY
+	bool "Support DQ battery."
+	default n
+	help
+		support DQ battery.
 
 config MSM_FAKE_BATTERY
 		depends on POWER_SUPPLY
@@ -2583,41 +2620,11 @@ config MACH_MONARUDO
 	help
 	  Support for the HTC APQ8064 MONARUDO.
 
-config MACH_DELUXE_J
-        depends on ARCH_APQ8064
-        bool "APQ8064 DELUXE_J"
-        help
-          Support for the HTC APQ8064 DELUXE_J.
-
 config MACH_DELUXE_U
         depends on ARCH_APQ8064
         bool "APQ8064 DELUXE_U"
         help
           Support for the HTC APQ8064 DELUXE_U.
-
-config MACH_DELUXE_UL
-        depends on ARCH_APQ8064
-        bool "APQ8064 DELUXE_UL"
-        help
-          Support for the HTC APQ8064 DELUXE_UL.
-
-config MACH_IMPRESSION_J
-        depends on ARCH_APQ8064
-        bool "APQ8064 IMPRESSION_J"
-        help
-          Support for the HTC APQ8064 IMPRESSION_J.
-
-config MACH_M7
-        depends on ARCH_APQ8064
-        bool "APQ8064 M7"
-        help
-          Support for the HTC APQ8064 M7.
-
-config MACH_VILLEC2
-        depends on ARCH_MSM8X60
-        bool "VILLEC2"
-        help
-          Support for the HTC VILLEC2 device.
 
 config HTC_HEADSET_ONE_WIRE
 	tristate "HTC 1-wire headset detection driver"
@@ -2636,5 +2643,17 @@ config SENSE_4_PLUS
 	help
 	  Support for SENSE 4 PLUS.
 
+config MSM_NONSMD_PACKET_FILTER
+	bool "Non-SMD based Packet Filter"
+	default n
+	help
+	  The white TCP port list is updated in attribute
+	  repying on RIL to notify modem.
+
+config IO_FOOTPRINT
+	bool "Trace I/O for each CPU"
+	default n
+	help
+	  Provides support for light-weight tracing of CPU register read/write
 endif
 

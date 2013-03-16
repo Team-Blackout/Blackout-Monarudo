@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2008 Google, Inc.
  * Copyright (C) 2008 HTC Corporation
- * Copyright (c) 2010-2012, Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2010-2012, The Linux Foundation. All rights reserved.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -18,12 +18,10 @@
 #include <linux/msm_audio_aac.h>
 #include "audio_utils_aio.h"
 
-//htc audio ++
 #undef pr_info
 #undef pr_err
 #define pr_info(fmt, ...) pr_aud_info(fmt, ##__VA_ARGS__)
 #define pr_err(fmt, ...) pr_aud_err(fmt, ##__VA_ARGS__)
-//htc audio --
 
 #define AUDIO_AAC_DUAL_MONO_INVALID -1
 #define PCM_BUFSZ_MIN_AAC	((8*1024) + sizeof(struct dec_meta_out))
@@ -47,14 +45,14 @@ static long audio_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		pr_debug("%s: AUDIO_START session_id[%d]\n", __func__,
 							audio->ac->session);
 		if (audio->feedback == NON_TUNNEL_MODE) {
-			/* Configure PCM output block */
+			
 			rc = q6asm_enc_cfg_blk_pcm(audio->ac, 0, 0);
 			if (rc < 0) {
 				pr_err("pcm output block config failed\n");
 				break;
 			}
 		}
-		/* turn on both sbr and ps */
+		
 		rc = q6asm_enable_sbrps(audio->ac, sbr_ps);
 		if (rc < 0)
 			pr_err("sbr-ps enable failed\n");
@@ -88,14 +86,20 @@ static long audio_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		aac_cfg.spectral_data_resilience =
 			aac_config->aac_spectral_data_resilience_flag;
 		aac_cfg.ch_cfg = audio->pcm_cfg.channel_count;
-		aac_cfg.sample_rate =  audio->pcm_cfg.sample_rate;
+		if (audio->feedback == TUNNEL_MODE) {
+			aac_cfg.sample_rate = aac_config->sample_rate;
+			aac_cfg.ch_cfg = aac_config->channel_configuration;
+		} else {
+			aac_cfg.sample_rate =  audio->pcm_cfg.sample_rate;
+			aac_cfg.ch_cfg = audio->pcm_cfg.channel_count;
+		}
 
 		pr_debug("%s:format=%x aot=%d  ch=%d sr=%d\n",
 			__func__, aac_cfg.format,
 			aac_cfg.aot, aac_cfg.ch_cfg,
 			aac_cfg.sample_rate);
 
-		/* Configure Media format block */
+		
 		rc = q6asm_media_format_block_aac(audio->ac, &aac_cfg);
 		if (rc < 0) {
 			pr_err("cmd media format block failed\n");
@@ -144,9 +148,6 @@ static long audio_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 					"dual_mono mode =%d\n", __func__,
 					aac_config->dual_mono_mode);
 			} else {
-				/* convert the data from user into sce_left
-				 * and sce_right based on the definitions
-				 */
 				pr_debug("%s: AUDIO_SET_AAC_CONFIG: modify"
 					 "dual_mono mode =%d\n", __func__,
 					 aac_config->dual_mono_mode);
@@ -195,7 +196,7 @@ static int audio_open(struct inode *inode, struct file *file)
 	struct msm_audio_aac_config *aac_config = NULL;
 
 #ifdef CONFIG_DEBUG_FS
-	/* 4 bytes represents decoder number, 1 byte for terminate string */
+	
 	char name[sizeof "msm_aac_" + 5];
 #endif
 	audio = kzalloc(sizeof(struct q6audio_aio), GFP_KERNEL);
@@ -214,9 +215,6 @@ static int audio_open(struct inode *inode, struct file *file)
 	}
 	aac_config = audio->codec_cfg;
 
-	/* Settings will be re-config at AUDIO_SET_CONFIG,
-	 * but at least we need to have initial config
-	 */
 	audio->pcm_cfg.buffer_size = PCM_BUFSZ_MIN_AAC;
 	aac_config->dual_mono_mode = AUDIO_AAC_DUAL_MONO_INVALID;
 
@@ -230,7 +228,7 @@ static int audio_open(struct inode *inode, struct file *file)
 		return -ENOMEM;
 	}
 
-	/* open in T/NT mode */
+	
 	if ((file->f_mode & FMODE_WRITE) && (file->f_mode & FMODE_READ)) {
 		rc = q6asm_open_read_write(audio->ac, FORMAT_LINEAR_PCM,
 					   FORMAT_MPEG4_AAC);
@@ -240,8 +238,6 @@ static int audio_open(struct inode *inode, struct file *file)
 			goto fail;
 		}
 		audio->feedback = NON_TUNNEL_MODE;
-		/* open AAC decoder, expected frames is always 1
-		audio->buf_cfg.frames_per_buf = 0x01;*/
 		audio->buf_cfg.meta_info_enable = 0x01;
 	} else if ((file->f_mode & FMODE_WRITE) &&
 			!(file->f_mode & FMODE_READ)) {

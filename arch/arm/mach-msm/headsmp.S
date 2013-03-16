@@ -44,6 +44,10 @@ acpuclk_set_rate footprint cpu0         : phy 0x8F1F106C : virt 0xFB60006C
 acpuclk_set_rate footprint cpu1         : phy 0x8F1F1070 : virt 0xFB600070
 acpuclk_set_rate footprint cpu2         : phy 0x8F1F1074 : virt 0xFB600074
 acpuclk_set_rate footprint cpu3         : phy 0x8F1F1078 : virt 0xFB600078
+io footprint cpu 0			: phy 0x8F1F107C-0x8F1F1084 : virt 0xFB60007C-0xFB600084
+io footprint cpu 1			: phy 0x8F1F1088-0x8F1F1090 : virt 0xFB600088-0xFB600090
+io footprint cpu 2			: phy 0x8F1F1094-0x8F1F109C : virt 0xFB600094-0xFB60009C
+io footprint cpu 3			: phy 0x8F1F10A0-0x8F1F10A8 : virt 0xFB6000A0-0xFB6000A8
 */
 
 #define CPU0_EXIT_COUNT_PHYS	(MSM_KERNEL_FOOTPRINT_PHYS + 0x10)

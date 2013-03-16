@@ -38,7 +38,7 @@ static int pre_power_key_status;
 static int pre_power_key_led_status;
 #endif
 #ifdef CONFIG_POWER_KEY_CLR_RESET
-#include <linux/cm3629.h>
+#include <linux/pl_sensor.h>
 #define PWRKEYCHKRST_DELAY (3*HZ + HZ/2)
 #define PWRKEYCLRCHK_DELAY 0
 #define PWRKEYCHKRST_WAKELOCK_TIMEOUT (PWRKEYCHKRST_DELAY + 1 * HZ)
@@ -139,7 +139,7 @@ static void handle_power_key_state(unsigned int code, int value)
 		ret = schedule_delayed_work(&power_key_state_disable_work, PWRKEY_PRESS_DUE);
 		if (!ret) {
 			KEY_LOGI("[PWR][STATE]Schedule power key pressed due failed, seems already have one, try to cancel...\n");
-			ret = cancel_delayed_work(&power_key_state_disable_work);
+			ret = __cancel_delayed_work(&power_key_state_disable_work);
 			if (!ret) {
 				setPowerKeyState(1);
 				if (schedule_delayed_work(&power_key_state_disable_work, PWRKEY_PRESS_DUE)) {
@@ -169,11 +169,11 @@ static struct workqueue_struct *ki_queue;
 #endif
 
 enum {
-	DEBOUNCE_UNSTABLE     = BIT(0),	/* Got irq, while debouncing */
+	DEBOUNCE_UNSTABLE     = BIT(0),	
 	DEBOUNCE_PRESSED      = BIT(1),
 	DEBOUNCE_NOTPRESSED   = BIT(2),
-	DEBOUNCE_WAIT_IRQ     = BIT(3),	/* Stable irq state */
-	DEBOUNCE_POLL         = BIT(4),	/* Stable polling state */
+	DEBOUNCE_WAIT_IRQ     = BIT(3),	
+	DEBOUNCE_POLL         = BIT(4),	
 
 	DEBOUNCE_UNKNOWN =
 		DEBOUNCE_PRESSED | DEBOUNCE_NOTPRESSED,
@@ -213,7 +213,7 @@ static ssize_t kernel_write(struct file *file, const char *buf,
 
 	old_fs = get_fs();
 	set_fs(get_ds());
-	/* The cast to a user pointer is valid due to the set_fs() */
+	
 	res = vfs_write(file, (const char __user *)buf, count, &pos);
 	set_fs(old_fs);
 
@@ -308,7 +308,7 @@ static void power_key_check_reset_work_func(struct work_struct *dummy)
 	int pocket_mode = 0;
 	KEY_LOGI("[PWR] %s\n", __func__);
 	if ((aa->clear_hw_reset)) {
-		/* Check P/L sensor status */
+		
 		pocket_mode = power_key_check_in_pocket();
 		if (pocket_mode) {
 			printk(KERN_INFO "[KEY] power_key_check_in_pocket = %d\n", pocket_mode);
@@ -384,7 +384,9 @@ static enum hrtimer_restart gpio_event_input_timer_func(struct hrtimer *timer)
 			continue;
 		if (key_state->debounce & DEBOUNCE_UNSTABLE) {
 			debounce = key_state->debounce = DEBOUNCE_UNKNOWN;
+#if 0
 			enable_irq(gpio_to_irq(key_entry->gpio));
+#endif
 			if (gpio_flags & GPIOEDF_PRINT_KEY_UNSTABLE)
 				KEY_LOGI("gpio_keys_scan_keys: key %x-%x, %d "
 					"(%d) continue debounce\n",
@@ -423,7 +425,7 @@ static enum hrtimer_restart gpio_event_input_timer_func(struct hrtimer *timer)
 			key_state->debounce = DEBOUNCE_NOTPRESSED;
 			continue;
 		}
-		/* key is stable */
+		
 		ds->debounce_count--;
 		if (ds->use_irq)
 			key_state->debounce |= DEBOUNCE_WAIT_IRQ;
@@ -567,7 +569,9 @@ static irqreturn_t gpio_event_input_irq_handler(int irq, void *dev_id)
 					ds->info->type, key_entry->code,
 					keymap_index, key_entry->gpio);
 		} else {
+#if 0
 			disable_irq_nosync(irq);
+#endif
 			ks->debounce = DEBOUNCE_UNSTABLE;
 		}
 		spin_unlock_irqrestore(&ds->irq_lock, irqflags);
@@ -623,11 +627,11 @@ static int gpio_event_input_request_irqs(struct gpio_input_state *ds)
 			goto err_request_irq_failed;
 		}
 		if (ds->info->keymap[i].code == KEY_VOLUMEUP ||
-			ds->info->keymap[i].code == KEY_VOLUMEDOWN) {
+			ds->info->keymap[i].code == KEY_VOLUMEDOWN || ds->info->keymap[i].code == KEY_HP ) {
 			KEY_LOGI("keycode = %d, gpio = %d, irq = %d", ds->info->keymap[i].code, ds->info->keymap[i].gpio, irq);
 			if (ds->info->keymap[i].code == KEY_VOLUMEUP)
 				vol_up_irq = irq;
-			else
+			else if (ds->info->keymap[i].code == KEY_VOLUMEDOWN)
 				vol_down_irq = irq;
 		} else
 			enable_irq_wake(irq);

@@ -85,8 +85,6 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		if (the_ops->get_htc_revision)
 			hw_rev = the_ops->get_htc_revision();
 		else
-			/* return 1 means lastest hw using
-			 * default configuration */
 			hw_rev = 1;
 
 		D("Audio HW revision:  %u\n", hw_rev);
@@ -134,16 +132,19 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		break;
 	}
        case ACOUSTIC_RAMDUMP:
+#if 0
 		pr_err("trigger ramdump by user space\n");
 		if (copy_from_user(&mode, (void *)arg, sizeof(mode))) {
 			rc = -EFAULT;
 			break;
 		}
+
 		if (mode >= 4100 && mode <= 4800) {
-		//	dump_stack();
-		//	pr_err("msgid = %d\n", mode);
-		//	BUG();
+			dump_stack();
+			pr_err("msgid = %d\n", mode);
+			BUG();
 		}
+#endif
                 break;
 	default:
 		rc = -EINVAL;

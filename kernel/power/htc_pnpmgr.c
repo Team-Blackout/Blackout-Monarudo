@@ -85,22 +85,29 @@ power_attr(activity_trigger);
 define_string_show(media_mode, media_mode_buf);
 define_string_store(media_mode, media_mode_buf, null_cb);
 power_attr(media_mode);
-#ifdef CONFIG_ARCH_APQ8064
+
 static int thermal_c0_value;
+#if (CONFIG_NR_CPUS >= 2)
 static int thermal_c1_value;
+#if (CONFIG_NR_CPUS == 4)
 static int thermal_c2_value;
 static int thermal_c3_value;
+#endif
+#endif
 static int thermal_final_value;
 static int thermal_g0_value;
+static int thermal_batt_value;
+static int data_throttling_value;
 
 define_int_show(thermal_c0, thermal_c0_value);
 define_int_store(thermal_c0, thermal_c0_value, null_cb);
 power_attr(thermal_c0);
 
+#if (CONFIG_NR_CPUS >= 2)
 define_int_show(thermal_c1, thermal_c1_value);
 define_int_store(thermal_c1, thermal_c1_value, null_cb);
 power_attr(thermal_c1);
-
+#if (CONFIG_NR_CPUS == 4)
 define_int_show(thermal_c2, thermal_c2_value);
 define_int_store(thermal_c2, thermal_c2_value, null_cb);
 power_attr(thermal_c2);
@@ -108,6 +115,8 @@ power_attr(thermal_c2);
 define_int_show(thermal_c3, thermal_c3_value);
 define_int_store(thermal_c3, thermal_c3_value, null_cb);
 power_attr(thermal_c3);
+#endif
+#endif
 
 define_int_show(thermal_final, thermal_final_value);
 define_int_store(thermal_final, thermal_final_value, null_cb);
@@ -117,7 +126,15 @@ define_int_show(thermal_g0, thermal_g0_value);
 define_int_store(thermal_g0, thermal_g0_value, null_cb);
 power_attr(thermal_g0);
 
-/* Multi-core tunables */
+define_int_show(thermal_batt, thermal_batt_value);
+define_int_store(thermal_batt, thermal_batt_value, null_cb);
+power_attr(thermal_batt);
+
+define_int_show(pause_dt, data_throttling_value);
+define_int_store(pause_dt, data_throttling_value, null_cb);
+power_attr(pause_dt);
+
+#ifdef CONFIG_HOTPLUG_CPU
 static int mp_args_changed = 0;
 static char mp_changed_attr[MAX_ATTR_LEN] = {0};
 static DEFINE_SPINLOCK(mp_args_lock);
@@ -197,7 +214,7 @@ static ssize_t wait_for_mp_args_show(struct kobject *kobj,
 	return ret;
 }
 power_ro_attr(wait_for_mp_args);
-#endif /* CONFIG_ARCH_APQ8064 */
+#endif 
 
 #ifdef CONFIG_PERFLOCK
 extern ssize_t
@@ -243,8 +260,7 @@ static struct attribute *cpufreq_g[] = {
 };
 
 static struct attribute *hotplug_g[] = {
-#ifdef CONFIG_ARCH_APQ8064
-	/* Multi-core tunables */
+#ifdef CONFIG_HOTPLUG_CPU
 	&mp_nw_attr.attr,
 	&mp_tw_attr.attr,
 	&mp_ns_attr.attr,
@@ -253,23 +269,24 @@ static struct attribute *hotplug_g[] = {
 	&mp_min_cpus_attr.attr,
 	&mp_max_cpus_attr.attr,
 	&wait_for_mp_args_attr.attr,
-#endif
-#ifdef CONFIG_HOTPLUG_CPU
 	&cpu_hotplug_attr.attr,
 #endif
 	NULL,
 };
 
 static struct attribute *thermal_g[] = {
-#ifdef CONFIG_ARCH_APQ8064
-	/* Thermal conditions */
 	&thermal_c0_attr.attr,
+#if (CONFIG_NR_CPUS >= 2)
 	&thermal_c1_attr.attr,
+#if (CONFIG_NR_CPUS == 4)
 	&thermal_c2_attr.attr,
 	&thermal_c3_attr.attr,
+#endif
+#endif
 	&thermal_final_attr.attr,
 	&thermal_g0_attr.attr,
-#endif
+	&thermal_batt_attr.attr,
+	&pause_dt_attr.attr,
 	NULL,
 };
 
@@ -299,7 +316,7 @@ static struct attribute_group apps_attr_group = {
 static int __cpuinit cpu_hotplug_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
 {
 	switch (action) {
-		/* To reduce overhead, we only notify cpu plug */
+		
 		case CPU_ONLINE:
 		case CPU_ONLINE_FROZEN:
 			sysfs_notify(hotplug_kobj, NULL, "cpu_hotplug");
@@ -313,7 +330,7 @@ static int __cpuinit cpu_hotplug_callback(struct notifier_block *nfb, unsigned l
 
 static struct notifier_block __refdata cpu_hotplug_notifier = {
 	.notifier_call = cpu_hotplug_callback,
-	.priority = -10, //after cpufreq.c:cpufreq_cpu_notifier -> cpufreq_add_dev()
+	.priority = -10, 
 };
 #endif
 
