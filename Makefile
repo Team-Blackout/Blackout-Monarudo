@@ -2,7 +2,7 @@ VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 35
 EXTRAVERSION =-Blackout-Viverrine-
-BEASTMODE_VERSION = Blackout-Viverrine-B3.8-NOS_REPACK
+BEASTMODE_VERSION = Blackout-Viverrine-B3.9
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
@@ -1578,8 +1578,7 @@ endif	# skip-makefile
 
 DNA_ZIP = dna/update/$(BEASTMODE_VERSION).zip
 UPDATE_ROOT = dna/update
-CERT = dna/keys/certificate.pem
-KEY = dna/keys/key.pk8
+
 
 dna/update-this-version.zip:
 	make $(DNA_ZIP)

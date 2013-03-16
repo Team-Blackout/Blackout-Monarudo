@@ -1,8 +1,6 @@
 #!/bin/sh
 
-make beastmode_defconfig && \
-	make depend && \
-	make -j4 && \
+	make -j8 && \
 	make dna/update-this-version.zip && \
 	echo && echo "*********** COMPLETE *************" && echo
 	echo && echo "********EPIC FUCKING WIN**********" && echo

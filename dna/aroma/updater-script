@@ -2,7 +2,7 @@ ui_print("********************************************");
 ui_print("                                            ");
 ui_print("           Beastmode By Zarboz              ");
 ui_print("                                            ");
-ui_print("Version: Blackout-Viverrine-B3.6                        ");
+ui_print("Version: @@VERSION@@                        ");
 ui_print("                                            ");
 ui_print("********************************************");
 
