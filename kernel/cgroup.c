@@ -2220,33 +2220,6 @@ static inline int started_after(void *p1, void *p2)
 	return started_after_time(t1, &t2->start_time, t2);
 }
 
-/**
- * cgroup_scan_tasks - iterate though all the tasks in a cgroup
- * @scan: struct cgroup_scanner containing arguments for the scan
- *
- * Arguments include pointers to callback functions test_task() and
- * process_task().
- * Iterate through all the tasks in a cgroup, calling test_task() for each,
- * and if it returns true, call process_task() for it also.
- * The test_task pointer may be NULL, meaning always true (select all tasks).
- * Effectively duplicates cgroup_iter_{start,next,end}()
- * but does not lock css_set_lock for the call to process_task().
- * The struct cgroup_scanner may be embedded in any structure of the caller's
- * creation.
- * It is guaranteed that process_task() will act on every task that
- * is a member of the cgroup for the duration of this call. This
- * function may or may not call process_task() for tasks that exit
- * or move to a different cgroup during the call, or are forked or
- * move into the cgroup during the call.
- *
- * Note that test_task() may be called with locks held, and may in some
- * situations be called multiple times for the same task, so it should
- * be cheap.
- * If the heap pointer in the struct cgroup_scanner is non-NULL, a heap has been
- * pre-allocated and will be used for heap operations (and its "gt" member will
- * be overwritten), else a temporary heap will be used (allocation of which
- * may cause this function to fail).
- */
 int cgroup_scan_tasks(struct cgroup_scanner *scan)
 {
 	int retval, i;
@@ -3550,17 +3523,6 @@ void cgroup_fork_callbacks(struct task_struct *child)
 
 void cgroup_post_fork(struct task_struct *child)
 {
-	/*
-	 * use_task_css_set_links is set to 1 before we walk the tasklist
-	 * under the tasklist_lock and we read it here after we added the child
-	 * to the tasklist under the tasklist_lock as well. If the child wasn't
-	 * yet in the tasklist when we walked through it from
-	 * cgroup_enable_task_cg_lists(), then use_task_css_set_links value
-	 * should be visible now due to the paired locking and barriers implied
-	 * by LOCK/UNLOCK: it is written before the tasklist_lock unlock
-	 * in cgroup_enable_task_cg_lists() and read here after the tasklist_lock
-	 * lock on fork.
-	 */
 	if (use_task_css_set_links) {
 		write_lock(&css_set_lock);
 		if (list_empty(&child->cg_list)) {

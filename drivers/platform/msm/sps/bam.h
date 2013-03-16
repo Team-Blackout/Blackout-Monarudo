@@ -36,7 +36,6 @@ enum bam_stream_mode {
 	BAM_STREAM_MODE_ENABLE = 1,
 };
 
-/* NWD written Type */
 enum bam_write_nwd {
 	BAM_WRITE_NWD_DISABLE = 0,
 	BAM_WRITE_NWD_ENABLE = 1,
@@ -106,39 +105,8 @@ int bam_pipe_is_enabled(void *base, u32 pipe);
 void bam_pipe_set_irq(void *base, u32 pipe, enum bam_enable irq_en,
 		      u32 src_mask, u32 ee);
 
-/**
- * Configure a BAM pipe for satellite MTI use
- *
- * This function configures a BAM pipe for satellite MTI use.
- *
- * @base - BAM virtual base address.
- *
- * @pipe - pipe index
- *
- * @irq_gen_addr - physical address written to generate MTI
- *
- * @ee - BAM execution environment index
- *
- */
 void bam_pipe_satellite_mti(void *base, u32 pipe, u32 irq_gen_addr, u32 ee);
 
-/**
- * Configure MTI for a BAM pipe
- *
- * This function configures the interrupt for a BAM pipe.
- *
- * @base - BAM virtual base address.
- *
- * @pipe - pipe index
- *
- * @irq_en - enable or disable interrupt
- *
- * @src_mask - interrupt source mask, set regardless of whether
- *    interrupt is disabled
- *
- * @irq_gen_addr - physical address written to generate MTI
- *
- */
 void bam_pipe_set_mti(void *base, u32 pipe, enum bam_enable irq_en,
 		      u32 src_mask, u32 irq_gen_addr);
 

@@ -2159,9 +2159,6 @@ static int sitar_volatile(struct snd_soc_codec *ssc, unsigned int reg)
 {
 	int i;
 
-	/* Registers lower than 0x100 are top level registers which can be
-	* written by the Sitar core driver.
-	*/
 	if ((reg >= SITAR_A_CDC_MBHC_EN_CTL) || (reg < 0x100))
 		return 1;
 

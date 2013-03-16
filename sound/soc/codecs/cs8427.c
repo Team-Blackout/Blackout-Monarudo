@@ -676,14 +676,6 @@ static __devinit int cs8427_i2c_probe(struct i2c_client *client,
 	static unsigned char initvals2[] = {
 	  CS8427_REG_RECVERRMASK | CS8427_REG_AUTOINC,
 	  0xff, 
-	  /* CS8427_REG_CSDATABUF:
-	   * Registers 32-55 window to CS buffer
-	   * Inhibit D->E transfers from overwriting first 5 bytes of CS data.
-	   * Inhibit D->E transfers (all) of CS data.
-	   * Allow E->F transfer of CS data.
-	   * One byte mode; both A/B channels get same written CB data.
-	   * A channel info is output to chip's EMPH* pin.
-	   */
 	  CS8427_CBMR | CS8427_DETCI,
 	  CS8427_UD | CS8427_EFTUI | CS8427_DETUI,
 	};

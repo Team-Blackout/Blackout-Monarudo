@@ -130,12 +130,6 @@ static void gs_buf_clear(struct gs_buf *gb)
 	
 }
 
-/*
- * gs_buf_data_avail
- *
- * Return the number of bytes of data written into the circular
- * buffer.
- */
 static unsigned gs_buf_data_avail(struct gs_buf *gb)
 {
 	return (gb->buf_size + gb->buf_put - gb->buf_get) % gb->buf_size;
@@ -1218,27 +1212,6 @@ void gserial_cleanup(void)
 	pr_debug("%s: cleaned up ttyGS* support\n", __func__);
 }
 
-/**
- * gserial_connect - notify TTY I/O glue that USB link is active
- * @gser: the function, set up with endpoints and descriptors
- * @port_num: which port is active
- * Context: any (usually from irq)
- *
- * This is called activate endpoints and let the TTY layer know that
- * the connection is active ... not unlike "carrier detect".  It won't
- * necessarily start I/O queues; unless the TTY is held open by any
- * task, there would be no point.  However, the endpoints will be
- * activated so the USB host can perform I/O, subject to basic USB
- * hardware flow control.
- *
- * Caller needs to have set up the endpoints and USB function in @dev
- * before calling this, as well as the appropriate (speed-specific)
- * endpoint descriptors, and also have set up the TTY driver by calling
- * @gserial_setup().
- *
- * Returns negative errno or zero.
- * On success, ep->driver_data will be overwritten.
- */
 int gserial_connect(struct gserial *gser, u8 port_num)
 {
 	struct gs_port	*port;

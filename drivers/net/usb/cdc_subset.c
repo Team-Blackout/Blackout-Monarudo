@@ -29,39 +29,6 @@
 #include <linux/usb/usbnet.h>
 
 
-/*
- * This supports simple USB network links that don't require any special
- * framing or hardware control operations.  The protocol used here is a
- * strict subset of CDC Ethernet, with three basic differences reflecting
- * the goal that almost any hardware should run it:
- *
- *  - Minimal runtime control:  one interface, no altsettings, and
- *    no vendor or class specific control requests.  If a device is
- *    configured, it is allowed to exchange packets with the host.
- *    Fancier models would mean not working on some hardware.
- *
- *  - Minimal manufacturing control:  no IEEE "Organizationally
- *    Unique ID" required, or an EEPROMs to store one.  Each host uses
- *    one random "locally assigned" Ethernet address instead, which can
- *    of course be overridden using standard tools like "ifconfig".
- *    (With 2^46 such addresses, same-net collisions are quite rare.)
- *
- *  - There is no additional framing data for USB.  Packets are written
- *    exactly as in CDC Ethernet, starting with an Ethernet header and
- *    terminated by a short packet.  However, the host will never send a
- *    zero length packet; some systems can't handle those robustly.
- *
- * Anything that can transmit and receive USB bulk packets can implement
- * this protocol.  That includes both smart peripherals and quite a lot
- * of "host-to-host" USB cables (which embed two devices back-to-back).
- *
- * Note that although Linux may use many of those host-to-host links
- * with this "cdc_subset" framing, that doesn't mean there may not be a
- * better approach.  Handling the "other end unplugs/replugs" scenario
- * well tends to require chip-specific vendor requests.  Also, Windows
- * peers at the other end of host-to-host cables may expect their own
- * framing to be used rather than this "cdc_subset" model.
- */
 
 #if defined(CONFIG_USB_EPSON2888) || defined(CONFIG_USB_ARMLINUX)
 static int always_connected (struct usbnet *dev)

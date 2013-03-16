@@ -284,14 +284,6 @@ void skb_dst_set_noref(struct sk_buff *skb, struct dst_entry *dst)
 }
 EXPORT_SYMBOL(skb_dst_set_noref);
 
-/* Dirty hack. We did it in 2.2 (in __dst_free),
- * we have _very_ good reasons not to repeat
- * this mistake in 2.3, but we have no choice
- * now. _It_ _is_ _explicit_ _deliberate_
- * _race_ _condition_.
- *
- * Commented and originally written by Alexey.
- */
 static void dst_ifdown(struct dst_entry *dst, struct net_device *dev,
 		       int unregister)
 {

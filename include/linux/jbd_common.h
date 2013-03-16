@@ -4,7 +4,7 @@
 enum jbd_state_bits {
 	BH_JBD			
 	  = BH_PrivateStart,
-	BH_JWrite,		/* Being written to log (@@@ DEBUGGING) */
+	BH_JWrite,		
 	BH_Freed,		
 	BH_Revoked,		
 	BH_RevokeValid,		

@@ -485,16 +485,6 @@ static void tmem_pampd_destroy_all_in_obj(struct tmem_obj *obj)
 }
 
 
-/*
- * "Put" a page, e.g. copy a page from the kernel into newly allocated
- * PAM space (if such space is available).  Tmem_put is complicated by
- * a corner case: What if a page with matching handle already exists in
- * tmem?  To guarantee coherency, one of two actions is necessary: Either
- * the data for the page must be overwritten, or the page must be
- * "flushed" so that the data is not accessible to a subsequent "get".
- * Since these "duplicate puts" are relatively rare, this implementation
- * always flushes for simplicity.
- */
 int tmem_put(struct tmem_pool *pool, struct tmem_oid *oidp, uint32_t index,
 		char *data, size_t size, bool raw, bool ephemeral)
 {

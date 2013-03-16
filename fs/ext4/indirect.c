@@ -545,9 +545,6 @@ retry:
 		
 		handle = ext4_journal_start(inode, 2);
 		if (IS_ERR(handle)) {
-			/* This is really bad luck. We've written the data
-			 * but cannot extend i_size. Bail out and pretend
-			 * the write failed... */
 			ret = PTR_ERR(handle);
 			if (inode->i_nlink)
 				ext4_orphan_del(NULL, inode);
@@ -845,17 +842,6 @@ static void ext4_free_branches(handle_t *handle, struct inode *inode,
 					    ext4_blocks_for_truncate(inode));
 			}
 
-			/*
-			 * The forget flag here is critical because if
-			 * we are journaling (and not doing data
-			 * journaling), we have to make sure a revoke
-			 * record is written to prevent the journal
-			 * replay from overwriting the (former)
-			 * indirect block if it gets reallocated as a
-			 * data block.  This must happen in the same
-			 * transaction where the data blocks are
-			 * actually freed.
-			 */
 			ext4_free_blocks(handle, inode, NULL, nr, 1,
 					 EXT4_FREE_BLOCKS_METADATA|
 					 EXT4_FREE_BLOCKS_FORGET);

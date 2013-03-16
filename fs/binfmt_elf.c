@@ -972,7 +972,7 @@ static unsigned long vma_dump_size(struct vm_area_struct *vma,
 		return 0;
 	}
 
-	/* Dump segments that have been written to.  */
+	
 	if (vma->anon_vma && FILTER(ANON_PRIVATE))
 		goto whole;
 	if (vma->vm_file == NULL)
@@ -1657,13 +1657,6 @@ static size_t elf_core_vma_data_size(struct vm_area_struct *gate_vma,
 	return size;
 }
 
-/*
- * Actual dumper
- *
- * This is a two-pass process; first we find the offsets of the bits,
- * and then they are actually written out.  If we run out of core limit
- * we just truncate.
- */
 static int elf_core_dump(struct coredump_params *cprm)
 {
 	int has_dumped = 0;

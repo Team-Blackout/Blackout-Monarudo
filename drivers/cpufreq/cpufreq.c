@@ -1454,13 +1454,6 @@ EXPORT_SYMBOL_GPL(cpufreq_unregister_governor);
 
 
 
-/**
- * cpufreq_get_policy - get the current cpufreq_policy
- * @policy: struct cpufreq_policy into which the current cpufreq_policy
- *	is written
- *
- * Reads the current cpufreq policy.
- */
 int cpufreq_get_policy(struct cpufreq_policy *policy, unsigned int cpu)
 {
 	struct cpufreq_policy *cpu_policy;

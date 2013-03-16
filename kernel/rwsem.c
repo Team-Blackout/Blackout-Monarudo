@@ -1,8 +1,3 @@
-/* kernel/rwsem.c: R/W semaphores, public implementation
- *
- * Written by David Howells (dhowells@redhat.com).
- * Derived from asm-i386/semaphore.h
- */
 
 #include <linux/types.h>
 #include <linux/kernel.h>

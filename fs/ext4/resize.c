@@ -865,16 +865,6 @@ static void update_backups(struct super_block *sb,
 	if ((err2 = ext4_journal_stop(handle)) && !err)
 		err = err2;
 
-	/*
-	 * Ugh! Need to have e2fsck write the backup copies.  It is too
-	 * late to revert the resize, we shouldn't fail just because of
-	 * the backup copies (they are only needed in case of corruption).
-	 *
-	 * However, if we got here we have a journal problem too, so we
-	 * can't really start a transaction to mark the superblock.
-	 * Chicken out and just set the flag on the hope it will be written
-	 * to disk, and if not - we will simply wait until next fsck.
-	 */
 exit_err:
 	if (err) {
 		ext4_warning(sb, "can't update backup for group %u (err %d), "

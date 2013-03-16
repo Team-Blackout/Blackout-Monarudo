@@ -125,19 +125,6 @@ make_coherent(struct address_space *mapping, struct vm_area_struct *vma,
 		do_adjust_pte(vma, addr, pfn, ptep);
 }
 
-/*
- * Take care of architecture specific things when placing a new PTE into
- * a page table, or changing an existing PTE.  Basically, there are two
- * things that we need to take care of:
- *
- *  1. If PG_dcache_clean is not set for the page, we need to ensure
- *     that any cache entries for the kernels virtual memory
- *     range are written back to the page.
- *  2. If we have multiple shared mappings of the same space in
- *     an object, we need to deal with the cache aliasing issues.
- *
- * Note that the pte lock will be held.
- */
 void update_mmu_cache(struct vm_area_struct *vma, unsigned long addr,
 	pte_t *ptep)
 {
@@ -148,10 +135,6 @@ void update_mmu_cache(struct vm_area_struct *vma, unsigned long addr,
 	if (!pfn_valid(pfn))
 		return;
 
-	/*
-	 * The zero page is never written to, so never has any dirty
-	 * cache lines, and therefore never needs to be flushed.
-	 */
 	page = pfn_to_page(pfn);
 	if (page == ZERO_PAGE(0))
 		return;

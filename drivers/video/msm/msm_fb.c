@@ -2976,11 +2976,6 @@ static int msmfb_blit(struct fb_info *info, void __user *p)
 				sizeof(struct mdp_blit_req)*req_list_count))
 			return -EFAULT;
 
-		/*
-		 * Ensure that any data CPU may have previously written to
-		 * internal state (but not yet committed to memory) is
-		 * guaranteed to be committed to memory now.
-		 */
 		msm_fb_ensure_memory_coherency_before_dma(info,
 				req_list, req_list_count);
 
@@ -3944,11 +3939,6 @@ struct platform_device *msm_fb_add_device(struct platform_device *pdev)
 	type = pdata->panel_info.type;
 
 #if defined MSM_FB_NUM
-	/*
-	 * over written fb_num which defined
-	 * at panel_info
-	 *
-	 */
 	if (type == HDMI_PANEL || type == DTV_PANEL ||
 		type == TV_PANEL || type == WRITEBACK_PANEL) {
 		if (hdmi_prim_display)

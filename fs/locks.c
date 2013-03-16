@@ -1746,19 +1746,6 @@ int lock_may_read(struct inode *inode, loff_t start, unsigned long len)
 
 EXPORT_SYMBOL(lock_may_read);
 
-/**
- *	lock_may_write - checks that the region is free of locks
- *	@inode: the inode that is being written
- *	@start: the first byte to write
- *	@len: the number of bytes to write
- *
- *	Emulates Windows locking requirements.  Whole-file
- *	mandatory locks (share modes) can prohibit a write and
- *	byte-range POSIX locks can prohibit a write if they overlap.
- *
- *	N.B. this function is only ever called
- *	from knfsd and ownership of locks is never checked.
- */
 int lock_may_write(struct inode *inode, loff_t start, unsigned long len)
 {
 	struct file_lock *fl;

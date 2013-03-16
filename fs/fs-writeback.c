@@ -139,15 +139,6 @@ void inode_wb_list_del(struct inode *inode)
 	spin_unlock(&bdi->wb.list_lock);
 }
 
-/*
- * Redirty an inode: set its when-it-was dirtied timestamp and move it to the
- * furthest end of its superblock's dirty-inode list.
- *
- * Before stamping the inode's ->dirtied_when, we check to see whether it is
- * already the most-recently-dirtied inode on the b_dirty list.  If that is
- * the case then the inode must have been redirtied while it was being written
- * out and we don't reset its dirtied_when.
- */
 static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
 {
 	assert_spin_locked(&wb->list_lock);
@@ -356,15 +347,6 @@ static long writeback_chunk_size(struct backing_dev_info *bdi,
 	return pages;
 }
 
-/*
- * Write a portion of b_io inodes which belong to @sb.
- *
- * If @only_this_sb is true, then find and write all such
- * inodes. Otherwise write only ones which go sequentially
- * in reverse order.
- *
- * Return the number of pages and/or inodes written.
- */
 static long writeback_sb_inodes(struct super_block *sb,
 				struct bdi_writeback *wb,
 				struct wb_writeback_work *work)
@@ -454,7 +436,7 @@ static long __writeback_inodes_wb(struct bdi_writeback *wb,
 				break;
 		}
 	}
-	/* Leave any unwritten inodes on b_io */
+	
 	return wrote;
 }
 
@@ -545,11 +527,6 @@ static long wb_writeback(struct bdi_writeback *wb,
 			continue;
 		if (list_empty(&wb->b_more_io))
 			break;
-		/*
-		 * Nothing written. Wait for some inode to
-		 * become available for writeback. Otherwise
-		 * we'll just busyloop.
-		 */
 		if (!list_empty(&wb->b_more_io))  {
 			trace_writeback_wait(wb->bdi, work);
 			inode = wb_inode(wb->b_more_io.prev);
@@ -846,16 +823,6 @@ static void wait_sb_inodes(struct super_block *sb)
 	iput(old_inode);
 }
 
-/**
- * writeback_inodes_sb_nr -	writeback dirty inodes from given super_block
- * @sb: the superblock
- * @nr: the number of pages to write
- * @reason: reason why some writeback work initiated
- *
- * Start writeback on some inodes on this super_block. No guarantees are made
- * on how many (if any) will be written, and this function does not wait
- * for IO completion of submitted IO.
- */
 void writeback_inodes_sb_nr(struct super_block *sb,
 			    unsigned long nr,
 			    enum wb_reason reason)
@@ -876,15 +843,6 @@ void writeback_inodes_sb_nr(struct super_block *sb,
 }
 EXPORT_SYMBOL(writeback_inodes_sb_nr);
 
-/**
- * writeback_inodes_sb	-	writeback dirty inodes from given super_block
- * @sb: the superblock
- * @reason: reason why some writeback work was initiated
- *
- * Start writeback on some inodes on this super_block. No guarantees are made
- * on how many (if any) will be written, and this function does not wait
- * for IO completion of submitted IO.
- */
 void writeback_inodes_sb(struct super_block *sb, enum wb_reason reason)
 {
 	return writeback_inodes_sb_nr(sb, get_nr_dirty_pages(), reason);

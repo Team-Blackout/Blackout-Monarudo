@@ -35,9 +35,9 @@ static struct msm_camera_i2c_reg_conf ov2722_snap_settings[] = {
     defined(CONFIG_MACH_DUMMY) ||\
     defined(CONFIG_MACH_DELUXE_R) ||\
     defined(CONFIG_MACH_DUMMY) ||\
-    defined(CONFIG_MACH_DELUXE_U) ||\
     defined(CONFIG_MACH_DUMMY) ||\
-    defined(CONFIG_MACH_DUMMY)
+    defined(CONFIG_MACH_DUMMY) ||\
+    defined(CONFIG_MACH_DELUXE_UB1)
 
 static struct msm_camera_i2c_reg_conf ov2722_recommend_settings[] = {
 

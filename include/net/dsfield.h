@@ -1,5 +1,4 @@
 
-/* Written 1998-2000 by Werner Almesberger, EPFL ICA */
 
 
 #ifndef __NET_DSFIELD_H

@@ -1142,13 +1142,12 @@ static const char * const snstext[] = {
 	"Illegal Request",  
 	"Unit Attention",   
 	"Data Protect",	    
-	"Blank Check",	    /* 8: Reached unexpected written or unwritten
-				  region of the medium */
+	"Blank Check",	    
 	"Vendor Specific(9)",
 	"Copy Aborted",	    
 	"Aborted Command",  
 	"Equal",	    
-	"Volume Overflow",  /* D: Medium full with still data to be written */
+	"Volume Overflow",  
 	"Miscompare",	    
 };
 #endif

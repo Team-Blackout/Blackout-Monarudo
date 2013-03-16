@@ -2079,6 +2079,9 @@ static int a3xx_create_gmem_shadow(struct adreno_device *adreno_dev,
 	build_quad_vtxbuff(drawctxt, &drawctxt->context_gmem_shadow,
 		&tmp_ctx.cmd);
 
+	
+	
+
 	tmp_ctx.cmd = build_gmem2sys_cmds(adreno_dev, drawctxt,
 		&drawctxt->context_gmem_shadow);
 	tmp_ctx.cmd = build_sys2gmem_cmds(adreno_dev, drawctxt,

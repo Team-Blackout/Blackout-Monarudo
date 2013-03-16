@@ -728,19 +728,6 @@ int generic_show_options(struct seq_file *m, struct dentry *root)
 }
 EXPORT_SYMBOL(generic_show_options);
 
-/*
- * If filesystem uses generic_show_options(), this function should be
- * called from the fill_super() callback.
- *
- * The .remount_fs callback usually needs to be handled in a special
- * way, to make sure, that previous options are not overwritten if the
- * remount fails.
- *
- * Also note, that if the filesystem's .remount_fs function doesn't
- * reset all options to their default value, but changes only newly
- * given options, then the displayed options will not reflect reality
- * any more.
- */
 void save_mount_options(struct super_block *sb, char *options)
 {
 	BUG_ON(sb->s_options);

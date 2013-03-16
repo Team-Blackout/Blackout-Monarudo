@@ -204,20 +204,6 @@ static inline void __dma_unmap_page(struct device *dev, dma_addr_t handle,
 }
 #endif 
 
-/**
- * dma_map_single - map a single buffer for streaming DMA
- * @dev: valid struct device pointer, or NULL for ISA and EISA-like devices
- * @cpu_addr: CPU direct mapped address of buffer
- * @size: size of buffer to map
- * @dir: DMA transfer direction
- *
- * Ensure that any data held in the cache is appropriately discarded
- * or written back.
- *
- * The device owns this memory once this call has completed.  The CPU
- * can regain ownership by calling dma_unmap_single() or
- * dma_sync_single_for_cpu().
- */
 static inline dma_addr_t dma_map_single(struct device *dev, void *cpu_addr,
 		size_t size, enum dma_data_direction dir)
 {
@@ -237,17 +223,6 @@ static inline dma_addr_t dma_map_single(struct device *dev, void *cpu_addr,
 	return addr;
 }
 
-/**
- * dma_cache_pre_ops - clean or invalidate cache before dma transfer is
- *                     initiated and perform a barrier operation.
- * @virtual_addr: A kernel logical or kernel virtual address
- * @size: size of buffer to map
- * @dir: DMA transfer direction
- *
- * Ensure that any data held in the cache is appropriately discarded
- * or written back.
- *
- */
 static inline void dma_cache_pre_ops(void *virtual_addr,
 		size_t size, enum dma_data_direction dir)
 {
@@ -260,17 +235,6 @@ static inline void dma_cache_pre_ops(void *virtual_addr,
 		___dma_single_cpu_to_dev(virtual_addr, size, dir);
 }
 
-/**
- * dma_cache_post_ops - clean or invalidate cache after dma transfer is
- *                     initiated and perform a barrier operation.
- * @virtual_addr: A kernel logical or kernel virtual address
- * @size: size of buffer to map
- * @dir: DMA transfer direction
- *
- * Ensure that any data held in the cache is appropriately discarded
- * or written back.
- *
- */
 static inline void dma_cache_post_ops(void *virtual_addr,
 		size_t size, enum dma_data_direction dir)
 {
@@ -285,20 +249,6 @@ static inline void dma_cache_post_ops(void *virtual_addr,
 					 size, DMA_FROM_DEVICE);
 }
 
-/**
- * dma_map_page - map a portion of a page for streaming DMA
- * @dev: valid struct device pointer, or NULL for ISA and EISA-like devices
- * @page: page that buffer resides in
- * @offset: offset into page for start of buffer
- * @size: size of buffer to map
- * @dir: DMA transfer direction
- *
- * Ensure that any data held in the cache is appropriately discarded
- * or written back.
- *
- * The device owns this memory once this call has completed.  The CPU
- * can regain ownership by calling dma_unmap_page().
- */
 static inline dma_addr_t dma_map_page(struct device *dev, struct page *page,
 	     unsigned long offset, size_t size, enum dma_data_direction dir)
 {

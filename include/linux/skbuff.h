@@ -487,14 +487,6 @@ static inline struct sk_buff *skb_get(struct sk_buff *skb)
 }
 
 
-/**
- *	skb_cloned - is the buffer a clone
- *	@skb: buffer to check
- *
- *	Returns true if the buffer was generated with skb_clone() and is
- *	one of multiple shared copies of the buffer. Cloned buffers are
- *	shared data so must not be written to under normal circumstances.
- */
 static inline int skb_cloned(const struct sk_buff *skb)
 {
 	return skb->cloned &&

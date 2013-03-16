@@ -100,7 +100,7 @@ typedef struct sg_io_hdr
     unsigned char status;       
     unsigned char masked_status;
     unsigned char msg_status;   
-    unsigned char sb_len_wr;    /* [o] byte count actually written to sbp */
+    unsigned char sb_len_wr;    
     unsigned short host_status; 
     unsigned short driver_status;
     int resid;                  
@@ -145,14 +145,13 @@ typedef struct sg_scsi_id {
 } sg_scsi_id_t; 
 
 typedef struct sg_req_info { 
-    char req_state;     /* 0 -> not used, 1 -> written, 2 -> ready to read */
+    char req_state;     
     char orphan;        
     char sg_io_owned;   
     char problem;       
     int pack_id;        
     void __user *usr_ptr;     
-    unsigned int duration; /* millisecs elapsed since written (req_state==1)
-			      or request duration (req_state==2) */
+    unsigned int duration; 
     int unused;
 } sg_req_info_t; 
 
@@ -199,11 +198,6 @@ typedef struct sg_req_info {
 
 
 #define SG_SCATTER_SZ (8 * 4096)
-/* Largest size (in bytes) a single scatter-gather list element can have.
-   The value used by the driver is 'max(SG_SCATTER_SZ, PAGE_SIZE)'.
-   This value should be a power of 2 (and may be rounded up internally).
-   If scatter-gather is not supported by adapter then this value is the
-   largest data block that can be read/written by a single scsi command. */
 
 #define SG_DEFAULT_RETRIES 0
 

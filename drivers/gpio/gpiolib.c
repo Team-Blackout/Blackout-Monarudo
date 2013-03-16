@@ -149,26 +149,6 @@ err:
 
 static DEFINE_MUTEX(sysfs_lock);
 
-/*
- * /sys/class/gpio/gpioN... only for GPIOs that are exported
- *   /direction
- *      * MAY BE OMITTED if kernel won't allow direction changes
- *      * is read/write as "in" or "out"
- *      * may also be written as "high" or "low", initializing
- *        output value as specified ("out" implies "low")
- *   /value
- *      * always readable, subject to hardware behavior
- *      * may be writable, as zero/nonzero
- *   /edge
- *      * configures behavior of poll(2) on /value
- *      * available only if pin can generate IRQs on input
- *      * is read/write as "none", "falling", "rising", or "both"
- *   /active_low
- *      * configures polarity of /value
- *      * is read/write as zero/nonzero
- *      * also affects existing and subsequent "falling" and "rising"
- *        /edge configuration
- */
 
 static ssize_t gpio_direction_show(struct device *dev,
 		struct device_attribute *attr, char *buf)

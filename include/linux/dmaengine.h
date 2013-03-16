@@ -158,52 +158,6 @@ enum dma_slave_buswidth {
 	DMA_SLAVE_BUSWIDTH_8_BYTES = 8,
 };
 
-/**
- * struct dma_slave_config - dma slave channel runtime config
- * @direction: whether the data shall go in or out on this slave
- * channel, right now. DMA_TO_DEVICE and DMA_FROM_DEVICE are
- * legal values, DMA_BIDIRECTIONAL is not acceptable since we
- * need to differentiate source and target addresses.
- * @src_addr: this is the physical address where DMA slave data
- * should be read (RX), if the source is memory this argument is
- * ignored.
- * @dst_addr: this is the physical address where DMA slave data
- * should be written (TX), if the source is memory this argument
- * is ignored.
- * @src_addr_width: this is the width in bytes of the source (RX)
- * register where DMA data shall be read. If the source
- * is memory this may be ignored depending on architecture.
- * Legal values: 1, 2, 4, 8.
- * @dst_addr_width: same as src_addr_width but for destination
- * target (TX) mutatis mutandis.
- * @src_maxburst: the maximum number of words (note: words, as in
- * units of the src_addr_width member, not bytes) that can be sent
- * in one burst to the device. Typically something like half the
- * FIFO depth on I/O peripherals so you don't overflow it. This
- * may or may not be applicable on memory sources.
- * @dst_maxburst: same as src_maxburst but for destination target
- * mutatis mutandis.
- * @device_fc: Flow Controller Settings. Only valid for slave channels. Fill
- * with 'true' if peripheral should be flow controller. Direction will be
- * selected at Runtime.
- *
- * This struct is passed in as configuration data to a DMA engine
- * in order to set up a certain channel for DMA transport at runtime.
- * The DMA device/engine has to provide support for an additional
- * command in the channel config interface, DMA_SLAVE_CONFIG
- * and this struct will then be passed in as an argument to the
- * DMA engine device_control() function.
- *
- * The rationale for adding configuration information to this struct
- * is as follows: if it is likely that most DMA slave controllers in
- * the world will support the configuration option, then make it
- * generic. If not: if it is fixed so that it be sent in static from
- * the platform data, then prefer to do that. Else, if it is neither
- * fixed at runtime, nor generic enough (such as bus mastership on
- * some CPU family and whatnot) then create a custom slave config
- * struct and pass that, then make this config a member of that
- * struct, if applicable.
- */
 struct dma_slave_config {
 	enum dma_transfer_direction direction;
 	dma_addr_t src_addr;

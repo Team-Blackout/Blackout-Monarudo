@@ -391,14 +391,6 @@ int bitmap_parse_user(const char __user *ubuf,
 }
 EXPORT_SYMBOL(bitmap_parse_user);
 
-/*
- * bscnl_emit(buf, buflen, rbot, rtop, bp)
- *
- * Helper routine for bitmap_scnlistprintf().  Write decimal number
- * or range to buf, suppressing output past buf+buflen, with optional
- * comma-prefix.  Return len of what would be written to buf, if it
- * all fit.
- */
 static inline int bscnl_emit(char *buf, int buflen, int rbot, int rtop, int len)
 {
 	if (len > 0)
@@ -434,26 +426,6 @@ int bitmap_scnlistprintf(char *buf, unsigned int buflen,
 }
 EXPORT_SYMBOL(bitmap_scnlistprintf);
 
-/**
- * __bitmap_parselist - convert list format ASCII string to bitmap
- * @buf: read nul-terminated user string from this buffer
- * @buflen: buffer size in bytes.  If string is smaller than this
- *    then it must be terminated with a \0.
- * @is_user: location of buffer, 0 indicates kernel space
- * @maskp: write resulting mask here
- * @nmaskbits: number of bits in mask to be written
- *
- * Input format is a comma-separated list of decimal numbers and
- * ranges.  Consecutively set bits are shown as two hyphen-separated
- * decimal numbers, the smallest and largest bit numbers set in
- * the range.
- *
- * Returns 0 on success, -errno on invalid input strings.
- * Error values:
- *    %-EINVAL: second number in range smaller than first
- *    %-EINVAL: invalid character in string
- *    %-ERANGE: bit number specified too large for mask
- */
 static int __bitmap_parselist(const char *buf, unsigned int buflen,
 		int is_user, unsigned long *maskp,
 		int nmaskbits)

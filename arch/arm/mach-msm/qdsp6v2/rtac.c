@@ -550,7 +550,7 @@ u32 send_adm_apr(void *buf, u32 opcode)
 		}
 	}
 
-	/* Return data written for SET & data read for GET */
+	
 	if (opcode == ADM_CMD_GET_PARAMS)
 		bytes_returned = rtac_adm_payload_size;
 	else
@@ -716,7 +716,7 @@ u32 send_rtac_asm_apr(void *buf, u32 opcode)
 		}
 	}
 
-	/* Return data written for SET & data read for GET */
+	
 	if (opcode == ASM_STREAM_CMD_GET_PP_PARAMS)
 		bytes_returned = rtac_asm_payload_size;
 	else
@@ -882,7 +882,7 @@ u32 send_voice_apr(u32 mode, void *buf, u32 opcode)
 		}
 	}
 
-	/* Return data written for SET & data read for GET */
+	
 	if (opcode == VOICE_CMD_GET_PARAM)
 		bytes_returned = rtac_voice_payload_size;
 	else

@@ -106,7 +106,7 @@ struct sps_bam;
 struct sps_bam_sys_mode {
 	
 	u8 *desc_buf; 
-	u32 desc_offset; /* Next new descriptor to be written to hardware */
+	u32 desc_offset; 
 	u32 acked_offset; 
 
 	

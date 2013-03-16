@@ -39,10 +39,6 @@ extern void __bad_gid(void);
 #define SET_GID(var, gid) do { (var) = __convert_gid(sizeof(var), (gid)); } while (0)
 
 
-/*
- * This is the UID and GID that will get written to disk if a filesystem
- * only supports 16-bit UIDs and the kernel has a high UID/GID to write
- */
 extern int fs_overflowuid;
 extern int fs_overflowgid;
 

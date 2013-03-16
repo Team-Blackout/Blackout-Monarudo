@@ -68,7 +68,6 @@ static int sw_stimer_fault;
 
 static int chg_dis_user_timer;
 static int charger_dis_temp_fault;
-static int vbus_unstable;
 
 static int chg_limit_reason;
 static int chg_limit_active_mask;
@@ -91,11 +90,6 @@ static int context_state;
 #define BATT_SUSPEND_HIGHFREQ_CHECK_TIME	(300)
 #define BATT_TIMER_CHECK_TIME				(360)
 #define BATT_TIMER_UPDATE_TIME				(60)
-
-#define HTC_EXT_UNKNOWN_USB_CHARGER		(1<<0)
-#define HTC_EXT_CHG_UNDER_RATING		(1<<1)
-#define HTC_EXT_CHG_SAFTY_TIMEOUT		(1<<2)
-#define HTC_EXT_CHG_VBUS_UNSTABLE		(1<<3)
 
 #ifdef CONFIG_ARCH_MSM8X60_LTE
 #endif
@@ -162,7 +156,6 @@ struct htc_battery_info {
 	struct htc_charger *icharger;
 	struct htc_battery_cell *bcell;
 	int state;
-	unsigned int htc_extension;	
 };
 static struct htc_battery_info htc_batt_info;
 
@@ -801,14 +794,12 @@ static ssize_t htc_battery_show_batt_attr(struct device_attribute *attr,
 			"charging_enabled: %d;\n"
 			"overload: %d;\n"
 			"Percentage(%%): %d;\n"
-			"Percentage_raw(%%): %d;\n"
-			"htc_extension: 0x%x;\n",
+			"Percentage_raw(%%): %d;\n",
 			htc_batt_info.rep.charging_source,
 			htc_batt_info.rep.charging_enabled,
 			htc_batt_info.rep.overload,
 			htc_batt_info.rep.level,
-			htc_batt_info.rep.level_raw,
-			htc_batt_info.htc_extension
+			htc_batt_info.rep.level_raw
 			);
 
 	
@@ -850,17 +841,6 @@ static ssize_t htc_battery_show_cc_attr(struct device_attribute *attr,
 				"cc:%d\n", cc_uah);
 		}
 	}
-
-	return len;
-}
-
-static ssize_t htc_battery_show_htc_extension_attr(struct device_attribute *attr,
-					char *buf)
-{
-	int len = 0;
-
-	len += scnprintf(buf + len, PAGE_SIZE - len,"%d\n",
-								htc_batt_info.htc_extension);
 
 	return len;
 }
@@ -1079,9 +1059,6 @@ static void batt_update_info_from_charger(void)
 	if (htc_batt_info.icharger->is_batt_temp_fault_disable_chg)
 		htc_batt_info.icharger->is_batt_temp_fault_disable_chg(
 				&charger_dis_temp_fault);
-	if (htc_batt_info.icharger->is_vbus_unstable)
-		htc_batt_info.icharger->is_vbus_unstable(
-				&vbus_unstable);
 }
 
 static void batt_update_info_from_gauge(void)
@@ -1299,15 +1276,6 @@ static void sw_safety_timer_check(unsigned long time_since_last_update_ms)
 
 }
 
-void update_htc_extension_state(void)
-{
-	if (vbus_unstable &&
-		htc_batt_info.rep.charging_source != HTC_PWR_SOURCE_TYPE_BATT)
-		htc_batt_info.htc_extension |= HTC_EXT_CHG_VBUS_UNSTABLE;
-	else
-		htc_batt_info.htc_extension &= ~HTC_EXT_CHG_VBUS_UNSTABLE;
-}
-
 static void batt_worker(struct work_struct *work)
 {
 	static int first = 1;
@@ -1390,10 +1358,6 @@ static void batt_worker(struct work_struct *work)
 		pr_info("[BATT] enable_5v_output: %d\n", htc_ext_5v_output_now);
 	}
 
-	
-	update_htc_extension_state();
-
-
 	if (htc_batt_info.rep.charging_source > 0) {
 		
 		if (htc_batt_info.rep.batt_id == HTC_BATTERY_CELL_ID_UNKNOWN)
@@ -1455,16 +1419,14 @@ static void batt_worker(struct work_struct *work)
 				" chg_dis_reason/control/active=0x%x/0x%x/0x%x,"
 				" chg_limit_reason=0x%x,"
 				" pwrsrc_dis_reason=0x%x, prev_pwrsrc_enabled=%d,"
-				" context_state=0x%x,"
-				" htc_extension=0x%x\n",
+				" context_state=0x%x\n",
 					prev_chg_src, prev_charging_enabled,
 					chg_dis_reason,
 					chg_dis_reason & chg_dis_control_mask,
 					chg_dis_reason & chg_dis_active_mask,
 					chg_limit_reason,
 					pwrsrc_dis_reason, prev_pwrsrc_enabled,
-					context_state,
-					htc_batt_info.htc_extension);
+					context_state);
 		if (charging_enabled != prev_charging_enabled ||
 				prev_chg_src != htc_batt_info.rep.charging_source ||
 				first ||
@@ -1889,8 +1851,6 @@ static int htc_battery_probe(struct platform_device *pdev)
 	htc_battery_core_ptr->func_get_batt_rt_attr = htc_battery_get_rt_attr;
 	htc_battery_core_ptr->func_show_batt_attr = htc_battery_show_batt_attr;
 	htc_battery_core_ptr->func_show_cc_attr = htc_battery_show_cc_attr;
-	htc_battery_core_ptr->func_show_htc_extension_attr =
-										htc_battery_show_htc_extension_attr;
 	htc_battery_core_ptr->func_get_battery_info = htc_batt_get_battery_info;
 	htc_battery_core_ptr->func_charger_control = htc_batt_charger_control;
 	htc_battery_core_ptr->func_set_full_level = htc_batt_set_full_level;

@@ -387,16 +387,6 @@ static inline int rmi_write(struct rmi_device *d, u16 addr, u8 data)
 	return d->phys->write(d->phys, addr, data);
 }
 
-/**
- * rmi_write_block - RMI write block
- * @d: Pointer to an RMI device
- * @addr: The start address to write to
- * @buf: The write buffer
- * @len: Length of the write buffer
- *
- * Writes a block of byte data from buf using the underlaying physical protocol.
- * It returns the amount of bytes written or a negative error code.
- */
 static inline int rmi_write_block(struct rmi_device *d, u16 addr, u8 *buf,
 				  int len)
 {

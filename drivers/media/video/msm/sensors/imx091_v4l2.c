@@ -855,7 +855,7 @@ static int imx091_read_VCM_driver_IC_info(	struct msm_sensor_ctrl_t *s_ctrl)
 
 	
 	page = 2;
-	//read 1,3,5,7,9 bank because OTP memory may be written fail.
+	
 	for (bank = 9; bank >= 0;  bank = bank - 2) {
 		
 		rc = msm_camera_i2c_write_b(msm_camera_i2c_client, 0x34C9, bank);

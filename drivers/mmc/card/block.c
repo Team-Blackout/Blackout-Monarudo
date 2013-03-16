@@ -1797,14 +1797,6 @@ static int mmc_blk_cmd_err(struct mmc_blk_data *md, struct mmc_card *card,
 	struct mmc_queue_req *mq_rq;
 	mq_rq = container_of(brq, struct mmc_queue_req, brq);
 
-	/*
-	 * If this is an SD card and we're writing, we can first
-	 * mark the known good sectors as ok.
-	 *
-	 * If the card is not SD, we can still ok written sectors
-	 * as reported by the controller (which might be less than
-	 * the real number of written sectors, but never more).
-	 */
 	if (mmc_card_sd(card)) {
 		u32 blocks;
 

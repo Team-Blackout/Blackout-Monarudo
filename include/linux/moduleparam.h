@@ -35,7 +35,7 @@ struct kernel_param;
 struct kernel_param_ops {
 	
 	int (*set)(const char *val, const struct kernel_param *kp);
-	/* Returns length written or -errno.  Buffer is 4k (ie. be short!) */
+	
 	int (*get)(char *buffer, const struct kernel_param *kp);
 	
 	void (*free)(void *arg);
@@ -132,12 +132,6 @@ __check_old_set_param(int (*oldset)(const char *, struct kernel_param *))
 	return 0;
 }
 
-/**
- * kparam_block_sysfs_write - make sure a parameter isn't written via sysfs.
- * @name: the name of the parameter
- *
- * There's no point blocking write on a paramter that isn't writable via sysfs!
- */
 #define kparam_block_sysfs_write(name)			\
 	do {						\
 		BUG_ON(!(__param_##name.perm & 0222));	\
@@ -267,33 +261,9 @@ extern int param_set_bint(const char *val, const struct kernel_param *kp);
 #define param_get_bint param_get_int
 #define param_check_bint param_check_int
 
-/**
- * module_param_array - a parameter which is an array of some type
- * @name: the name of the array variable
- * @type: the type, as per module_param()
- * @nump: optional pointer filled in with the number written
- * @perm: visibility in sysfs
- *
- * Input and output are as comma-separated values.  Commas inside values
- * don't work properly (eg. an array of charp).
- *
- * ARRAY_SIZE(@name) is used to determine the number of elements in the
- * array, so the definition must be visible.
- */
 #define module_param_array(name, type, nump, perm)		\
 	module_param_array_named(name, name, type, nump, perm)
 
-/**
- * module_param_array_named - renamed parameter which is an array of some type
- * @name: a valid C identifier which is the parameter name
- * @array: the name of the array variable
- * @type: the type, as per module_param()
- * @nump: optional pointer filled in with the number written
- * @perm: visibility in sysfs
- *
- * This exposes a different name than the actual variable name.  See
- * module_param_named() for why this might be necessary.
- */
 #define module_param_array_named(name, array, type, nump, perm)		\
 	param_check_##type(name, &(array)[0]);				\
 	static const struct kparam_array __param_arr_##name		\

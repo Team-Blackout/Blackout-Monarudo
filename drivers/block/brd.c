@@ -332,13 +332,6 @@ static int brd_ioctl(struct block_device *bdev, fmode_t mode,
 	mutex_lock(&bdev->bd_mutex);
 	error = -EBUSY;
 	if (bdev->bd_openers <= 1) {
-		/*
-		 * Kill the cache first, so it isn't written back to the
-		 * device.
-		 *
-		 * Another thread might instantiate more buffercache here,
-		 * but there is not much we can do to close that race.
-		 */
 		kill_bdev(bdev);
 		brd_free_pages(brd);
 		error = 0;

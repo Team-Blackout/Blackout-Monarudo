@@ -221,11 +221,6 @@ void ext4_da_update_reserve_space(struct inode *inode,
 	ei->i_allocated_meta_blocks = 0;
 
 	if (ei->i_reserved_data_blocks == 0) {
-		/*
-		 * We can release all of the reserved metadata blocks
-		 * only when we have written all of the delayed
-		 * allocation blocks.
-		 */
 		percpu_counter_sub(&sbi->s_dirtyclusters_counter,
 				   ei->i_reserved_meta_blocks);
 		ei->i_reserved_meta_blocks = 0;
@@ -391,16 +386,6 @@ int ext4_map_blocks(handle_t *handle, struct inode *inode,
 	if (retval > 0 && map->m_flags & EXT4_MAP_MAPPED)
 		return retval;
 
-	/*
-	 * When we call get_blocks without the create flag, the
-	 * BH_Unwritten flag could have gotten set if the blocks
-	 * requested were part of a uninitialized extent.  We need to
-	 * clear this flag now that we are committed to convert all or
-	 * part of the uninitialized extent to be an initialized
-	 * extent.  This is because we need to avoid the combination
-	 * of BH_Unwritten and BH_Mapped flags being simultaneously
-	 * set on the buffer_head.
-	 */
 	map->m_flags &= ~EXT4_MAP_UNWRITTEN;
 
 	down_write((&EXT4_I(inode)->i_data_sem));
@@ -893,13 +878,6 @@ static void ext4_da_release_space(struct inode *inode, int to_free)
 	ei->i_reserved_data_blocks -= to_free;
 
 	if (ei->i_reserved_data_blocks == 0) {
-		/*
-		 * We can release all of the reserved metadata blocks
-		 * only when we have written all of the delayed
-		 * allocation blocks.
-		 * Note that in case of bigalloc, i_reserved_meta_blocks,
-		 * i_reserved_data_blocks, etc. refer to number of clusters.
-		 */
 		percpu_counter_sub(&sbi->s_dirtyclusters_counter,
 				   ei->i_reserved_meta_blocks);
 		ei->i_reserved_meta_blocks = 0;
@@ -1143,24 +1121,6 @@ static void mpage_da_map_and_submit(struct mpage_da_data *mpd)
 	handle = ext4_journal_current_handle();
 	BUG_ON(!handle);
 
-	/*
-	 * Call ext4_map_blocks() to allocate any delayed allocation
-	 * blocks, or to convert an uninitialized extent to be
-	 * initialized (in the case where we have written into
-	 * one or more preallocated blocks).
-	 *
-	 * We pass in the magic EXT4_GET_BLOCKS_DELALLOC_RESERVE to
-	 * indicate that we are on the delayed allocation path.  This
-	 * affects functions in many different parts of the allocation
-	 * call path.  This flag exists primarily because we don't
-	 * want to change *many* call functions, so ext4_map_blocks()
-	 * will set the EXT4_STATE_DELALLOC_RESERVED flag once the
-	 * inode's allocation semaphore is taken.
-	 *
-	 * If the blocks in questions were delalloc blocks, set
-	 * EXT4_GET_BLOCKS_DELALLOC_RESERVE so the delalloc accounting
-	 * variables are updated after the blocks have been allocated.
-	 */
 	map.m_lblk = next;
 	map.m_len = max_blocks;
 	get_blocks_flags = EXT4_GET_BLOCKS_CREATE;
@@ -1326,18 +1286,6 @@ out_unlock:
 	return retval;
 }
 
-/*
- * This is a special get_blocks_t callback which is used by
- * ext4_da_write_begin().  It will either return mapped block or
- * reserve space for a single block.
- *
- * For delayed buffer_head we have BH_Mapped, BH_New, BH_Delay set.
- * We also have b_blocknr = -1 and b_bdev initialized properly
- *
- * For unwritten buffer_head we have BH_Mapped, BH_New, BH_Unwritten set.
- * We also have b_blocknr = physicalblock mapping unwritten extent and b_bdev
- * initialized properly.
- */
 static int ext4_da_get_block_prep(struct inode *inode, sector_t iblock,
 				  struct buffer_head *bh, int create)
 {
@@ -1358,12 +1306,6 @@ static int ext4_da_get_block_prep(struct inode *inode, sector_t iblock,
 	bh->b_state = (bh->b_state & ~EXT4_MAP_FLAGS) | map.m_flags;
 
 	if (buffer_unwritten(bh)) {
-		/* A delayed write to unwritten bh should be marked
-		 * new and mapped.  Mapped ensures that we don't do
-		 * get_block multiple times when we write to the same
-		 * offset and new ensures that we do proper zero out
-		 * for partial write.
-		 */
 		set_buffer_new(bh);
 		set_buffer_mapped(bh);
 	}
@@ -1434,47 +1376,6 @@ out:
 static int ext4_set_bh_endio(struct buffer_head *bh, struct inode *inode);
 static void ext4_end_io_buffer_write(struct buffer_head *bh, int uptodate);
 
-/*
- * Note that we don't need to start a transaction unless we're journaling data
- * because we should have holes filled from ext4_page_mkwrite(). We even don't
- * need to file the inode to the transaction's list in ordered mode because if
- * we are writing back data added by write(), the inode is already there and if
- * we are writing back data modified via mmap(), no one guarantees in which
- * transaction the data will hit the disk. In case we are journaling data, we
- * cannot start transaction directly because transaction start ranks above page
- * lock so we have to do some magic.
- *
- * This function can get called via...
- *   - ext4_da_writepages after taking page lock (have journal handle)
- *   - journal_submit_inode_data_buffers (no journal handle)
- *   - shrink_page_list via pdflush (no journal handle)
- *   - grab_page_cache when doing write_begin (have journal handle)
- *
- * We don't do any block allocation in this function. If we have page with
- * multiple blocks we need to write those buffer_heads that are mapped. This
- * is important for mmaped based write. So if we do with blocksize 1K
- * truncate(f, 1024);
- * a = mmap(f, 0, 4096);
- * a[0] = 'a';
- * truncate(f, 4096);
- * we have in the page first buffer_head mapped via page_mkwrite call back
- * but other buffer_heads would be unmapped but dirty (dirty done via the
- * do_wp_page). So writepage should write the first block. If we modify
- * the mmap area beyond 1024 we will again get a page_fault and the
- * page_mkwrite callback will do the block allocation and mark the
- * buffer_heads mapped.
- *
- * We redirty the page if we have any buffer_heads that is either delay or
- * unwritten in the page.
- *
- * We can get recursively called as show below.
- *
- *	ext4_writepage() -> kmalloc() -> __alloc_pages() -> page_launder() ->
- *		ext4_writepage()
- *
- * But since we don't do any block allocation we should not deadlock.
- * Page also have the dirty flag cleared so we don't get recurive page_lock.
- */
 static int ext4_writepage(struct page *page,
 			  struct writeback_control *wbc)
 {
@@ -1697,22 +1598,6 @@ static int ext4_da_writepages(struct address_space *mapping,
 		end = wbc->range_end >> PAGE_CACHE_SHIFT;
 	}
 
-	/*
-	 * This works around two forms of stupidity.  The first is in
-	 * the writeback code, which caps the maximum number of pages
-	 * written to be 1024 pages.  This is wrong on multiple
-	 * levels; different architectues have a different page size,
-	 * which changes the maximum amount of data which gets
-	 * written.  Secondly, 4 megabytes is way too small.  XFS
-	 * forces this value to be 16 megabytes by multiplying
-	 * nr_to_write parameter by four, and then relies on its
-	 * allocator to allocate larger extents to make them
-	 * contiguous.  Unfortunately this brings us to the second
-	 * stupidity, which is that ext4's mballoc code only allocates
-	 * at most 2048 blocks.  So we force contiguous writes up to
-	 * the number of dirty blocks in the inode, or
-	 * sbi->max_writeback_mb_bump whichever is smaller.
-	 */
 	max_pages = sbi->s_max_writeback_mb_bump << (20 - PAGE_CACHE_SHIFT);
 	if (!range_cyclic && range_whole) {
 		if (wbc->nr_to_write == LONG_MAX)
@@ -1962,20 +1847,6 @@ int ext4_alloc_da_blocks(struct inode *inode)
 	return filemap_flush(inode->i_mapping);
 }
 
-/*
- * bmap() is special.  It gets used by applications such as lilo and by
- * the swapper to find the on-disk block of a specific piece of data.
- *
- * Naturally, this is dangerous if the block concerned is still in the
- * journal.  If somebody makes a swapfile on an ext4 data-journaling
- * filesystem and enables swap, then they may get a nasty shock when the
- * data getting swapped to that swapfile suddenly gets overwritten by
- * the original zero's written out previously to the journal and
- * awaiting writeback in the kernel's buffer cache.
- *
- * So, if we see any bmap calls here on a modified, data-journaled file,
- * take extra steps to flush any blocks which might be in the cache.
- */
 static sector_t ext4_bmap(struct address_space *mapping, sector_t block)
 {
 	struct inode *inode = mapping->host;
@@ -2098,7 +1969,7 @@ static void ext4_end_io_dio(struct kiocb *iocb, loff_t offset,
 
 	iocb->private = NULL;
 
-	/* if not aio dio with unwritten extents, just free io and return */
+	
 	if (!(io_end->flag & EXT4_IO_END_UNWRITTEN)) {
 		ext4_free_io_end(io_end);
 out:
@@ -2122,7 +1993,7 @@ out:
 	list_add_tail(&io_end->list, &ei->i_completed_io_list);
 	spin_unlock_irqrestore(&ei->i_completed_io_lock, flags);
 
-	/* queue the work to convert unwritten extents to written */
+	
 	queue_work(wq, &io_end->work);
 }
 
@@ -2144,10 +2015,6 @@ static void ext4_end_io_buffer_write(struct buffer_head *bh, int uptodate)
 		goto out;
 	}
 
-	/*
-	 * It may be over-defensive here to check EXT4_IO_END_UNWRITTEN now,
-	 * but being more careful is always safe for the future change.
-	 */
 	inode = io_end->inode;
 	ext4_set_io_unwritten_flag(inode, io_end);
 
@@ -2157,7 +2024,7 @@ static void ext4_end_io_buffer_write(struct buffer_head *bh, int uptodate)
 	spin_unlock_irqrestore(&EXT4_I(inode)->i_completed_io_lock, flags);
 
 	wq = EXT4_SB(inode->i_sb)->dio_unwritten_wq;
-	/* queue the work to convert unwritten extents to written */
+	
 	queue_work(wq, &io_end->work);
 out:
 	bh->b_private = NULL;
@@ -2182,11 +2049,6 @@ retry:
 	}
 	io_end->offset = offset;
 	io_end->size = size;
-	/*
-	 * We need to hold a reference to the page to make sure it
-	 * doesn't get evicted before ext4_end_io_work() has a chance
-	 * to convert the extent from written to unwritten.
-	 */
 	io_end->page = page;
 	get_page(io_end->page);
 
@@ -2195,25 +2057,6 @@ retry:
 	return 0;
 }
 
-/*
- * For ext4 extent files, ext4 will do direct-io write to holes,
- * preallocated extents, and those write extend the file, no need to
- * fall back to buffered IO.
- *
- * For holes, we fallocate those blocks, mark them as uninitialized
- * If those blocks were preallocated, we mark sure they are splited, but
- * still keep the range to write as uninitialized.
- *
- * The unwrritten extents will be converted to written when DIO is completed.
- * For async direct IO, since the IO may still pending when return, we
- * set up an end_io call back function, which will do the conversion
- * when async direct IO completed.
- *
- * If the O_DIRECT write will extend the file then add this inode to the
- * orphan list.  So recovery will truncate it back to the original size
- * if the machine crashes during the write.
- *
- */
 static ssize_t ext4_ext_direct_IO(int rw, struct kiocb *iocb,
 			      const struct iovec *iov, loff_t offset,
 			      unsigned long nr_segs)
@@ -2225,26 +2068,6 @@ static ssize_t ext4_ext_direct_IO(int rw, struct kiocb *iocb,
 
 	loff_t final_size = offset + count;
 	if (rw == WRITE && final_size <= inode->i_size) {
-		/*
- 		 * We could direct write to holes and fallocate.
-		 *
- 		 * Allocated blocks to fill the hole are marked as uninitialized
- 		 * to prevent parallel buffered read to expose the stale data
- 		 * before DIO complete the data IO.
-		 *
- 		 * As to previously fallocated extents, ext4 get_block
- 		 * will just simply mark the buffer mapped but still
- 		 * keep the extents uninitialized.
- 		 *
-		 * for non AIO case, we will convert those unwritten extents
-		 * to written after return back from blockdev_direct_IO.
-		 *
-		 * for async DIO, the conversion needs to be defered when
-		 * the IO is completed. The ext4 end_io callback function
-		 * will be called to take care of the conversion work.
-		 * Here for async case, we allocate an io_end structure to
-		 * hook to the iocb.
- 		 */
 		iocb->private = NULL;
 		EXT4_I(inode)->cur_aio_dio = NULL;
 		if (!is_sync_kiocb(iocb)) {
@@ -2254,13 +2077,6 @@ static ssize_t ext4_ext_direct_IO(int rw, struct kiocb *iocb,
 				return -ENOMEM;
 			io_end->flag |= EXT4_IO_END_DIRECT;
 			iocb->private = io_end;
-			/*
-			 * we save the io structure for current async
-			 * direct IO, so that later ext4_map_blocks()
-			 * could flag the io structure whether there
-			 * is a unwritten extents needs to be converted
-			 * when IO is completed.
-			 */
 			EXT4_I(inode)->cur_aio_dio = iocb->private;
 		}
 
@@ -3123,30 +2939,6 @@ int ext4_write_inode(struct inode *inode, struct writeback_control *wbc)
 	return err;
 }
 
-/*
- * ext4_setattr()
- *
- * Called from notify_change.
- *
- * We want to trap VFS attempts to truncate the file as soon as
- * possible.  In particular, we want to make sure that when the VFS
- * shrinks i_size, we put the inode on the orphan list and modify
- * i_disksize immediately, so that during the subsequent flushing of
- * dirty pages and freeing of disk blocks, we can guarantee that any
- * commit will leave the blocks being flushed in an unused state on
- * disk.  (On recovery, the inode will get truncated and the blocks will
- * be freed, so we have a strong guarantee that no future commit will
- * leave these blocks visible to the user.)
- *
- * Another thing we have to assure is that if we are in ordered mode
- * and inode is still attached to the committing transaction, we must
- * we start writeout of all the dirty pages which are being truncated.
- * This way we are sure that all the data written in the previous
- * transaction are already on disk (truncate waits for pages under
- * writeback).
- *
- * Called with inode->i_mutex down.
- */
 int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 {
 	struct inode *inode = dentry->d_inode;
@@ -3394,27 +3186,6 @@ static int ext4_expand_extra_isize(struct inode *inode,
 					  raw_inode, handle);
 }
 
-/*
- * What we do here is to mark the in-core inode as clean with respect to inode
- * dirtiness (it may still be data-dirty).
- * This means that the in-core inode may be reaped by prune_icache
- * without having to perform any I/O.  This is a very good thing,
- * because *any* task may call prune_icache - even ones which
- * have a transaction open against a different journal.
- *
- * Is this cheating?  Not really.  Sure, we haven't written the
- * inode out, but prune_icache isn't a user-visible syncing function.
- * Whenever the user wants stuff synced (sys_sync, sys_msync, sys_fsync)
- * we start and wait on commits.
- *
- * Is this efficient/effective?  Well, we're being nice to the system
- * by cleaning up our inodes proactively so they can be reaped
- * without I/O.  But we are potentially leaving up to five seconds'
- * worth of inodes floating about which prune_icache wants us to
- * write out.  One way to fix that would be to get prune_icache()
- * to do a write_super() to free up some memory.  It has the desired
- * effect.
- */
 int ext4_mark_inode_dirty(handle_t *handle, struct inode *inode)
 {
 	struct ext4_iloc iloc;

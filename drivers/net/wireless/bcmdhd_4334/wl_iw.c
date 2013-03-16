@@ -608,7 +608,7 @@ get_parameter_from_string(
 
                                 memcpy(dst, param_str_begin, parm_str_len);
                                 *((char *)dst + parm_str_len) = 0;
-                                /* WL_DEFAULT((" written as a string:%s\n", (char *)dst)); */
+                                
                                 WL_DEFAULT((" written as a string\n"));
                         break;
 

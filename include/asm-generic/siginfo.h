@@ -200,14 +200,6 @@ typedef struct siginfo {
 #define POLL_HUP	(__SI_POLL|6)	
 #define NSIGPOLL	6
 
-/*
- * sigevent definitions
- * 
- * It seems likely that SIGEV_THREAD will have to be handled from 
- * userspace, libpthread transmuting it to SIGEV_SIGNAL, which the
- * thread manager then catches and does the appropriate nonsense.
- * However, everything is written out here so as to not get lost.
- */
 #define SIGEV_SIGNAL	0	
 #define SIGEV_NONE	1	
 #define SIGEV_THREAD	2	

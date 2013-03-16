@@ -460,8 +460,7 @@ struct v4l2_timecode {
 struct v4l2_jpegcompression {
 	int quality;
 
-	int  APPn;              /* Number of APP segment to be written,
-				 * must be 0..15 */
+	int  APPn;              
 	int  APP_len;           
 	char APP_data[60];      
 

@@ -106,19 +106,6 @@ extern int relay_buf_full(struct rchan_buf *buf);
 extern size_t relay_switch_subbuf(struct rchan_buf *buf,
 				  size_t length);
 
-/**
- *	relay_write - write data into the channel
- *	@chan: relay channel
- *	@data: data to be written
- *	@length: number of bytes to write
- *
- *	Writes data into the current cpu's channel buffer.
- *
- *	Protects the buffer by disabling interrupts.  Use this
- *	if you might be logging from interrupt context.  Try
- *	__relay_write() if you know you	won't be logging from
- *	interrupt context.
- */
 static inline void relay_write(struct rchan *chan,
 			       const void *data,
 			       size_t length)
@@ -135,18 +122,6 @@ static inline void relay_write(struct rchan *chan,
 	local_irq_restore(flags);
 }
 
-/**
- *	__relay_write - write data into the channel
- *	@chan: relay channel
- *	@data: data to be written
- *	@length: number of bytes to write
- *
- *	Writes data into the current cpu's channel buffer.
- *
- *	Protects the buffer by disabling preemption.  Use
- *	relay_write() if you might be logging from interrupt
- *	context.
- */
 static inline void __relay_write(struct rchan *chan,
 				 const void *data,
 				 size_t length)

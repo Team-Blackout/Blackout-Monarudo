@@ -34,27 +34,6 @@ typedef int user_regset_set_fn(struct task_struct *target,
 			       unsigned int pos, unsigned int count,
 			       const void *kbuf, const void __user *ubuf);
 
-/**
- * user_regset_writeback_fn - type of @writeback function in &struct user_regset
- * @target:	thread being examined
- * @regset:	regset being examined
- * @immediate:	zero if writeback at completion of next context switch is OK
- *
- * This call is optional; usually the pointer is %NULL.  When
- * provided, there is some user memory associated with this regset's
- * hardware, such as memory backing cached register data on register
- * window machines; the regset's data controls what user memory is
- * used (e.g. via the stack pointer value).
- *
- * Write register data back to user memory.  If the @immediate flag
- * is nonzero, it must be written to the user memory so uaccess or
- * access_process_vm() can see it when this call returns; if zero,
- * then it must be written back by the time the task completes a
- * context switch (as synchronized with wait_task_inactive()).
- * Return %0 on success or if there was nothing to do, -%EFAULT for
- * a memory problem (bad stack pointer or whatever), or -%EIO for a
- * hardware problem.
- */
 typedef int user_regset_writeback_fn(struct task_struct *target,
 				     const struct user_regset *regset,
 				     int immediate);
@@ -71,24 +50,6 @@ struct user_regset {
 	unsigned int 			core_note_type;
 };
 
-/**
- * struct user_regset_view - available regsets
- * @name:	Identifier, e.g. UTS_MACHINE string.
- * @regsets:	Array of @n regsets available in this view.
- * @n:		Number of elements in @regsets.
- * @e_machine:	ELF header @e_machine %EM_* value written in core dumps.
- * @e_flags:	ELF header @e_flags value written in core dumps.
- * @ei_osabi:	ELF header @e_ident[%EI_OSABI] value written in core dumps.
- *
- * A regset view is a collection of regsets (&struct user_regset,
- * above).  This describes all the state of a thread that can be seen
- * from a given architecture/ABI environment.  More than one view might
- * refer to the same &struct user_regset, or more than one regset
- * might refer to the same machine-specific state in the thread.  For
- * example, a 32-bit thread's state could be examined from the 32-bit
- * view or from the 64-bit view.  Either method reaches the same thread
- * register state, doing appropriate widening or truncation.
- */
 struct user_regset_view {
 	const char *name;
 	const struct user_regset *regsets;

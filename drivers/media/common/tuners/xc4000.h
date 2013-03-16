@@ -31,7 +31,7 @@ struct xc4000_config {
 	u8	i2c_address;
 	
 	u8	default_pm;
-	/* value to be written to XREG_AMPLITUDE in DVB-T mode (0: no write) */
+	
 	u8	dvb_amplitude;
 	
 	u8	set_smoothedcvbs;

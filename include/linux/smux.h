@@ -107,24 +107,6 @@ int msm_smux_open(uint8_t lcid, void *priv,
 
 int msm_smux_close(uint8_t lcid);
 
-/**
- * Write data to a logical channel.
- *
- * @lcid      Logical channel ID
- * @pkt_priv  Client data that will be returned with the SMUX_WRITE_DONE or
- *            SMUX_WRITE_FAIL notification.
- * @data      Data to write
- * @len       Length of @data
- *
- * @returns   0 for success, <0 otherwise
- *
- * Data may be written immediately after msm_smux_open() is called, but
- * the data will wait in the transmit queue until the channel has been
- * fully opened.
- *
- * Once the data has been written, the client will receive either a completion
- * (SMUX_WRITE_DONE) or a failure notice (SMUX_WRITE_FAIL).
- */
 int msm_smux_write(uint8_t lcid, void *pkt_priv, const void *data, int len);
 
 int msm_smux_is_ch_full(uint8_t lcid);

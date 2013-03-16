@@ -338,11 +338,6 @@ static void gen_bitlen(
         overflow -= 2;
     } while (overflow > 0);
 
-    /* Now recompute all bit lengths, scanning in increasing frequency.
-     * h is still equal to HEAP_SIZE. (It is simpler to reconstruct all
-     * lengths instead of fixing only the wrong ones. This idea is taken
-     * from 'ar' written by Haruhiko Okumura.)
-     */
     for (bits = max_length; bits != 0; bits--) {
         n = s->bl_count[bits];
         while (n != 0) {
@@ -838,7 +833,7 @@ static void copy_block(
 	deflate_state *s,
 	char    *buf,     
 	unsigned len,     
-	int      header   /* true if block header must be written */
+	int      header   
 )
 {
     bi_windup(s);        

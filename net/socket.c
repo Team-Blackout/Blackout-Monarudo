@@ -167,22 +167,6 @@ int move_addr_to_kernel(void __user *uaddr, int ulen, struct sockaddr_storage *k
 	return audit_sockaddr(ulen, kaddr);
 }
 
-/**
- *	move_addr_to_user	-	copy an address to user space
- *	@kaddr: kernel space address
- *	@klen: length of address in kernel
- *	@uaddr: user space address
- *	@ulen: pointer to user length field
- *
- *	The value pointed to by ulen on entry is the buffer length available.
- *	This is overwritten with the buffer space used. -EINVAL is returned
- *	if an overlong buffer is specified or a negative buffer size. -EFAULT
- *	is returned if either the buffer or the length field are not
- *	accessible.
- *	After copying the data up to the limit the user specifies, the true
- *	length of the data is written over the length limit the user
- *	specified. Zero is returned for a success.
- */
 
 static int move_addr_to_user(struct sockaddr_storage *kaddr, int klen,
 			     void __user *uaddr, int __user *ulen)
@@ -365,18 +349,6 @@ static struct socket *sock_from_file(struct file *file, int *err)
 	return NULL;
 }
 
-/**
- *	sockfd_lookup - Go from a file number to its socket slot
- *	@fd: file handle
- *	@err: pointer to an error code return
- *
- *	The file handle passed in is locked and the socket it is bound
- *	too is returned. If an error occurs the err pointer is overwritten
- *	with a negative errno code and NULL is returned. The function checks
- *	for both invalid handles and passing a handle which is not a socket.
- *
- *	On a success the socket object pointer is returned.
- */
 
 struct socket *sockfd_lookup(int fd, int *err)
 {

@@ -2620,11 +2620,11 @@ config MACH_MONARUDO
 	help
 	  Support for the HTC APQ8064 MONARUDO.
 
-config MACH_DELUXE_U
+config MACH_DELUXE_UB1
         depends on ARCH_APQ8064
-        bool "APQ8064 DELUXE_U"
+        bool "APQ8064 DELUXE_UB1"
         help
-          Support for the HTC APQ8064 DELUXE_U.
+          Support for the HTC APQ8064 DELUXE_UB1.
 
 config HTC_HEADSET_ONE_WIRE
 	tristate "HTC 1-wire headset detection driver"

@@ -15,12 +15,6 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
     MA 02110-1301 USA.							     */
 
-/* With some changes from Kyösti Mälkki <kmalkki@cc.hut.fi>.
-   All SMBus-related things are written by Frodo Looijaard <frodol@dds.nl>
-   SMBus 2.0 support by Mark Studebaker <mdsxyz123@yahoo.com> and
-   Jean Delvare <khali@linux-fr.org>
-   Mux support by Rodolfo Giometti <giometti@enneenne.com> and
-   Michael Lawnick <michael.lawnick.ext@nsn.com> */
 
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -1137,14 +1131,6 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 }
 EXPORT_SYMBOL(i2c_transfer);
 
-/**
- * i2c_master_send - issue a single I2C message in master transmit mode
- * @client: Handle to slave device
- * @buf: Data that will be written to the slave
- * @count: How many bytes to write, must be less than 64k since msg.len is u16
- *
- * Returns negative errno, or else the number of bytes written.
- */
 int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
 {
 	int ret;
@@ -1446,15 +1432,6 @@ s32 i2c_smbus_read_byte_data(const struct i2c_client *client, u8 command)
 }
 EXPORT_SYMBOL(i2c_smbus_read_byte_data);
 
-/**
- * i2c_smbus_write_byte_data - SMBus "write byte" protocol
- * @client: Handle to slave device
- * @command: Byte interpreted by slave
- * @value: Byte being written
- *
- * This executes the SMBus "write byte" protocol, returning negative errno
- * else zero on success.
- */
 s32 i2c_smbus_write_byte_data(const struct i2c_client *client, u8 command,
 			      u8 value)
 {
@@ -1478,15 +1455,6 @@ s32 i2c_smbus_read_word_data(const struct i2c_client *client, u8 command)
 }
 EXPORT_SYMBOL(i2c_smbus_read_word_data);
 
-/**
- * i2c_smbus_write_word_data - SMBus "write word" protocol
- * @client: Handle to slave device
- * @command: Byte interpreted by slave
- * @value: 16-bit "word" being written
- *
- * This executes the SMBus "write word" protocol, returning negative errno
- * else zero on success.
- */
 s32 i2c_smbus_write_word_data(const struct i2c_client *client, u8 command,
 			      u16 value)
 {
@@ -1498,15 +1466,6 @@ s32 i2c_smbus_write_word_data(const struct i2c_client *client, u8 command,
 }
 EXPORT_SYMBOL(i2c_smbus_write_word_data);
 
-/**
- * i2c_smbus_process_call - SMBus "process call" protocol
- * @client: Handle to slave device
- * @command: Byte interpreted by slave
- * @value: 16-bit "word" being written
- *
- * This executes the SMBus "process call" protocol, returning negative errno
- * else a 16-bit unsigned "word" received from the device.
- */
 s32 i2c_smbus_process_call(const struct i2c_client *client, u8 command,
 			   u16 value)
 {
@@ -1538,16 +1497,6 @@ s32 i2c_smbus_read_block_data(const struct i2c_client *client, u8 command,
 }
 EXPORT_SYMBOL(i2c_smbus_read_block_data);
 
-/**
- * i2c_smbus_write_block_data - SMBus "block write" protocol
- * @client: Handle to slave device
- * @command: Byte interpreted by slave
- * @length: Size of data block; SMBus allows at most 32 bytes
- * @values: Byte array which will be written.
- *
- * This executes the SMBus "block write" protocol, returning negative errno
- * else zero on success.
- */
 s32 i2c_smbus_write_block_data(const struct i2c_client *client, u8 command,
 			       u8 length, const u8 *values)
 {
@@ -1756,19 +1705,6 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
 	return 0;
 }
 
-/**
- * i2c_smbus_xfer - execute SMBus protocol operations
- * @adapter: Handle to I2C bus
- * @addr: Address of SMBus slave on that bus
- * @flags: I2C_CLIENT_* flags (usually zero or I2C_CLIENT_PEC)
- * @read_write: I2C_SMBUS_READ or I2C_SMBUS_WRITE
- * @command: Byte interpreted by slave, for protocols which use such bytes
- * @protocol: SMBus protocol operation to execute, such as I2C_SMBUS_PROC_CALL
- * @data: Data to be read or written
- *
- * This executes an SMBus protocol operation, and returns a negative
- * errno code else zero on success.
- */
 s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
 		   char read_write, u8 command, int protocol,
 		   union i2c_smbus_data *data)

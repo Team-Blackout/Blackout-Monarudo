@@ -26,15 +26,7 @@ struct tuner_params {
 	unsigned int port2_fm_high_sensitivity:1;
 	unsigned int fm_gain_normal:1;
 	unsigned int intercarrier_mode:1;
-	/* This setting sets the default value for PORT1.
-	   0 means inactive, 1 means active. Note: the actual bit
-	   value written to the tda9887 is inverted. So a 0 here
-	   means a 1 in the B6 bit. */
 	unsigned int port1_active:1;
-	/* This setting sets the default value for PORT2.
-	   0 means inactive, 1 means active. Note: the actual bit
-	   value written to the tda9887 is inverted. So a 0 here
-	   means a 1 in the B7 bit. */
 	unsigned int port2_active:1;
 	unsigned int port1_invert_for_secam_lc:1;
 	unsigned int port2_invert_for_secam_lc:1;

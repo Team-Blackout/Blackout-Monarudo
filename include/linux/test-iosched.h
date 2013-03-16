@@ -63,25 +63,6 @@ struct test_debug {
 	struct dentry *start_sector;
 };
 
-/**
- * struct test_request - defines a test request
- * @queuelist:		The test requests list
- * @bios_buffer:	Write/read requests data buffer
- * @buf_size:		Write/read requests data buffer size (in
- *			bytes)
- * @rq:			A block request, to be dispatched
- * @req_completed:	A flag to indicate if the request was
- *			completed
- * @req_result:		Keeps the error code received in the
- *			request completion callback
- * @is_err_expected:	A flag to indicate if the request should
- *			fail
- * @wr_rd_data_pattern:	A pattern written to the write data
- *			buffer. Can be used in read requests to
- *			verify the data
- * @req_id:		A unique ID to identify a test request
- *			to ease the debugging of the test cases
- */
 struct test_request {
 	struct list_head queuelist;
 	unsigned int *bios_buffer;

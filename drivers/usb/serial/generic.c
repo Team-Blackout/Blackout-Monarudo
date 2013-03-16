@@ -222,17 +222,6 @@ retry:
 	return 0;
 }
 
-/**
- * usb_serial_generic_write - generic write function for serial USB devices
- * @tty:	Pointer to &struct tty_struct for the device
- * @port:	Pointer to the &usb_serial_port structure for the device
- * @buf:	Pointer to the data to write
- * @count:	Number of bytes to write
- *
- * Returns the number of characters actually written, which may be anything
- * from zero to @count. If an error occurs, it returns the negative errno
- * value.
- */
 int usb_serial_generic_write(struct tty_struct *tty,
 	struct usb_serial_port *port, const unsigned char *buf, int count)
 {

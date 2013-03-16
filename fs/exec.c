@@ -1227,12 +1227,6 @@ static int do_execve_common(const char *filename,
 	int retval;
 	const struct cred *cred = current_cred();
 
-	/*
-	 * We move the actual failure in case of RLIMIT_NPROC excess from
-	 * set*uid() to execve() because too many poorly written programs
-	 * don't check setuid() return code.  Here we additionally recheck
-	 * whether NPROC limit is still exceeded.
-	 */
 	if ((current->flags & PF_NPROC_EXCEEDED) &&
 	    atomic_read(&cred->user->processes) > rlimit(RLIMIT_NPROC)) {
 		retval = -EAGAIN;

@@ -2596,10 +2596,6 @@ dhdsdio_readshared(dhd_bus_t *bus, sdpcm_shared_t *sh)
 
 		DHD_INFO(("sdpcm_shared address 0x%08X\n", addr));
 
-		/*
-		 * Check if addr is valid.
-		 * NVRAM length at the end of memory should have been overwritten.
-		 */
 		if (addr == 0 || ((~addr >> 16) & 0xffff) == (addr & 0xffff)) {
 			if ((bus->srmemsize > 0) && (i++ == 0)) {
 				shaddr -= bus->srmemsize;
@@ -3140,7 +3136,7 @@ dhdsdio_doiovar(dhd_bus_t *bus, const bcm_iovar_t *vi, uint32 actionid, const ch
 
 		
 		if (si_setcore(bus->sih, ARMCR4_CORE_ID, 0)) {
-			/* if address is 0, store the reset instruction to be written in 0 */
+			
 
 			if (address == 0) {
 				bus->resetinstr = *(((uint32*)params) + 2);
@@ -3556,7 +3552,7 @@ dhdsdio_write_vars(dhd_bus_t *bus)
 	uint8 *nvram_ularray;
 #endif 
 
-	/* Even if there are no vars are to be written, we still need to set the ramsize. */
+	
 	varsize = bus->varsz ? ROUNDUP(bus->varsz, 4) : 0;
 	varaddr = (bus->ramsize - 4) - varsize;
 
@@ -5417,9 +5413,7 @@ dhdsdio_hostmail(dhd_bus_t *bus)
 	
 	if (hmb_data & HMB_DATA_FWHALT) {
 		DHD_ERROR(("INTERNAL ERROR: FIRMWARE HALTED\n"));
-		bus->dhd->busstate = DHD_BUS_DOWN;
-		bus->intstatus = 0;
-		dhd_info_send_hang_message(bus->dhd);
+		dhdsdio_checkdied(bus, NULL, 0);
 	}
 #endif 
 

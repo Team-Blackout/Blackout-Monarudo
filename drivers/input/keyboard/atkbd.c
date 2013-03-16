@@ -189,7 +189,7 @@ struct atkbd {
 	struct ps2dev ps2dev;
 	struct input_dev *dev;
 
-	/* Written only during init */
+	
 	char name[64];
 	char phys[32];
 

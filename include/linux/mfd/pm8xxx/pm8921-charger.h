@@ -182,8 +182,6 @@ int pm8921_is_batt_temperature_fault(int *result);
 
 int pm8921_is_batt_temp_fault_disable_chg(int *result);
 
-int pm8921_is_vbus_unstable(int *result);
-
 int pm8921_is_batt_full(int *result);
 
 int pm8921_get_charging_source(int *result);
@@ -311,11 +309,6 @@ static inline int pm8921_is_batt_temp_fault_disable_chg(int *result)
 {
 	return -ENXIO;
 }
-static inline int pm8921_is_vbus_unstable(int *result)
-{
-	return -ENXIO;
-}
-
 static inline int pm8921_is_batt_full(int *result)
 {
 	return -ENXIO;

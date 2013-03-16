@@ -2031,16 +2031,6 @@ retry:
 	if (l > EXT4_N_BLOCKS * 4) {
 		inode->i_op = &ext4_symlink_inode_operations;
 		ext4_set_aops(inode);
-		/*
-		 * We cannot call page_symlink() with transaction started
-		 * because it calls into ext4_write_begin() which can wait
-		 * for transaction commit if we are running out of space
-		 * and thus we deadlock. So we have to stop transaction now
-		 * and restart it when symlink contents is written.
-		 * 
-		 * To keep fs consistent in case of crash, we have to put inode
-		 * to orphan list in the mean time.
-		 */
 		drop_nlink(inode);
 		err = ext4_orphan_add(handle, inode);
 		ext4_journal_stop(handle);

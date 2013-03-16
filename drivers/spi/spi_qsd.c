@@ -986,11 +986,6 @@ static void msm_spi_process_transfer(struct msm_spi *dd)
 		msm_spi_start_write(dd, read_count);
 	}
 
-	/* Only enter the RUN state after the first word is written into
-	   the output FIFO. Otherwise, the output FIFO EMPTY interrupt
-	   might fire before the first word is written resulting in a
-	   possible race condition.
-	 */
 	if (msm_spi_set_state(dd, SPI_OP_STATE_RUN))
 		goto transfer_end;
 

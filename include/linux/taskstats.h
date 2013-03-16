@@ -78,7 +78,7 @@ struct taskstats {
 
 	
 	__u64	read_char;		
-	__u64	write_char;		/* bytes written */
+	__u64	write_char;		
 	__u64	read_syscalls;		
 	__u64	write_syscalls;		
 	

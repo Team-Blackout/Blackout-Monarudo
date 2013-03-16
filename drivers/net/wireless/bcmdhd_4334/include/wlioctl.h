@@ -1090,7 +1090,7 @@ typedef struct wl_ioctl {
 	void *buf;	
 	uint len;	
 	uint8 set;		
-	uint used;	/* bytes read or written (optional) */
+	uint used;	
 	uint needed;	
 } wl_ioctl_t;
 #ifndef LINUX_POSTMOGRIFY_REMOVAL
@@ -3865,7 +3865,6 @@ typedef struct {
 #define OVERLAY_IDX_SHIFT		0
 #define OVERLAY_FLAGS_MASK		0xffffff00
 #define OVERLAY_FLAGS_SHIFT		8
-/* overlay written to device memory immediately after loading the base image */
 #define OVERLAY_FLAG_POSTLOAD	0x100
 #define OVERLAY_FLAG_DEFER_DL	0x200
 #define OVERLAY_FLAG_PRESLEEP	0x400

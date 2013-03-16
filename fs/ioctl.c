@@ -94,20 +94,6 @@ int fiemap_fill_next_extent(struct fiemap_extent_info *fieinfo, u64 logical,
 }
 EXPORT_SYMBOL(fiemap_fill_next_extent);
 
-/**
- * fiemap_check_flags - check validity of requested flags for fiemap
- * @fieinfo:	Fiemap context passed into ->fiemap
- * @fs_flags:	Set of fiemap flags that the file system understands
- *
- * Called from file system ->fiemap callback. This will compute the
- * intersection of valid fiemap flags and those that the fs supports. That
- * value is then compared against the user supplied flags. In case of bad user
- * flags, the invalid values will be written into the fieinfo structure, and
- * -EBADR is returned, which tells ioctl_fiemap() to return those values to
- * userspace. For this reason, a return code of -EBADR should be preserved.
- *
- * Returns 0 on success, -EBADR on bad flags.
- */
 int fiemap_check_flags(struct fiemap_extent_info *fieinfo, u32 fs_flags)
 {
 	u32 incompat_flags;

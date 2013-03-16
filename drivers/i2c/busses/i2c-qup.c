@@ -198,7 +198,7 @@ qup_i2c_interrupt(int irq, void *devid)
 		
 		if (dev->num_irqs == 1) {
 			writel_relaxed(QUP_RESET_STATE, dev->base+QUP_STATE);
-			/* Ensure that state is written before ISR exits */
+			
 			mb();
 		}
 		return IRQ_HANDLED;
@@ -211,7 +211,7 @@ qup_i2c_interrupt(int irq, void *devid)
 		
 		if (dev->num_irqs == 1) {
 			writel_relaxed(QUP_RESET_STATE, dev->base+QUP_STATE);
-			/* Ensure that state is written before ISR exits */
+			
 			mb();
 		}
 
@@ -486,10 +486,6 @@ qup_issue_write(struct qup_i2c_dev *dev, struct i2c_msg *msg, int rem,
 		i++;
 		entries++;
 	} else {
-		/* Avoid setp time issue by adding 1 NOP when number of bytes
-		 * are more than FIFO/BLOCK size. setup time issue can't appear
-		 * otherwise since next byte to be written will always be ready
-		 */
 		val = (QUP_OUT_NOP | 1);
 		*idx += 2;
 		i++;
@@ -818,10 +814,6 @@ qup_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 			dev->in_blk_sz = ((fifo_reg & 0x60) >> 5) * 16;
 		else
 			dev->in_blk_sz = 16;
-		/*
-		 * The block/fifo size w.r.t. 'actual data' is 1/2 due to 'tag'
-		 * associated with each byte written/received
-		 */
 		dev->out_blk_sz /= 2;
 		dev->in_blk_sz /= 2;
 		dev->out_fifo_sz = dev->out_blk_sz *
@@ -895,10 +887,6 @@ qup_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 
 		qup_print_status(dev);
 		writel_relaxed(dev->clk_ctl, dev->base + QUP_I2C_CLK_CTL);
-		/* CLK_CTL register is not in the same 1K region as other QUP
-		 * registers. Ensure that clock control is written before
-		 * programming other QUP registers
-		 */
 		mb();
 
 		do {

@@ -73,9 +73,9 @@ typedef enum {
 } mddi_host_type;
 
 typedef enum {
-	MDDI_DRIVER_RESET,	/* host core registers have not been written. */
-	MDDI_DRIVER_DISABLED,	/* registers written, interrupts disabled. */
-	MDDI_DRIVER_ENABLED	/* registers written, interrupts enabled. */
+	MDDI_DRIVER_RESET,	
+	MDDI_DRIVER_DISABLED,	
+	MDDI_DRIVER_ENABLED	
 } mddi_host_driver_state_type;
 
 typedef enum {

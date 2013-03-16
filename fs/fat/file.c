@@ -1,10 +1,3 @@
-/*
- *  linux/fs/fat/file.c
- *
- *  Written 1992,1993 by Werner Almesberger
- *
- *  regular file handling primitives for fat-based filesystems
- */
 
 #include <linux/capability.h>
 #include <linux/module.h>

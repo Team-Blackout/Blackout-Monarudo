@@ -2490,14 +2490,14 @@ int wl_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		
 		snprintf(command, 3, "OK");
 		bytes_written = strlen("OK");
-		/*bytes_written = net_os_set_packet_filter(net, 1);*/
+		
 		
 	}
 	else if (strnicmp(command, CMD_RXFILTER_STOP, strlen(CMD_RXFILTER_STOP)) == 0) {
 		
 		snprintf(command, 3, "OK");
 		bytes_written = strlen("OK");
-		/*bytes_written = net_os_set_packet_filter(net, 0);*/
+		
 		
 	}
 	else if (strnicmp(command, CMD_RXFILTER_ADD, strlen(CMD_RXFILTER_ADD)) == 0) {
@@ -2514,10 +2514,6 @@ int wl_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		wl_android_set_pktfilter(net, (struct dd_pkt_filter_s *)&command[32]);
 		snprintf(command, 3, "OK");
 		bytes_written = strlen("OK");
-		/*
-		int filter_num = *(command + strlen(CMD_RXFILTER_ADD) + 1) - '0';
-		bytes_written = net_os_rxfilter_add_remove(net, TRUE, filter_num);
-		*/
 		
 	}
 	else if (strnicmp(command, CMD_RXFILTER_REMOVE, strlen(CMD_RXFILTER_REMOVE)) == 0) {
@@ -2534,10 +2530,6 @@ int wl_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		wl_android_set_pktfilter(net, (struct dd_pkt_filter_s *)&command[32]);
 		snprintf(command, 3, "OK");
 		bytes_written = strlen("OK");
-		/*
-		int filter_num = *(command + strlen(CMD_RXFILTER_REMOVE) + 1) - '0';
-		bytes_written = net_os_rxfilter_add_remove(net, FALSE, filter_num);
-		*/
 		
 	}
 	else if (strnicmp(command, CMD_BTCOEXSCAN_START, strlen(CMD_BTCOEXSCAN_START)) == 0) {

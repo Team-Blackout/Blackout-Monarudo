@@ -817,26 +817,6 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 	return number(buf, end, (unsigned long) ptr, spec);
 }
 
-/*
- * Helper function to decode printf style format.
- * Each call decode a token from the format and return the
- * number of characters read (or likely the delta where it wants
- * to go on the next call).
- * The decoded token is returned through the parameters
- *
- * 'h', 'l', or 'L' for integer fields
- * 'z' support added 23/7/1999 S.H.
- * 'z' changed to 'Z' --davidm 1/25/99
- * 't' added for ptrdiff_t
- *
- * @fmt: the format string
- * @type of the token returned
- * @flags: various flags such as +, -, # tokens..
- * @field_width: overwritten width
- * @base: base of the number (octal, hex, ...)
- * @precision: precision of a number
- * @qualifier: qualifier of a number (long, size_t, ...)
- */
 static noinline_for_stack
 int format_decode(const char *fmt, struct printf_spec *spec)
 {
@@ -1016,42 +996,6 @@ qualifier:
 	return ++fmt - start;
 }
 
-/**
- * vsnprintf - Format a string and place it in a buffer
- * @buf: The buffer to place the result into
- * @size: The size of the buffer, including the trailing null space
- * @fmt: The format string to use
- * @args: Arguments for the format string
- *
- * This function follows C99 vsnprintf, but has some extensions:
- * %pS output the name of a text symbol with offset
- * %ps output the name of a text symbol without offset
- * %pF output the name of a function pointer with its offset
- * %pf output the name of a function pointer without its offset
- * %pB output the name of a backtrace symbol with its offset
- * %pR output the address range in a struct resource with decoded flags
- * %pr output the address range in a struct resource with raw flags
- * %pM output a 6-byte MAC address with colons
- * %pm output a 6-byte MAC address without colons
- * %pI4 print an IPv4 address without leading zeros
- * %pi4 print an IPv4 address with leading zeros
- * %pI6 print an IPv6 address with colons
- * %pi6 print an IPv6 address without colons
- * %pI6c print an IPv6 address as specified by RFC 5952
- * %pU[bBlL] print a UUID/GUID in big or little endian using lower or upper
- *   case.
- * %n is ignored
- *
- * The return value is the number of characters which would
- * be generated for the given input, excluding the trailing
- * '\0', as per ISO C99. If you want to have the exact
- * number of characters written into @buf as return value
- * (not including the trailing '\0'), use vscnprintf(). If the
- * return is greater than or equal to @size, the resulting
- * string is truncated.
- *
- * If you're not already dealing with a va_list consider using snprintf().
- */
 int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 {
 	unsigned long long num;
@@ -1211,21 +1155,6 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 }
 EXPORT_SYMBOL(vsnprintf);
 
-/**
- * vscnprintf - Format a string and place it in a buffer
- * @buf: The buffer to place the result into
- * @size: The size of the buffer, including the trailing null space
- * @fmt: The format string to use
- * @args: Arguments for the format string
- *
- * The return value is the number of characters which have been written into
- * the @buf not including the trailing '\0'. If @size is == 0 the function
- * returns 0.
- *
- * If you're not already dealing with a va_list consider using scnprintf().
- *
- * See the vsnprintf() documentation for format string extensions over C99.
- */
 int vscnprintf(char *buf, size_t size, const char *fmt, va_list args)
 {
 	int i;
@@ -1253,16 +1182,6 @@ int snprintf(char *buf, size_t size, const char *fmt, ...)
 }
 EXPORT_SYMBOL(snprintf);
 
-/**
- * scnprintf - Format a string and place it in a buffer
- * @buf: The buffer to place the result into
- * @size: The size of the buffer, including the trailing null space
- * @fmt: The format string to use
- * @...: Arguments for the format string
- *
- * The return value is the number of characters written into @buf not including
- * the trailing '\0'. If @size is == 0 the function returns 0.
- */
 
 int scnprintf(char *buf, size_t size, const char *fmt, ...)
 {
@@ -1277,38 +1196,12 @@ int scnprintf(char *buf, size_t size, const char *fmt, ...)
 }
 EXPORT_SYMBOL(scnprintf);
 
-/**
- * vsprintf - Format a string and place it in a buffer
- * @buf: The buffer to place the result into
- * @fmt: The format string to use
- * @args: Arguments for the format string
- *
- * The function returns the number of characters written
- * into @buf. Use vsnprintf() or vscnprintf() in order to avoid
- * buffer overflows.
- *
- * If you're not already dealing with a va_list consider using sprintf().
- *
- * See the vsnprintf() documentation for format string extensions over C99.
- */
 int vsprintf(char *buf, const char *fmt, va_list args)
 {
 	return vsnprintf(buf, INT_MAX, fmt, args);
 }
 EXPORT_SYMBOL(vsprintf);
 
-/**
- * sprintf - Format a string and place it in a buffer
- * @buf: The buffer to place the result into
- * @fmt: The format string to use
- * @...: Arguments for the format string
- *
- * The function returns the number of characters written
- * into @buf. Use snprintf() or scnprintf() in order to avoid
- * buffer overflows.
- *
- * See the vsnprintf() documentation for format string extensions over C99.
- */
 int sprintf(char *buf, const char *fmt, ...)
 {
 	va_list args;
@@ -1441,28 +1334,6 @@ do {									\
 }
 EXPORT_SYMBOL_GPL(vbin_printf);
 
-/**
- * bstr_printf - Format a string from binary arguments and place it in a buffer
- * @buf: The buffer to place the result into
- * @size: The size of the buffer, including the trailing null space
- * @fmt: The format string to use
- * @bin_buf: Binary arguments for the format string
- *
- * This function like C99 vsnprintf, but the difference is that vsnprintf gets
- * arguments from stack, and bstr_printf gets arguments from @bin_buf which is
- * a binary buffer that generated by vbin_printf.
- *
- * The format follows C99 vsnprintf, but has some extensions:
- *  see vsnprintf comment for details.
- *
- * The return value is the number of characters which would
- * be generated for the given input, excluding the trailing
- * '\0', as per ISO C99. If you want to have the exact
- * number of characters written into @buf as return value
- * (not including the trailing '\0'), use vscnprintf(). If the
- * return is greater than or equal to @size, the resulting
- * string is truncated.
- */
 int bstr_printf(char *buf, size_t size, const char *fmt, const u32 *bin_buf)
 {
 	struct printf_spec spec = {0};
@@ -1624,16 +1495,6 @@ int bstr_printf(char *buf, size_t size, const char *fmt, const u32 *bin_buf)
 }
 EXPORT_SYMBOL_GPL(bstr_printf);
 
-/**
- * bprintf - Parse a format string and place args' binary value in a buffer
- * @bin_buf: The buffer to place args' binary value
- * @size: The size of the buffer(by words(32bits), not characters)
- * @fmt: The format string to use
- * @...: Arguments for the format string
- *
- * The function returns the number of words(u32) written
- * into @bin_buf.
- */
 int bprintf(u32 *bin_buf, size_t size, const char *fmt, ...)
 {
 	va_list args;

@@ -414,10 +414,6 @@ setup_return(struct pt_regs *regs, struct k_sigaction *ka,
 		if (cpsr & MODE32_BIT) {
 			retcode = KERN_SIGRETURN_CODE + (idx << 2) + thumb;
 		} else {
-			/*
-			 * Ensure that the instruction cache sees
-			 * the return code written onto the stack.
-			 */
 			flush_icache_range((unsigned long)rc,
 					   (unsigned long)(rc + 2));
 

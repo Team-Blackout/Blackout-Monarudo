@@ -684,7 +684,7 @@ cdc_ncm_fill_tx_frame(struct cdc_ncm_ctx *ctx, struct sk_buff *skb)
 			ready2send = 1;
 			break;
 		}
-		/* compute maximum buffer size */
+		
 		rem = ctx->tx_max - offset;
 
 		if (skb == NULL) {

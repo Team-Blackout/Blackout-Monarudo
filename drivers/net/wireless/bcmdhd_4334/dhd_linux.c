@@ -3328,7 +3328,7 @@ printf("Read PCBID = %x\n", system_rev);
 	}
 #endif
 
-#ifdef CONFIG_MACH_DELUXE_U
+#ifdef CONFIG_MACH_DUMMY
 	if (system_rev >= PVT){
 		strcpy(nvram_path, "/system/etc/calibration.gpio4");
 	}
@@ -3340,7 +3340,7 @@ printf("Read PCBID = %x\n", system_rev);
 	}
 #endif
 
-#ifdef CONFIG_MACH_DUMMY
+#ifdef CONFIG_MACH_DELUXE_UB1
 	strcpy(nvram_path, "/system/etc/calibration.gpio4");
 #endif
 return 0;

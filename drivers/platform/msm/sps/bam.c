@@ -521,7 +521,7 @@ static inline void bam_write_reg_field(void *base, u32 offset,
 	u32 shift = find_first_bit((void *)&mask, 32);
 	u32 tmp = ioread32(base + offset);
 
-	tmp &= ~mask;		/* clear written bits */
+	tmp &= ~mask;		
 	val = tmp | (val << shift);
 	iowrite32(val, base + offset);
 	SPS_DBG("sps:bam 0x%x(va) write reg 0x%x w_val 0x%x.\n",

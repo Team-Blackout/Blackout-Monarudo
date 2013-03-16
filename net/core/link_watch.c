@@ -137,10 +137,6 @@ static void linkwatch_schedule_work(int urgent)
 
 static void linkwatch_do_dev(struct net_device *dev)
 {
-	/*
-	 * Make sure the above read is complete since it can be
-	 * rewritten as soon as we clear the bit below.
-	 */
 	smp_mb__before_clear_bit();
 
 	clear_bit(__LINK_STATE_LINKWATCH_PENDING, &dev->state);

@@ -778,22 +778,6 @@ void gether_cleanup(void)
 }
 
 
-/**
- * gether_connect - notify network layer that USB link is active
- * @link: the USB link, set up with endpoints, descriptors matching
- *	current device speed, and any framing wrapper(s) set up.
- * Context: irqs blocked
- *
- * This is called to activate endpoints and let the network layer know
- * the connection is active ("carrier detect").  It may cause the I/O
- * queues to open and start letting network packets flow, but will in
- * any case activate the endpoints so that they respond properly to the
- * USB host.
- *
- * Verify net_device pointer returned using IS_ERR().  If it doesn't
- * indicate some error code (negative errno), ep->driver_data values
- * have been overwritten.
- */
 struct net_device *gether_connect(struct gether *link)
 {
 	struct eth_dev		*dev = the_dev;

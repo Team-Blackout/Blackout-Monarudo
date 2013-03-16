@@ -563,12 +563,6 @@ static void wake_futex(struct futex_q *q)
 	get_task_struct(p);
 
 	__unqueue_futex(q);
-	/*
-	 * The waiting task can free the futex_q as soon as
-	 * q->lock_ptr = NULL is written, without taking any locks. A
-	 * memory barrier is required here to prevent the following
-	 * store to lock_ptr from getting ahead of the plist_del.
-	 */
 	smp_wmb();
 	q->lock_ptr = NULL;
 

@@ -48,15 +48,6 @@ static inline size_t seq_get_buf(struct seq_file *m, char **bufp)
 	return m->size - m->count;
 }
 
-/**
- * seq_commit - commit data to the buffer
- * @m: the seq_file handle
- * @num: the number of bytes to commit
- *
- * Commit @num bytes of data written to a buffer previously acquired
- * by seq_buf_get.  To signal an error condition, or that the data
- * didn't fit in the available space, pass a negative @num value.
- */
 static inline void seq_commit(struct seq_file *m, int num)
 {
 	if (num < 0) {

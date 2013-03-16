@@ -211,72 +211,6 @@ extern struct spi_master *spi_busnum_to_master(u16 busnum);
 
 
 
-/**
- * struct spi_transfer - a read/write buffer pair
- * @tx_buf: data to be written (dma-safe memory), or NULL
- * @rx_buf: data to be read (dma-safe memory), or NULL
- * @tx_dma: DMA address of tx_buf, if @spi_message.is_dma_mapped
- * @rx_dma: DMA address of rx_buf, if @spi_message.is_dma_mapped
- * @len: size of rx and tx buffers (in bytes)
- * @speed_hz: Select a speed other than the device default for this
- *      transfer. If 0 the default (from @spi_device) is used.
- * @bits_per_word: select a bits_per_word other than the device default
- *      for this transfer. If 0 the default (from @spi_device) is used.
- * @cs_change: affects chipselect after this transfer completes
- * @delay_usecs: microseconds to delay after this transfer before
- *	(optionally) changing the chipselect status, then starting
- *	the next transfer or completing this @spi_message.
- * @transfer_list: transfers are sequenced through @spi_message.transfers
- *
- * SPI transfers always write the same number of bytes as they read.
- * Protocol drivers should always provide @rx_buf and/or @tx_buf.
- * In some cases, they may also want to provide DMA addresses for
- * the data being transferred; that may reduce overhead, when the
- * underlying driver uses dma.
- *
- * If the transmit buffer is null, zeroes will be shifted out
- * while filling @rx_buf.  If the receive buffer is null, the data
- * shifted in will be discarded.  Only "len" bytes shift out (or in).
- * It's an error to try to shift out a partial word.  (For example, by
- * shifting out three bytes with word size of sixteen or twenty bits;
- * the former uses two bytes per word, the latter uses four bytes.)
- *
- * In-memory data values are always in native CPU byte order, translated
- * from the wire byte order (big-endian except with SPI_LSB_FIRST).  So
- * for example when bits_per_word is sixteen, buffers are 2N bytes long
- * (@len = 2N) and hold N sixteen bit words in CPU byte order.
- *
- * When the word size of the SPI transfer is not a power-of-two multiple
- * of eight bits, those in-memory words include extra bits.  In-memory
- * words are always seen by protocol drivers as right-justified, so the
- * undefined (rx) or unused (tx) bits are always the most significant bits.
- *
- * All SPI transfers start with the relevant chipselect active.  Normally
- * it stays selected until after the last transfer in a message.  Drivers
- * can affect the chipselect signal using cs_change.
- *
- * (i) If the transfer isn't the last one in the message, this flag is
- * used to make the chipselect briefly go inactive in the middle of the
- * message.  Toggling chipselect in this way may be needed to terminate
- * a chip command, letting a single spi_message perform all of group of
- * chip transactions together.
- *
- * (ii) When the transfer is the last one in the message, the chip may
- * stay selected until the next transfer.  On multi-device SPI busses
- * with nothing blocking messages going to other devices, this is just
- * a performance hint; starting a message to another device deselects
- * this one.  But in other cases, this can be used to ensure correctness.
- * Some devices need protocol transactions to be built from a series of
- * spi_message submissions, where the content of one message is determined
- * by the results of previous messages and where the whole transaction
- * ends when the chipselect goes intactive.
- *
- * The code that submits an spi_message (and its spi_transfers)
- * to the lower layers is responsible for managing its memory.
- * Zero-initialize every field you don't set up explicitly, to
- * insulate against future API updates.  After you submit a message
- * and its transfers, ignore them until its completion callback.
- */
 struct spi_transfer {
 	const void	*tx_buf;
 	void		*rx_buf;
@@ -365,16 +299,6 @@ extern int spi_sync_locked(struct spi_device *spi, struct spi_message *message);
 extern int spi_bus_lock(struct spi_master *master);
 extern int spi_bus_unlock(struct spi_master *master);
 
-/**
- * spi_write - SPI synchronous write
- * @spi: device to which data will be written
- * @buf: data buffer
- * @len: data buffer size
- * Context: can sleep
- *
- * This writes the buffer and returns zero or a negative error code.
- * Callable only from contexts that can sleep.
- */
 static inline int
 spi_write(struct spi_device *spi, const void *buf, size_t len)
 {
@@ -410,16 +334,6 @@ extern int spi_write_then_read(struct spi_device *spi,
 extern int spi_write_and_read(struct spi_device *spi,
 		u8 *txbuf, u8 *rxbuf, unsigned size);
 
-/**
- * spi_w8r8 - SPI synchronous 8 bit write followed by 8 bit read
- * @spi: device with which data will be exchanged
- * @cmd: command to be written before data is read back
- * Context: can sleep
- *
- * This returns the (unsigned) eight bit number returned by the
- * device, or else a negative error code.  Callable only from
- * contexts that can sleep.
- */
 static inline ssize_t spi_w8r8(struct spi_device *spi, u8 cmd)
 {
 	ssize_t			status;
@@ -431,19 +345,6 @@ static inline ssize_t spi_w8r8(struct spi_device *spi, u8 cmd)
 	return (status < 0) ? status : result;
 }
 
-/**
- * spi_w8r16 - SPI synchronous 8 bit write followed by 16 bit read
- * @spi: device with which data will be exchanged
- * @cmd: command to be written before data is read back
- * Context: can sleep
- *
- * This returns the (unsigned) sixteen bit number returned by the
- * device, or else a negative error code.  Callable only from
- * contexts that can sleep.
- *
- * The number is returned in wire-order, which is at least sometimes
- * big-endian.
- */
 static inline ssize_t spi_w8r16(struct spi_device *spi, u8 cmd)
 {
 	ssize_t			status;

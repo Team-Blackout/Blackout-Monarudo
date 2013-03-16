@@ -1512,12 +1512,6 @@ static int __devinit smc_probe(struct net_device *dev, void __iomem *ioaddr,
 		goto err_out;
 	}
 
-	/*
-	 * well, we've already written once, so hopefully another
-	 * time won't hurt.  This time, I need to switch the bank
-	 * register to bank 1, so I can access the base address
-	 * register
-	 */
 	SMC_SELECT_BANK(lp, 1);
 	val = SMC_GET_BASE(lp);
 	val = ((val & 0x1F00) >> 3) << SMC_IO_SHIFT;

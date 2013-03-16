@@ -269,11 +269,6 @@ int release_resource(struct resource *old)
 EXPORT_SYMBOL(release_resource);
 
 #if !defined(CONFIG_ARCH_HAS_WALK_MEMORY)
-/*
- * Finds the lowest memory reosurce exists within [res->start.res->end)
- * the caller must specify res->start, res->end, res->flags and "name".
- * If found, returns 0, res is overwritten, if not found, returns -1.
- */
 static int find_next_system_ram(struct resource *res, char *name)
 {
 	resource_size_t start, end;

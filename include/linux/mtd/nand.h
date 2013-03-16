@@ -117,11 +117,6 @@ typedef enum {
 #define NAND_COPYBACK		0x00000010
 #define NAND_IS_AND		0x00000020
 #define NAND_4PAGE_ARRAY	0x00000040
-/*
- * Chip requires that BBT is periodically rewritten to prevent
- * bits from adjacent blocks from 'leaking' in altering data.
- * This happens with the Renesas AG-AND chips, possibly others.
- */
 #define BBT_AUTO_REFRESH	0x00000080
 #define NAND_NO_READRDY		0x00000100
 #define NAND_NO_SUBPAGE_WRITE	0x00000200

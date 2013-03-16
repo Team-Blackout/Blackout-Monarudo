@@ -46,10 +46,6 @@ struct pm8xxx_rtc {
 	spinlock_t ctrl_reg_lock;
 };
 
-/*
- * The RTC registers need to be read/written one byte at a time. This is a
- * hardware limitation.
- */
 
 static int pm8xxx_read_wrapper(struct pm8xxx_rtc *rtc_dd, u8 *rtc_val,
 			int base, int count)

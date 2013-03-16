@@ -59,9 +59,6 @@ struct files_struct {
 	atomic_t count;
 	struct fdtable __rcu *fdt;
 	struct fdtable fdtab;
-  /*
-   * written part on a separate cache line in SMP
-   */
 	spinlock_t file_lock ____cacheline_aligned_in_smp;
 	int next_fd;
 	unsigned long close_on_exec_init[1];

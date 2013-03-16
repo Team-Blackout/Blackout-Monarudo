@@ -450,11 +450,6 @@ armv6pmu_handle_irq(int irq_num,
 
 	regs = get_irq_regs();
 
-	/*
-	 * The interrupts are cleared by writing the overflow flags back to
-	 * the control register. All of the other bits don't have any effect
-	 * if they are rewritten, so write the whole value back.
-	 */
 	armv6_pmcr_write(pmcr);
 
 	perf_sample_data_init(&data, 0);

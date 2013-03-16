@@ -435,10 +435,6 @@ void jbd2_clear_buffer_revoked_flags(journal_t *journal)
 	}
 }
 
-/* journal_switch_revoke table select j_revoke for next transaction
- * we do not want to suspend any processing until all revokes are
- * written -bzzz
- */
 void jbd2_journal_switch_revoke_table(journal_t *journal)
 {
 	int i;

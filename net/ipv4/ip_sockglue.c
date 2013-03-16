@@ -112,10 +112,6 @@ static void ip_cmsg_recv_dstaddr(struct msghdr *msg, struct sk_buff *skb)
 	if (skb_transport_offset(skb) + 4 > skb->len)
 		return;
 
-	/* All current transport protocols have the port numbers in the
-	 * first four bytes of the transport header and this function is
-	 * written with this assumption in mind.
-	 */
 
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = iph->daddr;

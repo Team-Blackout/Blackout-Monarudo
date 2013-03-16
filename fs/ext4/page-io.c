@@ -1,10 +1,3 @@
-/*
- * linux/fs/ext4/page-io.c
- *
- * This contains the new page_io functions for ext4
- *
- * Written by Theodore Ts'o, 2010.
- */
 
 #include <linux/fs.h>
 #include <linux/time.h>
@@ -81,12 +74,6 @@ void ext4_free_io_end(ext4_io_end_t *io)
 	kmem_cache_free(io_end_cachep, io);
 }
 
-/*
- * check a range of space and convert unwritten extents to written.
- *
- * Called with inode->i_mutex; we depend on this when we manipulate
- * io->flag, since we could otherwise race with ext4_flush_completed_IO()
- */
 int ext4_end_io_nolock(ext4_io_end_t *io)
 {
 	struct inode *inode = io->inode;
@@ -112,15 +99,12 @@ int ext4_end_io_nolock(ext4_io_end_t *io)
 
 	if (io->flag & EXT4_IO_END_DIRECT)
 		inode_dio_done(inode);
-	/* Wake up anyone waiting on unwritten extent conversion */
+	
 	if (atomic_dec_and_test(&EXT4_I(inode)->i_aiodio_unwritten))
 		wake_up_all(ext4_ioend_wq(io->inode));
 	return ret;
 }
 
-/*
- * work on completed aio dio IO, to convert unwritten extents to extents
- */
 static void ext4_end_io_work(struct work_struct *work)
 {
 	ext4_io_end_t		*io = container_of(work, ext4_io_end_t, work);
@@ -143,12 +127,6 @@ requeue:
 		io->flag |= EXT4_IO_END_QUEUED;
 		spin_unlock_irqrestore(&ei->i_completed_io_lock, flags);
 		queue_work(EXT4_SB(inode->i_sb)->dio_unwritten_wq, &io->work);
-		/*
-		 * To prevent the ext4-dio-unwritten thread from keeping
-		 * requeueing end_io requests and occupying cpu for too long,
-		 * yield the cpu if it sees an end_io request that has already
-		 * been requeued.
-		 */
 		if (was_queued)
 			yield();
 		return;
@@ -250,7 +228,7 @@ static void ext4_end_bio(struct bio *bio, int error)
 	spin_unlock_irqrestore(&EXT4_I(inode)->i_completed_io_lock, flags);
 
 	wq = EXT4_SB(inode->i_sb)->dio_unwritten_wq;
-	/* queue the work to convert unwritten extents to written */
+	
 	queue_work(wq, &io_end->work);
 }
 
@@ -380,17 +358,6 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
 
 		block_end = block_start + blocksize;
 		if (block_start >= len) {
-			/*
-			 * Comments copied from block_write_full_page_endio:
-			 *
-			 * The page straddles i_size.  It must be zeroed out on
-			 * each and every writepage invocation because it may
-			 * be mmapped.  "A file is mapped in multiples of the
-			 * page size.  For a file that is not a multiple of
-			 * the  page size, the remaining memory is zeroed when
-			 * mapped, and writes to that region are not written
-			 * out to the file."
-			 */
 			zero_user_segment(page, block_start, block_end);
 			clear_buffer_dirty(bh);
 			set_buffer_uptodate(bh);

@@ -628,12 +628,6 @@ static unsigned long shrink_page_list(struct list_head *page_list,
 
 			if (page_is_file_cache(page) &&
 					(!current_is_kswapd() || priority >= DEF_PRIORITY - 2)) {
-				/*
-				 * Immediately reclaim when written back.
-				 * Similar in principal to deactivate_page()
-				 * except we already have the page isolated
-				 * and know it's dirty
-				 */
 				inc_zone_page_state(page, NR_VMSCAN_IMMEDIATE);
 				SetPageReclaim(page);
 
@@ -670,27 +664,6 @@ static unsigned long shrink_page_list(struct list_head *page_list,
 			}
 		}
 
-		/*
-		 * If the page has buffers, try to free the buffer mappings
-		 * associated with this page. If we succeed we try to free
-		 * the page as well.
-		 *
-		 * We do this even if the page is PageDirty().
-		 * try_to_release_page() does not perform I/O, but it is
-		 * possible for a page to have PageDirty set, but it is actually
-		 * clean (all its buffers are clean).  This happens if the
-		 * buffers were written out directly, with submit_bh(). ext3
-		 * will do this, as well as the blockdev mapping.
-		 * try_to_release_page() will discover that cleanness and will
-		 * drop the buffers and mark the page clean - it can be freed.
-		 *
-		 * Rarely, pages can have buffers and no ->mapping.  These are
-		 * the pages which were not successfully invalidated in
-		 * truncate_complete_page().  We try to drop those buffers here
-		 * and if that worked, and the page is no longer mapped into
-		 * process address space (page_count == 1) it can be freed.
-		 * Otherwise, leave the page on the LRU so it is swappable.
-		 */
 		if (page_has_private(page)) {
 			if (!try_to_release_page(page, sc->gfp_mask))
 				goto activate_locked;
@@ -1663,22 +1636,6 @@ static bool all_unreclaimable(struct zonelist *zonelist,
 	return true;
 }
 
-/*
- * This is the main entry point to direct page reclaim.
- *
- * If a full scan of the inactive list fails to free enough memory then we
- * are "out of memory" and something needs to be killed.
- *
- * If the caller is !__GFP_FS then the probability of a failure is reasonably
- * high - the zone may be full of dirty or under-writeback pages, which this
- * caller can't do much about.  We kick the writeback threads and take explicit
- * naps in the hope that some of these pages can be written.  But if the
- * allocating task holds filesystem locks which prevent writeout this might not
- * work, and the allocation attempt will fail.
- *
- * returns:	0, if no pages reclaimed
- * 		else, the number of pages reclaimed
- */
 static unsigned long do_try_to_free_pages(struct zonelist *zonelist,
 					struct scan_control *sc,
 					struct shrink_control *shrink)

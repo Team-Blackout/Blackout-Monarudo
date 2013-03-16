@@ -197,12 +197,6 @@ int filemap_write_and_wait(struct address_space *mapping)
 
 	if (mapping->nrpages) {
 		err = filemap_fdatawrite(mapping);
-		/*
-		 * Even if the above returned error, the pages may be
-		 * written partially (e.g. -ENOSPC), so we wait for it.
-		 * But the -EIO is special case, it may indicate the worst
-		 * thing (e.g. bug) happened, so we avoid waiting for it.
-		 */
 		if (err != -EIO) {
 			int err2 = filemap_fdatawait(mapping);
 			if (!err)
@@ -213,17 +207,6 @@ int filemap_write_and_wait(struct address_space *mapping)
 }
 EXPORT_SYMBOL(filemap_write_and_wait);
 
-/**
- * filemap_write_and_wait_range - write out & wait on a file range
- * @mapping:	the address_space for the pages
- * @lstart:	offset in bytes where the range starts
- * @lend:	offset in bytes where the range ends (inclusive)
- *
- * Write out and wait upon file offsets lstart->lend, inclusive.
- *
- * Note that `lend' is inclusive (describes the last byte to be written) so
- * that this function can be used to write to the very end-of-file (end = -1).
- */
 int filemap_write_and_wait_range(struct address_space *mapping,
 				 loff_t lstart, loff_t lend)
 {
@@ -1599,13 +1582,6 @@ inline int generic_write_checks(struct file *file, loff_t *pos, size_t *count, i
 		}
 	}
 
-	/*
-	 * Are we about to exceed the fs block limit ?
-	 *
-	 * If we have written data it becomes a short write.  If we have
-	 * exceeded without writing data we send a signal and return EFBIG.
-	 * Linus frestrict idea will clean these up nicely..
-	 */
 	if (likely(!isblk)) {
 		if (unlikely(*pos >= inode->i_sb->s_maxbytes)) {
 			if (*count || *pos > inode->i_sb->s_maxbytes) {
@@ -1890,23 +1866,11 @@ ssize_t __generic_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
 		written_buffered = generic_file_buffered_write(iocb, iov,
 						nr_segs, pos, ppos, count,
 						written);
-		/*
-		 * If generic_file_buffered_write() retuned a synchronous error
-		 * then we want to return the number of bytes which were
-		 * direct-written, or the error code if that was zero.  Note
-		 * that this differs from normal direct-io semantics, which
-		 * will return -EFOO even if some bytes were written.
-		 */
 		if (written_buffered < 0) {
 			err = written_buffered;
 			goto out;
 		}
 
-		/*
-		 * We need to ensure that the page cache pages are written to
-		 * disk and invalidated to preserve the expected O_DIRECT
-		 * semantics.
-		 */
 		endbyte = pos + written_buffered - written - 1;
 		err = filemap_write_and_wait_range(file->f_mapping, pos, endbyte);
 		if (err == 0) {
@@ -1915,10 +1879,6 @@ ssize_t __generic_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
 						 pos >> PAGE_CACHE_SHIFT,
 						 endbyte >> PAGE_CACHE_SHIFT);
 		} else {
-			/*
-			 * We don't know how much we wrote, so just return
-			 * the number of bytes which were direct-written
-			 */
 		}
 	} else {
 		written = generic_file_buffered_write(iocb, iov, nr_segs,

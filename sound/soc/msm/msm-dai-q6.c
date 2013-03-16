@@ -865,16 +865,6 @@ static int msm_dai_q6_auxpcm_prepare(struct snd_pcm_substream *substream,
 	if (IS_ERR_VALUE(rc))
 		dev_err(dai->dev, "fail to open AFE APR\n");
 
-	/*
-	 * For AUX PCM Interface the below sequence of clk
-	 * settings and opening of afe port is a strict requirement.
-	 * afe_port_start is called to make sure to make sure the port
-	 * is open before deasserting the clock line. This is
-	 * required because pcm register is not written before
-	 * clock deassert. Hence the hw does not get updated with
-	 * new setting if the below clock assert/deasset and afe_port_start
-	 * sequence is not followed.
-	 */
 
 	clk_reset(pcm_clk, CLK_RESET_ASSERT);
 
@@ -946,16 +936,6 @@ static int msm_dai_q6_sec_auxpcm_prepare(struct snd_pcm_substream *substream,
 	if (IS_ERR_VALUE(rc))
 		dev_err(dai->dev, "fail to open AFE APR\n");
 
-	/*
-	 * For AUX PCM Interface the below sequence of clk
-	 * settings and opening of afe port is a strict requirement.
-	 * afe_port_start is called to make sure to make sure the port
-	 * is open before deasserting the clock line. This is
-	 * required because pcm register is not written before
-	 * clock deassert. Hence the hw does not get updated with
-	 * new setting if the below clock assert/deasset and afe_port_start
-	 * sequence is not followed.
-	 */
 
 	clk_reset(sec_pcm_clk, CLK_RESET_ASSERT);
 

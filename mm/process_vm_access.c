@@ -179,19 +179,6 @@ static int process_vm_rw_single_vec(unsigned long addr,
 
 #define PVM_MAX_PP_ARRAY_COUNT 16
 
-/**
- * process_vm_rw_core - core of reading/writing pages from task specified
- * @pid: PID of process to read/write from/to
- * @lvec: iovec array specifying where to copy to/from locally
- * @liovcnt: size of lvec array
- * @rvec: iovec array specifying where to copy to/from in the other process
- * @riovcnt: size of rvec array
- * @flags: currently unused
- * @vm_write: 0 if reading from other process, 1 if writing to other process
- * Returns the number of bytes read/written or error code. May
- *  return less bytes than expected if an error occurs during the copying
- *  process.
- */
 static ssize_t process_vm_rw_core(pid_t pid, const struct iovec *lvec,
 				  unsigned long liovcnt,
 				  const struct iovec *rvec,
@@ -280,19 +267,6 @@ free_proc_pages:
 	return rc;
 }
 
-/**
- * process_vm_rw - check iovecs before calling core routine
- * @pid: PID of process to read/write from/to
- * @lvec: iovec array specifying where to copy to/from locally
- * @liovcnt: size of lvec array
- * @rvec: iovec array specifying where to copy to/from in the other process
- * @riovcnt: size of rvec array
- * @flags: currently unused
- * @vm_write: 0 if reading from other process, 1 if writing to other process
- * Returns the number of bytes read/written or error code. May
- *  return less bytes than expected if an error occurs during the copying
- *  process.
- */
 static ssize_t process_vm_rw(pid_t pid,
 			     const struct iovec __user *lvec,
 			     unsigned long liovcnt,

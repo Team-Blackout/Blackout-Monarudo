@@ -80,7 +80,6 @@ struct htc_charger {
 			(struct t_cable_status_notifier *notifier);
 	int (*dump_all)(void);
 	int (*is_charging_enabled)(int *result);
-	int (*is_vbus_unstable)(int *result);
 	int (*get_attr_text)(char *buf, int size);
 	int (*enable_5v_output)(bool enable);
 };

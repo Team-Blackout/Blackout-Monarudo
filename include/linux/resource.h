@@ -50,10 +50,6 @@ struct rlimit64 {
 
 #define _STK_LIM	(8*1024*1024)
 
-/*
- * GPG2 wants 64kB of mlocked memory, to make sure pass phrases
- * and other sensitive information are never written to disk.
- */
 #define MLOCK_LIMIT	((PAGE_SIZE > 64*1024) ? PAGE_SIZE : 64*1024)
 
 #include <asm/resource.h>

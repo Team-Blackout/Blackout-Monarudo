@@ -42,8 +42,6 @@ static struct rc_map_table genius_tvgo_a11mce[] = {
 	
 	{ 0x1a, KEY_NEXT },		
 	{ 0x0e, KEY_PREVIOUS },		
-	/* these are in a rather non standard layout and have
-	an alternate name written */
 	{ 0x1e, KEY_UP },		
 	{ 0x0a, KEY_DOWN },		
 	{ 0x05, KEY_CAMERA },		

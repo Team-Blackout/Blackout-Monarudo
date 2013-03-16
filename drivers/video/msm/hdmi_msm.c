@@ -1292,22 +1292,6 @@ again:
 	HDMI_OUTP_ND(0x022C, (1 << 13) | ((data_len-1) << 16));
 
 	
-	/* 0x020C HDMI_DDC_CTRL
-	   [21:20] TRANSACTION_CNT
-		Number of transactions to be done in current transfer.
-		* 0x0: transaction0 only
-		* 0x1: transaction0, transaction1
-		* 0x2: transaction0, transaction1, transaction2
-		* 0x3: transaction0, transaction1, transaction2, transaction3
-	   [3] SW_STATUS_RESET
-		Write 1 to reset HDMI_DDC_SW_STATUS flags, will reset SW_DONE,
-		ABORTED, TIMEOUT, SW_INTERRUPTED, BUFFER_OVERFLOW,
-		STOPPED_ON_NACK, NACK0, NACK1, NACK2, NACK3
-	   [2] SEND_RESET Set to 1 to send reset sequence (9 clocks with no
-		data) at start of transfer.  This sequence is sent after GO is
-		written to 1, before the first transaction only.
-	   [1] SOFT_RESET Write 1 to reset DDC controller
-	   [0] GO WRITE ONLY. Write 1 to start DDC transfer. */
 
 	INIT_COMPLETION(hdmi_msm_state->ddc_sw_done);
 	HDMI_OUTP_ND(0x020C, (1 << 0) | (1 << 20));
@@ -1396,22 +1380,6 @@ again:
 	HDMI_OUTP_ND(0x022C, 1 | (1 << 12) | (1 << 13) | (request_len << 16));
 
 	
-	/* 0x020C HDMI_DDC_CTRL
-	   [21:20] TRANSACTION_CNT
-		Number of transactions to be done in current transfer.
-		* 0x0: transaction0 only
-		* 0x1: transaction0, transaction1
-		* 0x2: transaction0, transaction1, transaction2
-		* 0x3: transaction0, transaction1, transaction2, transaction3
-	   [3] SW_STATUS_RESET
-		Write 1 to reset HDMI_DDC_SW_STATUS flags, will reset SW_DONE,
-		ABORTED, TIMEOUT, SW_INTERRUPTED, BUFFER_OVERFLOW,
-		STOPPED_ON_NACK, NACK0, NACK1, NACK2, NACK3
-	   [2] SEND_RESET Set to 1 to send reset sequence (9 clocks with no
-		data) at start of transfer.  This sequence is sent after GO is
-		written to 1, before the first transaction only.
-	   [1] SOFT_RESET Write 1 to reset DDC controller
-	   [0] GO WRITE ONLY. Write 1 to start DDC transfer. */
 
 	INIT_COMPLETION(hdmi_msm_state->ddc_sw_done);
 	HDMI_OUTP_ND(0x020C, (1 << 0) | (1 << 20));
@@ -1519,22 +1487,6 @@ again:
 	HDMI_OUTP_ND(0x0230, 1 | (1 << 12) | (1 << 13) | (request_len << 16));
 
 	
-	/* 0x020C HDMI_DDC_CTRL
-	   [21:20] TRANSACTION_CNT
-		Number of transactions to be done in current transfer.
-		* 0x0: transaction0 only
-		* 0x1: transaction0, transaction1
-		* 0x2: transaction0, transaction1, transaction2
-		* 0x3: transaction0, transaction1, transaction2, transaction3
-	   [3] SW_STATUS_RESET
-		Write 1 to reset HDMI_DDC_SW_STATUS flags, will reset SW_DONE,
-		ABORTED, TIMEOUT, SW_INTERRUPTED, BUFFER_OVERFLOW,
-		STOPPED_ON_NACK, NACK0, NACK1, NACK2, NACK3
-	   [2] SEND_RESET Set to 1 to send reset sequence (9 clocks with no
-		data) at start of transfer.  This sequence is sent after GO is
-		written to 1, before the first transaction only.
-	   [1] SOFT_RESET Write 1 to reset DDC controller
-	   [0] GO WRITE ONLY. Write 1 to start DDC transfer. */
 
 	INIT_COMPLETION(hdmi_msm_state->ddc_sw_done);
 	HDMI_OUTP_ND(0x020C, (1 << 0) | (2 << 20));
@@ -1854,11 +1806,6 @@ static int hdcp_authentication_part1(void)
 		DEV_DBG("HDCP: AKSV=%02x%08x\n", qfprom_aksv_1, qfprom_aksv_0);
 
 
-		/* This is the lower 32 bits of the SW
-		 * injected AKSV value(AKSV[31:0]) read
-		 * from the EFUSE. It is needed for HDCP
-		 * authentication and must be written
-		 * before enabling HDCP. */
 		HDMI_OUTP(0x0288, qfprom_aksv_0);
 		HDMI_OUTP(0x0284, qfprom_aksv_1);
 
@@ -2221,9 +2168,6 @@ static int hdcp_authentication_part2(void)
 		
 		HDMI_OUTP_ND(0x0244, kvs_fifo[i] << 16);
 
-		/* Once 64 bytes have been written, we need to poll for
-		 * HDCP_SHA_BLOCK_DONE before writing any further
-		 */
 		if (i && !((i+1)%64)) {
 			timeout_count = 100;
 			while (!(HDMI_INP_ND(0x0240) & 0x1)

@@ -62,19 +62,6 @@ static void dump_completed_IO(struct inode * inode)
 #endif
 }
 
-/*
- * This function is called from ext4_sync_file().
- *
- * When IO is completed, the work to convert unwritten extents to
- * written is queued on workqueue but may not get immediately
- * scheduled. When fsync is called, we need to ensure the
- * conversion is complete before fsync returns.
- * The inode keeps track of a list of pending/completed IO that
- * might needs to do the conversion. This function walks through
- * the list and convert the related unwritten extents for completed IO
- * to written.
- * The function return the number of pending IOs on success.
- */
 int ext4_flush_completed_IO(struct inode *inode)
 {
 	ext4_io_end_t *io;
@@ -90,20 +77,6 @@ int ext4_flush_completed_IO(struct inode *inode)
 				ext4_io_end_t, list);
 		list_del_init(&io->list);
 		io->flag |= EXT4_IO_END_IN_FSYNC;
-		/*
-		 * Calling ext4_end_io_nolock() to convert completed
-		 * IO to written.
-		 *
-		 * When ext4_sync_file() is called, run_queue() may already
-		 * about to flush the work corresponding to this io structure.
-		 * It will be upset if it founds the io structure related
-		 * to the work-to-be schedule is freed.
-		 *
-		 * Thus we need to keep the io structure still valid here after
-		 * conversion finished. The io structure has a flag to
-		 * avoid double converting from both fsync and background work
-		 * queue work.
-		 */
 		spin_unlock_irqrestore(&ei->i_completed_io_lock, flags);
 		ret = ext4_end_io_nolock(io);
 		if (ret < 0)
@@ -115,14 +88,6 @@ int ext4_flush_completed_IO(struct inode *inode)
 	return (ret2 < 0) ? ret2 : 0;
 }
 
-/*
- * If we're not journaling and this is a just-created file, we have to
- * sync our parent directory (if it was freshly created) since
- * otherwise it will only be written by writeback, leaving a huge
- * window during which a crash may lose the file.  This may apply for
- * the parent directory's parent as well, and so on recursively, if
- * they are also freshly created.
- */
 static int ext4_sync_parent(struct inode *inode)
 {
 	struct writeback_control wbc;

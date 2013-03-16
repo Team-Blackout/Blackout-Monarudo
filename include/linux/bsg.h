@@ -44,7 +44,7 @@ struct sg_io_v4 {
 	__u32 retry_delay;	
 	__u32 info;		
 	__u32 duration;		
-	__u32 response_len;	/* [o] bytes of response actually written */
+	__u32 response_len;	
 	__s32 din_resid;	
 	__s32 dout_resid;	
 	__u64 generated_tag;	

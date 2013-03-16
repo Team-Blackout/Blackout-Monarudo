@@ -907,12 +907,6 @@ static int do_write(struct fsg_common *common)
 		if (bh->state == BUF_STATE_EMPTY && !get_some_more)
 			break;			
 #ifdef CONFIG_USB_CSW_HACK
-		/*
-		 * If the csw packet is already submmitted to the hardware,
-		 * by marking the state of buffer as full, then by checking
-		 * the residue, we make sure that this csw packet is not
-		 * written on to the storage media.
-		 */
 		if (bh->state == BUF_STATE_FULL && common->residue) {
 #else
 		if (bh->state == BUF_STATE_FULL) {

@@ -701,7 +701,7 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	}
 	inode->i_version++;
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ts;
-	/* timestamp is already written, so mark_inode_dirty() is unneeded. */
+	
 
 	dentry->d_time = dentry->d_parent->d_inode->i_version;
 	d_instantiate(dentry, inode);
@@ -797,7 +797,7 @@ static int vfat_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 	inode->i_version++;
 	set_nlink(inode, 2);
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ts;
-	/* timestamp is already written, so mark_inode_dirty() is unneeded. */
+	
 
 	dentry->d_time = dentry->d_parent->d_inode->i_version;
 	d_instantiate(dentry, inode);

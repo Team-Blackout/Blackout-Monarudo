@@ -308,7 +308,7 @@ static int msm_rpm_set_exclusive(int ctx,
 	msm_rpm_write(MSM_RPM_PAGE_CTRL,
 		target_ctrl(MSM_RPM_CTRL_REQ_CTX_0), ctx_mask);
 
-	/* Ensure RPM data is written before sending the interrupt */
+	
 	mb();
 	msm_rpm_send_req_interrupt();
 
@@ -382,7 +382,7 @@ static int msm_rpm_set_exclusive_noirq(int ctx,
 	msm_rpm_write(MSM_RPM_PAGE_CTRL,
 		target_ctrl(MSM_RPM_CTRL_REQ_CTX_0), ctx_mask);
 
-	/* Ensure RPM data is written before sending the interrupt */
+	
 	mb();
 	msm_rpm_send_req_interrupt();
 

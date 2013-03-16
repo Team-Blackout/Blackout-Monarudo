@@ -106,7 +106,8 @@ void kgsl_pwrctrl_pwrlevel_change(struct kgsl_device *device,
 		if ((test_bit(KGSL_PWRFLAGS_CLK_ON, &pwr->power_flags)) ||
 			(device->state == KGSL_STATE_NAP)) {
 			if (pwr->idle_needed == true)
-				device->ftbl->idle(device);
+				device->ftbl->idle(device,
+						KGSL_TIMEOUT_DEFAULT);
 			while (level != new_level) {
 				level += d;
 				clk_set_rate(pwr->grp_clks[0],

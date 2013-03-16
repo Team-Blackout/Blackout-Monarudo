@@ -22,89 +22,6 @@
 
 #define PG_dcache_clean PG_arch_1
 
-/*
- *	MM Cache Management
- *	===================
- *
- *	The arch/arm/mm/cache-*.S and arch/arm/mm/proc-*.S files
- *	implement these methods.
- *
- *	Start addresses are inclusive and end addresses are exclusive;
- *	start addresses should be rounded down, end addresses up.
- *
- *	See Documentation/cachetlb.txt for more information.
- *	Please note that the implementation of these, and the required
- *	effects are cache-type (VIVT/VIPT/PIPT) specific.
- *
- *	flush_icache_all()
- *
- *		Unconditionally clean and invalidate the entire icache.
- *		Currently only needed for cache-v6.S and cache-v7.S, see
- *		__flush_icache_all for the generic implementation.
- *
- *	flush_kern_all()
- *
- *		Unconditionally clean and invalidate the entire cache.
- *
- *	flush_user_all()
- *
- *		Clean and invalidate all user space cache entries
- *		before a change of page tables.
- *
- *	flush_user_range(start, end, flags)
- *
- *		Clean and invalidate a range of cache entries in the
- *		specified address space before a change of page tables.
- *		- start - user start address (inclusive, page aligned)
- *		- end   - user end address   (exclusive, page aligned)
- *		- flags - vma->vm_flags field
- *
- *	coherent_kern_range(start, end)
- *
- *		Ensure coherency between the Icache and the Dcache in the
- *		region described by start, end.  If you have non-snooping
- *		Harvard caches, you need to implement this function.
- *		- start  - virtual start address
- *		- end    - virtual end address
- *
- *	coherent_user_range(start, end)
- *
- *		Ensure coherency between the Icache and the Dcache in the
- *		region described by start, end.  If you have non-snooping
- *		Harvard caches, you need to implement this function.
- *		- start  - virtual start address
- *		- end    - virtual end address
- *
- *	flush_kern_dcache_area(kaddr, size)
- *
- *		Ensure that the data held in page is written back.
- *		- kaddr  - page address
- *		- size   - region size
- *
- *	DMA Cache Coherency
- *	===================
- *
- *	dma_inv_range(start, end)
- *
- *		Invalidate (discard) the specified virtual address range.
- *		May not write back any entries.  If 'start' or 'end'
- *		are not cache line aligned, those lines must be written
- *		back.
- *		- start  - virtual start address
- *		- end    - virtual end address
- *
- *	dma_clean_range(start, end)
- *
- *		Clean (write back) the specified virtual address range.
- *		- start  - virtual start address
- *		- end    - virtual end address
- *
- *	dma_flush_range(start, end)
- *
- *		Clean and invalidate the specified virtual address range.
- *		- start  - virtual start address
- *		- end    - virtual end address
- */
 
 struct cpu_cache_fns {
 	void (*flush_icache_all)(void);
@@ -136,12 +53,6 @@ extern struct cpu_cache_fns cpu_cache;
 #define __cpuc_coherent_user_range	cpu_cache.coherent_user_range
 #define __cpuc_flush_dcache_area	cpu_cache.flush_kern_dcache_area
 
-/*
- * These are private to the dma-mapping API.  Do not use directly.
- * Their sole purpose is to ensure that data held in the cache
- * is visible to DMA, or data written by DMA to system memory is
- * visible to the CPU.
- */
 #define dmac_map_area			cpu_cache.dma_map_area
 #define dmac_unmap_area			cpu_cache.dma_unmap_area
 #define dmac_inv_range			cpu_cache.dma_inv_range
@@ -158,12 +69,6 @@ extern void __cpuc_coherent_kern_range(unsigned long, unsigned long);
 extern void __cpuc_coherent_user_range(unsigned long, unsigned long);
 extern void __cpuc_flush_dcache_area(void *, size_t);
 
-/*
- * These are private to the dma-mapping API.  Do not use directly.
- * Their sole purpose is to ensure that data held in the cache
- * is visible to DMA, or data written by DMA to system memory is
- * visible to the CPU.
- */
 extern void dmac_map_area(const void *, size_t, int);
 extern void dmac_unmap_area(const void *, size_t, int);
 extern void dmac_inv_range(const void *, const void *);
@@ -254,24 +159,8 @@ extern void flush_cache_page(struct vm_area_struct *vma, unsigned long user_addr
 
 #define flush_icache_range(s,e)		__cpuc_coherent_kern_range(s,e)
 
-/*
- * Perform necessary cache operations to ensure that the TLB will
- * see data written in the specified area.
- */
 #define clean_dcache_area(start,size)	cpu_dcache_clean_area(start, size)
 
-/*
- * flush_dcache_page is used when the kernel has written to the page
- * cache page at virtual address page->virtual.
- *
- * If this page isn't mapped (ie, page_mapping == NULL), or it might
- * have userspace mappings, then we _must_ always clean + invalidate
- * the dcache entries associated with the kernel mapping.
- *
- * Otherwise we can defer the operation, and clean the cache when we are
- * about to change to user space.  This is the same method as used on SPARC64.
- * See update_mmu_cache for the user space part.
- */
 #define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
 extern void flush_dcache_page(struct page *);
 

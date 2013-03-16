@@ -143,10 +143,6 @@ static void get_new_key_from_sha(struct ppp_mppe_state * state)
 	crypto_hash_digest(&desc, sg, nbytes, state->sha1_digest);
 }
 
-/*
- * Perform the MPPE rekey algorithm, from RFC 3078, sec. 7.3.
- * Well, not what's written there, but rather what they meant.
- */
 static void mppe_rekey(struct ppp_mppe_state * state, int initial_key)
 {
 	struct scatterlist sg_in[1], sg_out[1];

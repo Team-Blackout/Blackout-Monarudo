@@ -284,13 +284,6 @@ dio_bio_alloc(struct dio *dio, struct dio_submit *sdio,
 	sdio->logical_offset_in_bio = sdio->cur_page_fs_offset;
 }
 
-/*
- * In the AIO read case we speculatively dirty the pages before starting IO.
- * During IO completion, any of these pages which happen to have been written
- * back will be redirtied by bio_check_pages_dirty().
- *
- * bios hold a dio reference between submit_bio and ->end_io.
- */
 static inline void dio_bio_submit(struct dio *dio, struct dio_submit *sdio)
 {
 	struct bio *bio = sdio->bio;
@@ -412,10 +405,6 @@ static int get_more_blocks(struct dio *dio, struct dio_submit *sdio,
 	unsigned long fs_count;	
 	int create;
 
-	/*
-	 * If there was a memory error and we've overwritten all the
-	 * mapped blocks then we can now return that memory error
-	 */
 	ret = dio->page_errors;
 	if (ret == 0) {
 		BUG_ON(sdio->block_in_file >= sdio->final_block_in_request);
@@ -883,10 +872,6 @@ do_blockdev_direct_IO(int rw, struct kiocb *iocb, struct inode *inode,
 	if (retval == -ENOTBLK) {
 		retval = 0;
 	}
-	/*
-	 * There may be some unwritten disk at the end of a part-written
-	 * fs-block-sized block.  Go zero that now.
-	 */
 	dio_zero_block(dio, &sdio, 1, &map_bh);
 
 	if (sdio.cur_page) {

@@ -144,8 +144,8 @@ struct ext4_io_page {
 
 typedef struct ext4_io_end {
 	struct list_head	list;		
-	struct inode		*inode;		/* file being written to */
-	unsigned int		flag;		/* unwritten or not */
+	struct inode		*inode;		
+	unsigned int		flag;		
 	struct page		*page;		
 	loff_t			offset;		
 	ssize_t			size;		
@@ -689,7 +689,7 @@ struct ext4_inode_info {
 	qsize_t i_reserved_quota;
 #endif
 
-	/* completed IOs that might need unwritten extents handling */
+	
 	struct list_head i_completed_io_list;
 	spinlock_t i_completed_io_lock;
 	atomic_t i_ioend_count;	
@@ -843,7 +843,7 @@ struct ext4_super_block {
 	__u8	s_log_groups_per_flex;  
 	__u8	s_reserved_char_pad;
 	__le16  s_reserved_pad;
-	__le64	s_kbytes_written;	/* nr of lifetime kilobytes written */
+	__le64	s_kbytes_written;	
 	__le32	s_snapshot_inum;	
 	__le32	s_snapshot_id;		
 	__le64	s_snapshot_r_blocks_count; 
@@ -994,7 +994,7 @@ struct ext4_sb_info {
 	unsigned int s_log_groups_per_flex;
 	struct flex_groups *s_flex_groups;
 
-	/* workqueue for dio unwritten */
+	
 	struct workqueue_struct *dio_unwritten_wq;
 
 	
@@ -1381,13 +1381,6 @@ struct ext4_features {
 	struct completion f_kobj_unregister;
 };
 
-/*
- * This structure will be used for multiple mount protection. It will be
- * written into the block number saved in the s_mmp_block field in the
- * superblock. Programs that check MMP should assume that if
- * SEQ_FSCK (or any unknown code above SEQ_MAX) is present then it is NOT safe
- * to use the filesystem, regardless of how old the timestamp is.
- */
 #define EXT4_MMP_MAGIC     0x004D4D50U 
 #define EXT4_MMP_SEQ_CLEAN 0xFF4D4D50U 
 #define EXT4_MMP_SEQ_FSCK  0xE24D4D50U 
@@ -1412,14 +1405,6 @@ struct mmpd_data {
 	struct super_block *sb;  
 };
 
-/*
- * Check interval multiplier
- * The MMP block is written every update interval and initially checked every
- * update interval x the multiplier (the value is then adapted based on the
- * write latency). The reason is that writes can be delayed under load and we
- * don't want readers to incorrectly assume that the filesystem is no longer
- * in use.
- */
 #define EXT4_MMP_CHECK_MULT		2UL
 
 #define EXT4_MMP_MIN_CHECK_INTERVAL	5UL
@@ -1938,7 +1923,6 @@ static inline void set_bitmap_uptodate(struct buffer_head *bh)
 
 #define in_range(b, first, len)	((b) >= (first) && (b) <= (first) + (len) - 1)
 
-/* For ioend & aio unwritten conversion wait queues */
 #define EXT4_WQ_HASH_SZ		37
 #define ext4_ioend_wq(v)   (&ext4__ioend_wq[((unsigned long)(v)) %\
 					    EXT4_WQ_HASH_SZ])

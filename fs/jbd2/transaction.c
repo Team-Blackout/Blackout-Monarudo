@@ -562,11 +562,6 @@ repeat:
 	}
 
 
-	/*
-	 * Finally, if the buffer is not journaled right now, we need to make
-	 * sure it doesn't get written to disk before the caller actually
-	 * commits the new data
-	 */
 	if (!jh->b_transaction) {
 		JBUFFER_TRACE(jh, "no transaction");
 		J_ASSERT_JH(jh, !jh->b_next_transaction);
@@ -1131,7 +1126,7 @@ __journal_try_to_free_buffer(journal_t *journal, struct buffer_head *bh)
 
 	spin_lock(&journal->j_list_lock);
 	if (jh->b_cp_transaction != NULL && jh->b_transaction == NULL) {
-		/* written-back checkpointed metadata buffer */
+		
 		JBUFFER_TRACE(jh, "remove from checkpoint list");
 		__jbd2_journal_remove_checkpoint(jh);
 	}
@@ -1140,44 +1135,6 @@ out:
 	return;
 }
 
-/**
- * int jbd2_journal_try_to_free_buffers() - try to free page buffers.
- * @journal: journal for operation
- * @page: to try and free
- * @gfp_mask: we use the mask to detect how hard should we try to release
- * buffers. If __GFP_WAIT and __GFP_FS is set, we wait for commit code to
- * release the buffers.
- *
- *
- * For all the buffers on this page,
- * if they are fully written out ordered data, move them onto BUF_CLEAN
- * so try_to_free_buffers() can reap them.
- *
- * This function returns non-zero if we wish try_to_free_buffers()
- * to be called. We do this if the page is releasable by try_to_free_buffers().
- * We also do it if the page has locked or dirty buffers and the caller wants
- * us to perform sync or async writeout.
- *
- * This complicates JBD locking somewhat.  We aren't protected by the
- * BKL here.  We wish to remove the buffer from its committing or
- * running transaction's ->t_datalist via __jbd2_journal_unfile_buffer.
- *
- * This may *change* the value of transaction_t->t_datalist, so anyone
- * who looks at t_datalist needs to lock against this function.
- *
- * Even worse, someone may be doing a jbd2_journal_dirty_data on this
- * buffer.  So we need to lock against that.  jbd2_journal_dirty_data()
- * will come out of the lock with the buffer dirty, which makes it
- * ineligible for release here.
- *
- * Who else is affected by this?  hmm...  Really the only contender
- * is do_get_write_access() - it could be looking at the buffer while
- * journal_try_to_free_buffer() is changing its state.  But that
- * cannot happen because we never reallocate freed data as metadata
- * while the data is part of a transaction.  Yes?
- *
- * Return 0 on failure, 1 on success
- */
 int jbd2_journal_try_to_free_buffers(journal_t *journal,
 				struct page *page, gfp_t gfp_mask)
 {
@@ -1259,13 +1216,10 @@ static int journal_unmap_buffer(journal_t *journal, struct buffer_head *bh)
 		}
 
 		if (!buffer_dirty(bh)) {
-			/* bdflush has written it.  We can drop it now */
+			
 			goto zap_buffer;
 		}
 
-		/* OK, it must be in the journal but still not
-		 * written fully to disk: it's metadata or
-		 * journaled data... */
 
 		if (journal->j_running_transaction) {
 			JBUFFER_TRACE(jh, "checkpointed: add to BJ_Forget");
@@ -1523,26 +1477,6 @@ done:
 	return 0;
 }
 
-/*
- * File truncate and transaction commit interact with each other in a
- * non-trivial way.  If a transaction writing data block A is
- * committing, we cannot discard the data by truncate until we have
- * written them.  Otherwise if we crashed after the transaction with
- * write has committed but before the transaction with truncate has
- * committed, we could see stale data in block A.  This function is a
- * helper to solve this problem.  It starts writeout of the truncated
- * part in case it is in the committing transaction.
- *
- * Filesystem code must call this function when inode is journaled in
- * ordered mode before truncation happens and after the inode has been
- * placed on orphan list with the new inode size. The second condition
- * avoids the race that someone writes new data and we start
- * committing the transaction after this function has been called but
- * before a transaction for truncate is started (and furthermore it
- * allows us to optimize the case where the addition to orphan list
- * happens in the same transaction as write --- we don't have to write
- * any data in such case).
- */
 int jbd2_journal_begin_ordered_truncate(journal_t *journal,
 					struct jbd2_inode *jinode,
 					loff_t new_size)

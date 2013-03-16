@@ -232,20 +232,6 @@ out:
 
 }
 
-/**
- * mext_insert_inside_block - Insert new extent to the extent block
- *
- * @o_start:		first original extent to be moved
- * @o_end:		last original extent to be moved
- * @start_ext:		first new extent to be inserted
- * @new_ext:		middle of new extent to be inserted
- * @end_ext:		last new extent to be inserted
- * @eh:			extent header of target leaf block
- * @range_to_move:	used to decide how to insert extent
- *
- * Insert extents into the leaf block. The extent (@o_start) is overwritten
- * by inserted extents.
- */
 static void
 mext_insert_inside_block(struct ext4_extent *o_start,
 			      struct ext4_extent *o_end,
@@ -625,12 +611,6 @@ move_extent_per_page(struct file *o_filp, struct inode *donor_inode,
 	orig_blk_offset = orig_page_offset * blocks_per_page +
 		data_offset_in_page;
 
-	/*
-	 * If orig extent is uninitialized one,
-	 * it's not necessary force the page into memory
-	 * and then force it to be written out again.
-	 * Just swap data blocks between orig and donor.
-	 */
 	if (uninit) {
 		replaced_count = mext_replace_branches(handle, orig_inode,
 						donor_inode, orig_blk_offset,

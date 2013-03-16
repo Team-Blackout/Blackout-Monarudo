@@ -374,13 +374,6 @@ enum pm8xxx_regulator_action {
 static void pm8xxx_vreg_show_state(struct regulator_dev *rdev,
 				   enum pm8xxx_regulator_action action);
 
-/*
- * Perform a masked write to a PMIC register only if the new value differs
- * from the last value written to the register.  This removes redundant
- * register writing.
- *
- * No locking is required because registers are not shared between regulators.
- */
 static int pm8xxx_vreg_masked_write(struct pm8xxx_vreg *vreg, u16 addr, u8 val,
 		u8 mask, u8 *reg_save)
 {
@@ -406,12 +399,6 @@ static int pm8xxx_vreg_masked_write(struct pm8xxx_vreg *vreg, u16 addr, u8 val,
 	return rc;
 }
 
-/*
- * Perform a masked write to a PMIC register without checking the previously
- * written value.  This is needed for registers that must be rewritten even if
- * the value hasn't changed in order for changes in other registers to take
- * effect.
- */
 static int pm8xxx_vreg_masked_write_forced(struct pm8xxx_vreg *vreg, u16 addr,
 		u8 val, u8 mask, u8 *reg_save)
 {
@@ -678,12 +665,6 @@ static int pm8xxx_pldo_set_voltage(struct regulator_dev *rdev, int min_uV,
 
 	
 	if (reg_changed) {
-		/*
-		 * Force a CTRL register write even if the value hasn't changed.
-		 * This is neccessary because range select, range extension, and
-		 * fine step will not update until a value is written into the
-		 * control register.
-		 */
 		rc = pm8xxx_vreg_masked_write_forced(vreg, vreg->ctrl_addr,
 			vprog, LDO_CTRL_VPROG_MASK, &vreg->ctrl_reg);
 	} else {
@@ -777,11 +758,6 @@ static int pm8xxx_nldo_set_voltage(struct regulator_dev *rdev, int min_uV,
 
 	
 	if (prev_reg != vreg->test_reg[2]) {
-		/*
-		 * Force a CTRL register write even if the value hasn't changed.
-		 * This is neccessary because fine step will not update until a
-		 * value is written into the control register.
-		 */
 		rc = pm8xxx_vreg_masked_write_forced(vreg, vreg->ctrl_addr,
 			vprog, LDO_CTRL_VPROG_MASK, &vreg->ctrl_reg);
 	} else {

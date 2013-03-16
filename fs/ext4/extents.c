@@ -2691,28 +2691,6 @@ out:
 	return err ? err : allocated;
 }
 
-/*
- * This function is called by ext4_ext_map_blocks() from
- * ext4_get_blocks_dio_write() when DIO to write
- * to an uninitialized extent.
- *
- * Writing to an uninitialized extent may result in splitting the uninitialized
- * extent into multiple /initialized uninitialized extents (up to three)
- * There are three possibilities:
- *   a> There is no split required: Entire extent should be uninitialized
- *   b> Splits in two extents: Write is happening at either end of the extent
- *   c> Splits in three extents: Somone is writing in middle of the extent
- *
- * One of more index blocks maybe needed if the extent tree grow after
- * the uninitialized extent split. To prevent ENOSPC occur at the IO
- * complete, we need to split the uninitialized extent before DIO submit
- * the IO. The uninitialized extent called at this time will be split
- * into three uninitialized extent(at most). After IO complete, the part
- * being filled will be convert to initialized by the end_io callback function
- * via ext4_convert_unwritten_extents().
- *
- * Returns the size of uninitialized extent to be written on success.
- */
 static int ext4_split_unwritten_extents(handle_t *handle,
 					struct inode *inode,
 					struct ext4_map_blocks *map,
@@ -2900,41 +2878,6 @@ int ext4_find_delalloc_cluster(struct inode *inode, ext4_lblk_t lblk,
 					search_hint_reverse);
 }
 
-/**
- * Determines how many complete clusters (out of those specified by the 'map')
- * are under delalloc and were reserved quota for.
- * This function is called when we are writing out the blocks that were
- * originally written with their allocation delayed, but then the space was
- * allocated using fallocate() before the delayed allocation could be resolved.
- * The cases to look for are:
- * ('=' indicated delayed allocated blocks
- *  '-' indicates non-delayed allocated blocks)
- * (a) partial clusters towards beginning and/or end outside of allocated range
- *     are not delalloc'ed.
- *	Ex:
- *	|----c---=|====c====|====c====|===-c----|
- *	         |++++++ allocated ++++++|
- *	==> 4 complete clusters in above example
- *
- * (b) partial cluster (outside of allocated range) towards either end is
- *     marked for delayed allocation. In this case, we will exclude that
- *     cluster.
- *	Ex:
- *	|----====c========|========c========|
- *	     |++++++ allocated ++++++|
- *	==> 1 complete clusters in above example
- *
- *	Ex:
- *	|================c================|
- *            |++++++ allocated ++++++|
- *	==> 0 complete clusters in above example
- *
- * The ext4_da_update_reserve_space will be called only if we
- * determine here that there were some "entire" clusters that span
- * this 'allocated' range.
- * In the non-bigalloc case, this function will just end up returning num_blks
- * without ever calling ext4_find_delalloc_range.
- */
 static unsigned int
 get_reserved_cluster_alloc(struct inode *inode, ext4_lblk_t lblk_start,
 			   unsigned int num_blks)
@@ -2998,11 +2941,6 @@ ext4_ext_handle_uninitialized_extents(handle_t *handle, struct inode *inode,
 	if ((flags & EXT4_GET_BLOCKS_PRE_IO)) {
 		ret = ext4_split_unwritten_extents(handle, inode, map,
 						   path, flags);
-		/*
-		 * Flag the inode(non aio case) or end_io struct (aio case)
-		 * that this IO needs to conversion to written when IO is
-		 * completed
-		 */
 		if (io)
 			ext4_set_io_unwritten_flag(inode, io);
 		else
@@ -3011,7 +2949,7 @@ ext4_ext_handle_uninitialized_extents(handle_t *handle, struct inode *inode,
 			map->m_flags |= EXT4_MAP_UNINIT;
 		goto out;
 	}
-	/* IO end_io complete, convert the filled extent to written */
+	
 	if ((flags & EXT4_GET_BLOCKS_CONVERT)) {
 		ret = ext4_convert_unwritten_extents_endio(handle, inode,
 							path);
@@ -3024,10 +2962,6 @@ ext4_ext_handle_uninitialized_extents(handle_t *handle, struct inode *inode,
 		goto out2;
 	}
 	
-	/*
-	 * repeat fallocate creation request
-	 * we already have an unwritten extent
-	 */
 	if (flags & EXT4_GET_BLOCKS_UNINIT_EXT)
 		goto map_out;
 
@@ -3366,46 +3300,6 @@ got_allocated_blocks:
 				struct ext4_inode_info *ei = EXT4_I(inode);
 				int reservation = allocated_clusters -
 						  reserved_clusters;
-				/*
-				 * It seems we claimed few clusters outside of
-				 * the range of this allocation. We should give
-				 * it back to the reservation pool. This can
-				 * happen in the following case:
-				 *
-				 * * Suppose s_cluster_ratio is 4 (i.e., each
-				 *   cluster has 4 blocks. Thus, the clusters
-				 *   are [0-3],[4-7],[8-11]...
-				 * * First comes delayed allocation write for
-				 *   logical blocks 10 & 11. Since there were no
-				 *   previous delayed allocated blocks in the
-				 *   range [8-11], we would reserve 1 cluster
-				 *   for this write.
-				 * * Next comes write for logical blocks 3 to 8.
-				 *   In this case, we will reserve 2 clusters
-				 *   (for [0-3] and [4-7]; and not for [8-11] as
-				 *   that range has a delayed allocated blocks.
-				 *   Thus total reserved clusters now becomes 3.
-				 * * Now, during the delayed allocation writeout
-				 *   time, we will first write blocks [3-8] and
-				 *   allocate 3 clusters for writing these
-				 *   blocks. Also, we would claim all these
-				 *   three clusters above.
-				 * * Now when we come here to writeout the
-				 *   blocks [10-11], we would expect to claim
-				 *   the reservation of 1 cluster we had made
-				 *   (and we would claim it since there are no
-				 *   more delayed allocated blocks in the range
-				 *   [8-11]. But our reserved cluster count had
-				 *   already gone to 0.
-				 *
-				 *   Thus, at the step 4 above when we determine
-				 *   that there are still some unwritten delayed
-				 *   allocated blocks outside of our current
-				 *   block range, we should increment the
-				 *   reserved clusters count so that when the
-				 *   remaining blocks finally gets written, we
-				 *   could claim them.
-				 */
 				dquot_reserve_block(inode,
 						EXT4_C2B(sbi, reservation));
 				spin_lock(&ei->i_block_reservation_lock);
@@ -3605,16 +3499,6 @@ retry:
 	return ret > 0 ? ret2 : ret;
 }
 
-/*
- * This function convert a range of blocks to written extents
- * The caller of this function will pass the start offset and the size.
- * all unwritten extents within this range will be converted to
- * written extents.
- *
- * This function is called from the direct IO end io call back
- * function, to convert the fallocated extents after IO is completed.
- * Returns 0 on success.
- */
 int ext4_convert_unwritten_extents(struct inode *inode, loff_t offset,
 				    ssize_t len)
 {

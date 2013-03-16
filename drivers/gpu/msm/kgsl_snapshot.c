@@ -39,7 +39,7 @@ struct snapshot_obj_itr {
 	int pos;        
 	loff_t offset;  
 	size_t remain;  
-	size_t write;   /* Bytes written so far */
+	size_t write;   
 };
 
 static void obj_itr_init(struct snapshot_obj_itr *itr, void *buf,
@@ -512,12 +512,6 @@ static ssize_t snapshot_show(struct file *filep, struct kobject *kobj,
 		obj_itr_out(&itr, &head, sizeof(head));
 	}
 
-	/*
-	 * Make sure everything has been written out before destroying things.
-	 * The best way to confirm this is to go all the way through without
-	 * writing any bytes - so only release if we get this far and
-	 * itr->write is 0
-	 */
 
 	if (itr.write == 0) {
 		list_for_each_entry_safe(obj, tmp, &device->snapshot_obj_list,

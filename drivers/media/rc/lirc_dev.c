@@ -699,10 +699,6 @@ ssize_t lirc_dev_fop_read(struct file *file,
 
 	while (written < length && ret == 0) {
 		if (lirc_buffer_empty(ir->buf)) {
-			/* According to the read(2) man page, 'written' can be
-			 * returned as less than 'length', instead of blocking
-			 * again, returning -EWOULDBLOCK, or returning
-			 * -ERESTARTSYS */
 			if (written)
 				break;
 			if (file->f_flags & O_NONBLOCK) {

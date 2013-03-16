@@ -105,21 +105,6 @@ static void commit_timeout(unsigned long __data)
 	wake_up_process(p);
 }
 
-/*
- * kjournald2: The main thread function used to manage a logging device
- * journal.
- *
- * This kernel thread is responsible for two things:
- *
- * 1) COMMIT:  Every so often we need to commit the current state of the
- *    filesystem to disk.  The journal thread is responsible for writing
- *    all of the metadata buffers to disk.
- *
- * 2) CHECKPOINT: We cannot reuse a used section of the log file until all
- *    of the data in that part of the log has been rewritten elsewhere on
- *    the disk.  Flushing these old buffers to reclaim space in the log is
- *    known as checkpointing, and this thread is responsible for that job.
- */
 
 static int kjournald2(void *arg)
 {
@@ -226,42 +211,6 @@ static void journal_kill_thread(journal_t *journal)
 	write_unlock(&journal->j_state_lock);
 }
 
-/*
- * jbd2_journal_write_metadata_buffer: write a metadata buffer to the journal.
- *
- * Writes a metadata buffer to a given disk block.  The actual IO is not
- * performed but a new buffer_head is constructed which labels the data
- * to be written with the correct destination disk block.
- *
- * Any magic-number escaping which needs to be done will cause a
- * copy-out here.  If the buffer happens to start with the
- * JBD2_MAGIC_NUMBER, then we can't write it to the log directly: the
- * magic number is only written to the log for descripter blocks.  In
- * this case, we copy the data and replace the first word with 0, and we
- * return a result code which indicates that this buffer needs to be
- * marked as an escaped buffer in the corresponding log descriptor
- * block.  The missing word can then be restored when the block is read
- * during recovery.
- *
- * If the source buffer has already been modified by a new transaction
- * since we took the last commit snapshot, we use the frozen copy of
- * that data for IO.  If we end up using the existing buffer_head's data
- * for the write, then we *have* to lock the buffer to prevent anyone
- * else from using and possibly modifying it while the IO is in
- * progress.
- *
- * The function returns a pointer to the buffer_heads to be used for IO.
- *
- * We assume that the journal has already been locked in this function.
- *
- * Return value:
- *  <0: Error
- * >=0: Finished OK
- *
- * On success:
- * Bit 0 set == escape performed on the data
- * Bit 1 set == buffer copy-out performed (kfree the data after IO)
- */
 
 int jbd2_journal_write_metadata_buffer(transaction_t *transaction,
 				  struct journal_head  *jh_in,
@@ -360,11 +309,6 @@ repeat:
 
 	*jh_out = new_jh;
 
-	/*
-	 * The to-be-written buffer needs to get moved to the io queue,
-	 * and the original buffer whose contents we are shadowing or
-	 * copying is moved to the transaction's shadow queue.
-	 */
 	JBUFFER_TRACE(jh_in, "file as BJ_Shadow");
 	spin_lock(&journal->j_list_lock);
 	__jbd2_journal_file_buffer(jh_in, transaction, BJ_Shadow);
@@ -632,12 +576,6 @@ void __jbd2_update_log_tail(journal_t *journal, tid_t tid, unsigned long block)
 
 	BUG_ON(!mutex_is_locked(&journal->j_checkpoint_mutex));
 
-	/*
-	 * We cannot afford for write to remain in drive's caches since as
-	 * soon as we update j_tail, next transaction can start reusing journal
-	 * space and if we lose sb update during power failure we'd replay
-	 * old transaction with possibly newly overwritten data.
-	 */
 	jbd2_journal_update_sb_log_tail(journal, tid, block, WRITE_FUA);
 	write_lock(&journal->j_state_lock);
 	freed = block - journal->j_tail;
@@ -1483,51 +1421,6 @@ static void __journal_abort_soft (journal_t *journal, int errno)
 		jbd2_journal_update_sb_errno(journal);
 }
 
-/**
- * void jbd2_journal_abort () - Shutdown the journal immediately.
- * @journal: the journal to shutdown.
- * @errno:   an error number to record in the journal indicating
- *           the reason for the shutdown.
- *
- * Perform a complete, immediate shutdown of the ENTIRE
- * journal (not of a single transaction).  This operation cannot be
- * undone without closing and reopening the journal.
- *
- * The jbd2_journal_abort function is intended to support higher level error
- * recovery mechanisms such as the ext2/ext3 remount-readonly error
- * mode.
- *
- * Journal abort has very specific semantics.  Any existing dirty,
- * unjournaled buffers in the main filesystem will still be written to
- * disk by bdflush, but the journaling mechanism will be suspended
- * immediately and no further transaction commits will be honoured.
- *
- * Any dirty, journaled buffers will be written back to disk without
- * hitting the journal.  Atomicity cannot be guaranteed on an aborted
- * filesystem, but we _do_ attempt to leave as much data as possible
- * behind for fsck to use for cleanup.
- *
- * Any attempt to get a new transaction handle on a journal which is in
- * ABORT state will just result in an -EROFS error return.  A
- * jbd2_journal_stop on an existing handle will return -EIO if we have
- * entered abort state during the update.
- *
- * Recursive transactions are not disturbed by journal abort until the
- * final jbd2_journal_stop, which will receive the -EIO error.
- *
- * Finally, the jbd2_journal_abort call allows the caller to supply an errno
- * which will be recorded (if possible) in the journal superblock.  This
- * allows a client to record failure conditions in the middle of a
- * transaction without having to complete the transaction to record the
- * failure to disk.  ext3_error, for example, now uses this
- * functionality.
- *
- * Errors which originate from within the journaling layer will NOT
- * supply an errno; a null errno implies that absolutely no further
- * writes are done to the journal (unless there are any already in
- * progress).
- *
- */
 
 void jbd2_journal_abort(journal_t *journal, int errno)
 {

@@ -53,13 +53,6 @@ struct delayed_work ext_usb_temp_task;
 struct delayed_work ext_usb_bms_notify_task;
 struct workqueue_struct *ext_charger_wq;
 
-#define PM8921_CABLE_EVENT_SIZE		3
-#define pm8921_CABLE_UNSTABLE_DURATION_MS    (1000*12)
-#define pm8921_CABLE_RELEASE_DURATION_MS    (1000*60)
-static unsigned long pm8921_system_jiffies;
-static unsigned long cable_in_ms[PM8921_CABLE_EVENT_SIZE];
-static int curr_cable_index;
-
 #if defined(pr_debug)
 #undef pr_debug
 #endif
@@ -322,8 +315,6 @@ static int usb_ovp_disable;
 static int bat_temp_ok_prev = -1;
 static int eoc_count; 
 
-static int vbus_unstable = 0;
-static unsigned long long_diff = 0;
 static struct pm8921_chg_chip *the_chip;
 
 static struct pm8xxx_adc_arb_btm_param btm_config;
@@ -1514,20 +1505,6 @@ int pm8921_is_batt_full(int *result)
 	*result = is_batt_full;
 	return 0;
 }
-
-int pm8921_is_vbus_unstable(int *result)
-{
-	if (!the_chip) {
-		pr_err("called before init\n");
-		return -EINVAL;
-	}
-
-	pr_info("%s, %d\n", __func__, vbus_unstable);
-	*result = vbus_unstable;
-	return 0;
-}
-
-
 int pm8921_gauge_get_attr_text(char *buf, int size)
 {
 	int len = 0;
@@ -1734,24 +1711,6 @@ int pm8921_charger_get_attr_text_with_ext_charger(char *buf, int size)
 			"USBIN(uV): %d;\n", (int)result.physical);
 
 	pr_info("USBIN(uV): %d;\n", (int)result.physical);
-
-	len += scnprintf(buf + len, size - len,
-			"vbus_unstable: %d;\n", vbus_unstable);
-
-	len += scnprintf(buf + len, size - len,
-			"long_diff(bool): %lu;\n",long_diff);
-
-	len += scnprintf(buf + len, size - len,
-			"ms0(bool): %lu;\n",cable_in_ms[0]);
-
-	len += scnprintf(buf + len, size - len,
-			"ms1(bool): %lu;\n",cable_in_ms[1]);
-
-	len += scnprintf(buf + len, size - len,
-			"ms2(bool): %lu;\n",cable_in_ms[2]);
-
-	len += scnprintf(buf + len, size - len,
-			"curr_cable_index(bool): %d;\n", curr_cable_index);
 
 	if(the_chip->ext_usb)
 	{
@@ -2077,7 +2036,6 @@ static void handle_usb_present_change(struct pm8921_chg_chip *chip,
 			eoc_count = 0;
 			is_ac_safety_timeout = is_ac_safety_timeout_twice = false;
 			is_cable_remove = true;
-			vbus_unstable = 0;
 
 			pr_info("Set vbatdet=%d after cable out\n",
 					PM8921_CHG_VBATDET_MAX);
@@ -2116,23 +2074,6 @@ static u32 htc_fake_charger_for_testing(enum htc_power_source_type src)
 	return new_src;
 }
 
-static int htc_find_next_index(const int curr, const int shift, const int size)
-{
-
-	if(curr + shift < size)
-		return (curr + shift);
-	else
-		return (curr + shift - size);
-}
-
-static int htc_find_previous_index(const int curr, const int shift, const int size)
-{
-
-	if(curr >= shift)
-		return (curr - shift);
-	else
-		return (size + curr - shift);
-}
 
 int pm8921_set_pwrsrc_and_charger_enable(enum htc_power_source_type src,
 		bool chg_enable, bool pwrsrc_enable)
@@ -2142,38 +2083,6 @@ int pm8921_set_pwrsrc_and_charger_enable(enum htc_power_source_type src,
 
 	pr_info("src=%d, chg_enable=%d, pwrsrc_enable=%d\n",
 				src, chg_enable, pwrsrc_enable);
-
-
-	if(src != HTC_PWR_SOURCE_TYPE_BATT)
-	{
-
-		int temp_cable_index;
-
-		cable_in_ms[curr_cable_index] = (jiffies - pm8921_system_jiffies)* MSEC_PER_SEC / HZ;
-
-		temp_cable_index = htc_find_previous_index(curr_cable_index, 2, PM8921_CABLE_EVENT_SIZE);
-
-		if(cable_in_ms[temp_cable_index] != 0)
-			long_diff =  cable_in_ms[curr_cable_index] - cable_in_ms[temp_cable_index];
-
-		pr_info("%s new_index:%d, old_index:%d\n",__func__, curr_cable_index, temp_cable_index);
-		pr_info("%s new_jiff:%lu, old_jiff: %lu\n",__func__, cable_in_ms[curr_cable_index], cable_in_ms[temp_cable_index]);
-
-		long_diff =  cable_in_ms[curr_cable_index] - cable_in_ms[temp_cable_index];
-
-		if((long_diff > 0) && ( long_diff < pm8921_CABLE_UNSTABLE_DURATION_MS))
-			vbus_unstable = 1;
-
-		if(long_diff >  pm8921_CABLE_RELEASE_DURATION_MS)
-			vbus_unstable = 0;
-
-		pr_info("%s diff: %lums, vbus_unstable: %d\n",__func__, long_diff, vbus_unstable);
-
-		curr_cable_index = htc_find_next_index(curr_cable_index, 1, PM8921_CABLE_EVENT_SIZE);
-	}
-	else
-		vbus_unstable = 0;
-
 
 	if (get_kernel_flag() & KERNEL_FLAG_ENABLE_FAST_CHARGE)
 		src = htc_fake_charger_for_testing(src);
@@ -3811,7 +3720,7 @@ static void dump_all(int more)
 			pwrsrc_disabled, is_batt_full,
 			temp_fault, the_chip->is_bat_warm, the_chip->is_bat_cool,
 			pm8xxx_adc_btm_is_warm(), pm8xxx_adc_btm_is_cool(),
-			ichg, vph_pwr, usbin, dcin, reverse_boost_disabled,test_power_monitor,
+			ichg, vph_pwr, usbin, dcin, reverse_boost_disabled,test_power_monitor, 
 			flag_keep_charge_on, flag_pa_recharge, flag_disable_wakelock);
 	
 	if (more || (fsm == FSM_STATE_OFF_0) || (ibat_ma < -1000) ||
@@ -5523,8 +5432,6 @@ static struct platform_driver pm8921_charger_driver = {
 
 static int __init pm8921_charger_init(void)
 {
-	int i = 0;
-
 	test_power_monitor =
 		(get_kernel_flag() & KERNEL_FLAG_TEST_PWR_SUPPLY) ? 1 : 0;
 	flag_keep_charge_on =
@@ -5535,11 +5442,6 @@ static int __init pm8921_charger_init(void)
 		(get_kernel_flag() & KERNEL_FLAG_DISABLE_WAKELOCK) ? 1 : 0;
 	flag_enable_BMS_Charger_log =
                (get_kernel_flag() & KERNEL_FLAG_ENABLE_BMS_CHARGER_LOG) ? 1 : 0;
-
-	pm8921_system_jiffies = jiffies;
-	for(i=0; i < PM8921_CABLE_EVENT_SIZE; i++)
-		cable_in_ms[i] = 0;
-
 	return platform_driver_register(&pm8921_charger_driver);
 }
 

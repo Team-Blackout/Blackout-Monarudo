@@ -43,7 +43,7 @@ typedef struct dhd_ioctl {
 	void *buf;	
 	uint len;	
 	bool set;	
-	uint used;	/* bytes read or written (optional) */
+	uint used;	
 	uint needed;	
 	uint driver;	
 } dhd_ioctl_t;

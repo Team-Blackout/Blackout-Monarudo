@@ -345,20 +345,6 @@ extern int slim_get_logical_addr(struct slim_device *sb, const u8 *e_addr,
 
 
 
-/*
- * Message API access routines.
- * @sb: client handle requesting elemental message reads, writes.
- * @msg: Input structure for start-offset, number of bytes to read.
- * @rbuf: data buffer to be filled with values read.
- * @len: data buffer size
- * @wbuf: data buffer containing value/information to be written
- * context: can sleep
- * Returns:
- * -EINVAL: Invalid parameters
- * -ETIMEDOUT: If controller could not complete the request. This may happen if
- *  the bus lines are not clocked, controller is not powered-on, slave with
- *  given address is not enumerated/responding.
- */
 extern int slim_request_val_element(struct slim_device *sb,
 					struct slim_ele_access *msg, u8 *buf,
 					u8 len);

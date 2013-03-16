@@ -210,32 +210,6 @@ static void fill_buf_with_pattern(int *buf, int num_bytes, int pattern)
 	}
 }
 
-/**
- * test_iosched_add_wr_rd_test_req() - Create and queue a
- * read/write request.
- * @is_err_expcted:	A flag to indicate if this request
- *			should succeed or not
- * @direction:		READ/WRITE
- * @start_sec:		start address of the first bio
- * @num_bios:		number of BIOs to be allocated for the
- *			request
- * @pattern:		A pattern, to be written into the write
- *			requests data buffer. In case of READ
- *			request, the given pattern is kept as
- *			the expected pattern. The expected
- *			pattern will be compared in the test
- *			check result function. If no comparisson
- *			is required, set pattern to
- *			TEST_NO_PATTERN.
- * @end_req_io:		specific completion callback. When not
- *			set,the default callback will be used
- *
- * This function allocates the test request and the block
- * request and calls blk_rq_map_kern which allocates the
- * required BIO. The allocated test request and the block
- * request memory is freed at the end of the test and the
- * allocated BIO memory is freed by end_test_bio.
- */
 int test_iosched_add_wr_rd_test_req(int is_err_expcted,
 		      int direction, int start_sec,
 		      int num_bios, int pattern, rq_end_io_fn *end_req_io)

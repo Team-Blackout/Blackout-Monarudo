@@ -947,14 +947,14 @@ static void kgsl_iommu_default_setstate(struct kgsl_mmu *mmu,
 
 	
 	if (msm_soc_version_supports_iommu_v1())
-		kgsl_idle(mmu->device);
+		kgsl_idle(mmu->device, KGSL_TIMEOUT_DEFAULT);
 
 	
 	msm_iommu_lock();
 
 	if (flags & KGSL_MMUFLAGS_PTUPDATE) {
 		if (!msm_soc_version_supports_iommu_v1())
-			kgsl_idle(mmu->device);
+			kgsl_idle(mmu->device, KGSL_TIMEOUT_DEFAULT);
 		for (i = 0; i < iommu->unit_count; i++) {
 			pt_val = kgsl_iommu_get_pt_lsb(mmu, i,
 						KGSL_IOMMU_CONTEXT_USER);

@@ -3742,9 +3742,6 @@ static bool tabla_is_digital_gain_register(unsigned int reg)
 }
 static int tabla_volatile(struct snd_soc_codec *ssc, unsigned int reg)
 {
-	/* Registers lower than 0x100 are top level registers which can be
-	 * written by the Tabla core driver.
-	 */
 
 	if ((reg >= TABLA_A_CDC_MBHC_EN_CTL) || (reg < 0x100))
 		return 1;

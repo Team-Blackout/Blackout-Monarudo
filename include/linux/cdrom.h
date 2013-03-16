@@ -71,7 +71,7 @@
 
 #define CDROM_SEND_PACKET	0x5393	
 #define CDROM_NEXT_WRITABLE	0x5394	
-#define CDROM_LAST_WRITTEN	0x5395	/* get last block written on disc */
+#define CDROM_LAST_WRITTEN	0x5395	
 
 
 struct cdrom_msf0		
@@ -165,11 +165,7 @@ struct cdrom_multisession
 	__u8 addr_format;    
 };
 
-/* This struct is used with the CDROM_GET_MCN ioctl.  
- * Very few audio discs actually have Universal Product Code information, 
- * which should just be the Medium Catalog Number on the box.  Also note 
- * that the way the codeis written on CD is _not_ uniform across all discs!
- */  
+  
 struct cdrom_mcn 
 {
   __u8 medium_catalog_number[14]; 

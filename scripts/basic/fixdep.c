@@ -318,12 +318,6 @@ static void parse_dep_file(void *map, size_t len)
 		    strrcmp(s, "arch/um/include/uml-config.h") &&
 		    strrcmp(s, "include/linux/kconfig.h") &&
 		    strrcmp(s, ".ver")) {
-			/*
-			 * Do not list the source file as dependency, so that
-			 * kbuild is not confused if a .c file is rewritten
-			 * into .S or vice versa. Storing it in source_* is
-			 * needed for modpost to compute srcversions.
-			 */
 			if (first) {
 				printf("source_%s := %s\n\n", target, s);
 				printf("deps_%s := \\\n", target);

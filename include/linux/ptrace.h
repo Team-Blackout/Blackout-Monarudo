@@ -23,23 +23,6 @@
 #define PTRACE_GETSIGINFO	0x4202
 #define PTRACE_SETSIGINFO	0x4203
 
-/*
- * Generic ptrace interface that exports the architecture specific regsets
- * using the corresponding NT_* types (which are also used in the core dump).
- * Please note that the NT_PRSTATUS note type in a core dump contains a full
- * 'struct elf_prstatus'. But the user_regset for NT_PRSTATUS contains just the
- * elf_gregset_t that is the pr_reg field of 'struct elf_prstatus'. For all the
- * other user_regset flavors, the user_regset layout and the ELF core dump note
- * payload are exactly the same layout.
- *
- * This interface usage is as follows:
- *	struct iovec iov = { buf, len};
- *
- *	ret = ptrace(PTRACE_GETREGSET/PTRACE_SETREGSET, pid, NT_XXX_TYPE, &iov);
- *
- * On the successful completion, iov.len will be updated by the kernel,
- * specifying how much the kernel has written/read to/from the user's iov.buf.
- */
 #define PTRACE_GETREGSET	0x4204
 #define PTRACE_SETREGSET	0x4205
 
@@ -238,19 +221,6 @@ static inline void user_single_step_siginfo(struct task_struct *tsk,
 #endif
 
 #ifndef arch_ptrace_stop
-/**
- * arch_ptrace_stop - Do machine-specific work before stopping for ptrace
- * @code:	current->exit_code value ptrace will stop with
- * @info:	siginfo_t pointer (or %NULL) for signal ptrace will stop with
- *
- * This is called with no locks held when arch_ptrace_stop_needed() has
- * just returned nonzero.  It is allowed to block, e.g. for user memory
- * access.  The arch can have machine-specific work to be done before
- * ptrace stops.  On ia64, register backing store gets written back to user
- * memory here.  Since this can be costly (requires dropping the siglock),
- * we only do it when the arch requires it for this particular stop, as
- * indicated by arch_ptrace_stop_needed().
- */
 #define arch_ptrace_stop(code, info)		do { } while (0)
 #endif
 

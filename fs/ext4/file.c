@@ -57,15 +57,6 @@ static void ext4_aiodio_wait(struct inode *inode)
 	wait_event(*wq, (atomic_read(&EXT4_I(inode)->i_aiodio_unwritten) == 0));
 }
 
-/*
- * This tests whether the IO in question is block-aligned or not.
- * Ext4 utilizes unwritten extents when hole-filling during direct IO, and they
- * are converted to written only after the IO is complete.  Until they are
- * mapped, these blocks appear as holes, so dio_zero_block() will assume that
- * it needs to zero out portions of the start and/or end block.  If 2 AIO
- * threads are at work on the same unwritten block, they must be synchronized
- * or one thread will zero the other's data, causing corruption.
- */
 static int
 ext4_unaligned_aio(struct inode *inode, const struct iovec *iov,
 		   unsigned long nr_segs, loff_t pos)

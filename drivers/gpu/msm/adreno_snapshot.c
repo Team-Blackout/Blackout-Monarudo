@@ -177,11 +177,6 @@ static void ib_parse_set_bin_data(struct kgsl_device *device, unsigned int *pkt,
 	snapshot_frozen_objsize += ret;
 }
 
-/*
- * This opcode writes to GPU memory - if the buffer is written to, there is a
- * good chance that it would be valuable to capture in the snapshot, so mark all
- * buffers that are written to as frozen
- */
 
 static void ib_parse_mem_write(struct kgsl_device *device, unsigned int *pkt,
 	unsigned int ptbase)
@@ -191,12 +186,6 @@ static void ib_parse_mem_write(struct kgsl_device *device, unsigned int *pkt,
 	if (type3_pkt_size(pkt[0]) < 1)
 		return;
 
-	/*
-	 * The address is where the data in the rest of this packet is written
-	 * to, but since that might be an offset into the larger buffer we need
-	 * to get the whole thing. Pass a size of 0 kgsl_snapshot_get_object to
-	 * capture the entire buffer.
-	 */
 
 	ret = kgsl_snapshot_get_object(device, ptbase, pkt[1] & 0xFFFFFFFC, 0,
 		SNAPSHOT_GPU_OBJECT_GENERIC);
@@ -296,13 +285,6 @@ static void ib_parse_type3(struct kgsl_device *device, unsigned int *ptr,
 	}
 }
 
-/*
- * Parse type0 packets found in the stream.  Some of the registers that are
- * written are clues for GPU buffers that we need to freeze.  Register writes
- * are considred valid when a draw initator is called, so just cache the values
- * here and freeze them when a CP_DRAW_INDX is seen.  This protects against
- * needlessly caching buffers that won't be used during a draw call
- */
 
 static void ib_parse_type0(struct kgsl_device *device, unsigned int *ptr,
 	unsigned int ptbase)

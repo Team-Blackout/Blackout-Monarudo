@@ -122,9 +122,6 @@ void prop_change_shift(struct prop_descriptor *pd, int shift)
 		events >>= offset;
 	percpu_counter_set(&pd->pg[index].events, events);
 
-	/*
-	 * ensure the new pg is fully written before the switch
-	 */
 	smp_wmb();
 	pd->index = index;
 	local_irq_restore(flags);

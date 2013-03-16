@@ -90,18 +90,6 @@ typedef struct bcm_mp_stats {
 
 
 
-/*
- * bcm_mpm_init() - initialize the whole memory pool system.
- *
- * Parameters:
- *    osh:       INPUT  Operating system handle. Needed for heap memory allocation.
- *    max_pools: INPUT Maximum number of mempools supported.
- *    mgr:       OUTPUT The handle is written with the new pools manager object/handle.
- *
- * Returns:
- *    BCME_OK     Object initialized successfully. May be used.
- *    BCME_NOMEM  Initialization failed due to no memory. Object must not be used.
- */
 int bcm_mpm_init(struct osl_info *osh, int max_pools, bcm_mpm_mgr_h *mgrp);
 
 

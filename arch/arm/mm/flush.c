@@ -232,10 +232,6 @@ void flush_dcache_page(struct page *page)
 {
 	struct address_space *mapping;
 
-	/*
-	 * The zero page is never written to, so never has any dirty
-	 * cache lines, and therefore never needs to be flushed.
-	 */
 	if (page == ZERO_PAGE(0))
 		return;
 
@@ -255,15 +251,6 @@ void flush_dcache_page(struct page *page)
 }
 EXPORT_SYMBOL(flush_dcache_page);
 
-/*
- * Flush an anonymous page so that users of get_user_pages()
- * can safely access the data.  The expected sequence is:
- *
- *  get_user_pages()
- *    -> flush_anon_page
- *  memcpy() to/from page
- *  if written to page, flush_dcache_page()
- */
 void __flush_anon_page(struct vm_area_struct *vma, struct page *page, unsigned long vmaddr)
 {
 	unsigned long pfn;

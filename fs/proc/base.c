@@ -212,7 +212,7 @@ static int proc_pid_cmdline(struct task_struct *task, char * buffer)
  
 	res = access_process_vm(task, mm->arg_start, buffer, len, 0);
 
-	// If the nul at the end of args has been overwritten, then
+	
 	
 	if (res > 0 && buffer[res-1] != '\0' && len < PAGE_SIZE) {
 		len = strnlen(buffer, res);

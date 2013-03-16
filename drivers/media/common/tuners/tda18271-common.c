@@ -89,8 +89,6 @@ static void tda18271_dump_regs(struct dvb_frontend *fe, int extended)
 	if (!(tda18271_debug & DBG_ADV))
 		return;
 
-	/* W indicates write-only registers.
-	 * Register dump for write-only registers shows last value written. */
 
 	tda_reg("EXTENDED_BYTE_1    = 0x%02x\n", 0xff & regs[R_EB1]);
 	tda_reg("EXTENDED_BYTE_2    = 0x%02x\n", 0xff & regs[R_EB2]);

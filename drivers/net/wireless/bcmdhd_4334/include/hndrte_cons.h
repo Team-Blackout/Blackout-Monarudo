@@ -43,11 +43,6 @@ typedef struct {
 	volatile uint	vcons_in;
 	volatile uint	vcons_out;
 
-	/* Output (logging) buffer
-	 *   Console output is written to a ring buffer log_buf at index log_idx.
-	 *   The host may read the output when it sees log_idx advance.
-	 *   Output will be lost if the output wraps around faster than the host polls.
-	 */
 	hndrte_log_t	log;
 
 	uint		cbuf_idx;

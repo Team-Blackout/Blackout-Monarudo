@@ -299,16 +299,6 @@ struct zone {
 	
 	unsigned long		zone_start_pfn;
 
-	/*
-	 * zone_start_pfn, spanned_pages and present_pages are all
-	 * protected by span_seqlock.  It is a seqlock because it has
-	 * to be read outside of zone->lock, and it is done in the main
-	 * allocator path.  But, it is written quite infrequently.
-	 *
-	 * The lock is declared along with zone->lock because it is
-	 * frequently read in proximity to zone->lock.  It's good to
-	 * give them a chance of being in the same cacheline.
-	 */
 	unsigned long		spanned_pages;	
 	unsigned long		present_pages;	
 

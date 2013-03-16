@@ -847,12 +847,6 @@ do_alignment(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 	return 0;
 }
 
-/*
- * This needs to be done after sysctl_init, otherwise sys/ will be
- * overwritten.  Actually, this shouldn't be in sys/ at all since
- * it isn't a sysctl, and it doesn't contain sysctl information.
- * We now locate it in /proc/cpu/alignment instead.
- */
 static int __init alignment_init(void)
 {
 #ifdef CONFIG_PROC_FS

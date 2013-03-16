@@ -378,65 +378,6 @@ static inline pte_t maybe_mkwrite(pte_t pte, struct vm_area_struct *vma)
 }
 #endif
 
-/*
- * Multiple processes may "see" the same page. E.g. for untouched
- * mappings of /dev/null, all processes see the same page full of
- * zeroes, and text pages of executables and shared libraries have
- * only one copy in memory, at most, normally.
- *
- * For the non-reserved pages, page_count(page) denotes a reference count.
- *   page_count() == 0 means the page is free. page->lru is then used for
- *   freelist management in the buddy allocator.
- *   page_count() > 0  means the page has been allocated.
- *
- * Pages are allocated by the slab allocator in order to provide memory
- * to kmalloc and kmem_cache_alloc. In this case, the management of the
- * page, and the fields in 'struct page' are the responsibility of mm/slab.c
- * unless a particular usage is carefully commented. (the responsibility of
- * freeing the kmalloc memory is the caller's, of course).
- *
- * A page may be used by anyone else who does a __get_free_page().
- * In this case, page_count still tracks the references, and should only
- * be used through the normal accessor functions. The top bits of page->flags
- * and page->virtual store page management information, but all other fields
- * are unused and could be used privately, carefully. The management of this
- * page is the responsibility of the one who allocated it, and those who have
- * subsequently been given references to it.
- *
- * The other pages (we may call them "pagecache pages") are completely
- * managed by the Linux memory manager: I/O, buffers, swapping etc.
- * The following discussion applies only to them.
- *
- * A pagecache page contains an opaque `private' member, which belongs to the
- * page's address_space. Usually, this is the address of a circular list of
- * the page's disk buffers. PG_private must be set to tell the VM to call
- * into the filesystem to release these pages.
- *
- * A page may belong to an inode's memory mapping. In this case, page->mapping
- * is the pointer to the inode, and page->index is the file offset of the page,
- * in units of PAGE_CACHE_SIZE.
- *
- * If pagecache pages are not associated with an inode, they are said to be
- * anonymous pages. These may become associated with the swapcache, and in that
- * case PG_swapcache is set, and page->private is an offset into the swapcache.
- *
- * In either case (swapcache or inode backed), the pagecache itself holds one
- * reference to the page. Setting PG_private should also increment the
- * refcount. The each user mapping also has a reference to the page.
- *
- * The pagecache pages are stored in a per-mapping radix tree, which is
- * rooted at mapping->page_tree, and indexed by offset.
- * Where 2.4 and early 2.6 kernels kept dirty/clean pages in per-address_space
- * lists, we instead now tag pages as dirty/writeback in the radix tree.
- *
- * All pagecache pages may be subject to I/O:
- * - inode pages may need to be read from disk,
- * - inode pages which have been modified and are MAP_SHARED may need
- *   to be written back to the inode on disk,
- * - anonymous pages (including MAP_PRIVATE file mappings) which have been
- *   modified may need to be swapped out to swap space and (later) to be read
- *   back into memory.
- */
 
 
 

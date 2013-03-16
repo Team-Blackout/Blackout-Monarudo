@@ -3,7 +3,7 @@
 
 
 #define PROT_READ	0x1		
-#define PROT_WRITE	0x2		/* page can be written */
+#define PROT_WRITE	0x2		
 #define PROT_EXEC	0x4		
 #define PROT_SEM	0x8		
 #define PROT_NONE	0x0		

@@ -84,7 +84,7 @@ static DEFINE_RAW_SPINLOCK(logbuf_lock);
 
 static unsigned log_start;	
 static unsigned con_start;	
-static unsigned log_end;	/* Index into log_buf: most-recently-written-char + 1 */
+static unsigned log_end;	
 
 static struct console *exclusive_console;
 

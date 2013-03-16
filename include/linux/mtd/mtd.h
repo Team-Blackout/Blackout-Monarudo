@@ -62,25 +62,6 @@ struct mtd_erase_region_info {
 	unsigned long *lockmap;		
 };
 
-/**
- * struct mtd_oob_ops - oob operation operands
- * @mode:	operation mode
- *
- * @len:	number of data bytes to write/read
- *
- * @retlen:	number of data bytes written/read
- *
- * @ooblen:	number of oob bytes to write/read
- * @oobretlen:	number of oob bytes written/read
- * @ooboffs:	offset of oob data in the oob area (only relevant when
- *		mode = MTD_OPS_PLACE_OOB or MTD_OPS_RAW)
- * @datbuf:	data buffer - if NULL only oob data are read/written
- * @oobbuf:	oob data buffer
- *
- * Note, it is allowed to read more than one OOB area at one go, but not write.
- * The interface assumes that the OOB write requests program only one page's
- * OOB area.
- */
 struct mtd_oob_ops {
 	unsigned int	mode;
 	size_t		len;

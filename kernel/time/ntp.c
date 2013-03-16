@@ -715,18 +715,6 @@ static void hardpps_update_phase(long error)
 	pps_jitter += (jitter - pps_jitter) >> PPS_INTMIN;
 }
 
-/*
- * hardpps() - discipline CPU clock oscillator to external PPS signal
- *
- * This routine is called at each PPS signal arrival in order to
- * discipline the CPU clock oscillator to the PPS signal. It takes two
- * parameters: REALTIME and MONOTONIC_RAW clock timestamps. The former
- * is used to correct clock phase error and the latter is used to
- * correct the frequency.
- *
- * This code is based on David Mills's reference nanokernel
- * implementation. It was mostly rewritten but keeps the same idea.
- */
 void hardpps(const struct timespec *phase_ts, const struct timespec *raw_ts)
 {
 	struct pps_normtime pts_norm, freq_norm;

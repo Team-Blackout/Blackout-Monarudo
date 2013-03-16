@@ -242,10 +242,6 @@
 
 #define IW_AUTH_INDEX		0x0FFF
 #define IW_AUTH_FLAGS		0xF000
-/* SIOCSIWAUTH/SIOCGIWAUTH parameters (0 .. 4095)
- * (IW_AUTH_INDEX mask in struct iw_param flags; this is the index of the
- * parameter that is being set/get to; value will be read/written to
- * struct iw_param value field) */
 #define IW_AUTH_WPA_VERSION		0
 #define IW_AUTH_CIPHER_PAIRWISE		1
 #define IW_AUTH_CIPHER_GROUP		2

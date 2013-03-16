@@ -221,15 +221,6 @@ static ssize_t htc_battery_show_cc_attr(struct device *dev,
 	return battery_core_info.func.func_show_cc_attr(attr, buf);
 }
 
-static ssize_t htc_battery_show_htc_extension_attr(struct device *dev,
-					struct device_attribute *attr,
-					char *buf)
-{
-	if (battery_core_info.func.func_show_htc_extension_attr)
-		return battery_core_info.func.func_show_htc_extension_attr(attr, buf);
-	return 0;
-}
-
 static ssize_t htc_battery_set_delta(struct device *dev,
 				struct device_attribute *attr,
 				const char *buf, size_t count)
@@ -449,7 +440,6 @@ static struct device_attribute htc_battery_attrs[] = {
 
 	__ATTR(batt_attr_text, S_IRUGO, htc_battery_show_batt_attr, NULL),
 	__ATTR(batt_power_meter, S_IRUGO, htc_battery_show_cc_attr, NULL),
-	__ATTR(htc_extension, S_IRUGO, htc_battery_show_htc_extension_attr, NULL),
 };
 
 static struct device_attribute htc_set_delta_attrs[] = {
@@ -936,9 +926,6 @@ int htc_battery_core_register(struct device *dev,
 	if (htc_battery->func_show_cc_attr)
 		battery_core_info.func.func_show_cc_attr =
 					htc_battery->func_show_cc_attr;
-	if (htc_battery->func_show_htc_extension_attr)
-		battery_core_info.func.func_show_htc_extension_attr =
-					htc_battery->func_show_htc_extension_attr;
 	if (htc_battery->func_get_battery_info)
 		battery_core_info.func.func_get_battery_info =
 					htc_battery->func_get_battery_info;

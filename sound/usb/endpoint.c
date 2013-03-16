@@ -362,16 +362,6 @@ static int retire_capture_sync_urb(struct snd_usb_substream *subs,
 	return 0;
 }
 
-/*
- * prepare urb for capture data pipe
- *
- * fill the offset and length of each descriptor.
- *
- * we use a temporary buffer to write the captured data.
- * since the length of written data is determined by host, we cannot
- * write onto the pcm buffer directly...  the data is thus copied
- * later at complete callback to the global buffer.
- */
 static int prepare_capture_urb(struct snd_usb_substream *subs,
 			       struct snd_pcm_runtime *runtime,
 			       struct urb *urb)
@@ -469,16 +459,6 @@ static int prepare_playback_sync_urb(struct snd_usb_substream *subs,
 	return 0;
 }
 
-/*
- * process after playback sync complete
- *
- * Full speed devices report feedback values in 10.14 format as samples per
- * frame, high speed devices in 16.16 format as samples per microframe.
- * Because the Audio Class 1 spec was written before USB 2.0, many high speed
- * devices use a wrong interpretation, some others use an entirely different
- * format.  Therefore, we cannot predict what format any particular device uses
- * and must detect it automatically.
- */
 static int retire_playback_sync_urb(struct snd_usb_substream *subs,
 				    struct snd_pcm_runtime *runtime,
 				    struct urb *urb)

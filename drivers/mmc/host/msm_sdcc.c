@@ -1306,12 +1306,6 @@ msmsdcc_pio_write(struct msmsdcc_host *host, char *buffer,
 	return ptr - buffer;
 }
 
-/*
- * Copy up to a word (4 bytes) between a scatterlist
- * and a temporary bounce buffer when the word lies across
- * two pages. The temporary buffer can then be read to/
- * written from the FIFO once.
- */
 static void _msmsdcc_sg_consume_word(struct msmsdcc_host *host)
 {
 	struct msmsdcc_pio_data *pio = &host->pio;
@@ -3081,11 +3075,6 @@ static void msmsdcc_enable_sdio_irq(struct mmc_host *mmc, int enable)
 	struct msmsdcc_host *host = mmc_priv(mmc);
 	unsigned long flags;
 
-	/*
-	 * We may come here with clocks turned off in that case don't
-	 * attempt to write into MASK0 register. While turning on the
-	 * clocks mci_irqenable will be written to MASK0 register.
-	 */
 
 	spin_lock_irqsave(&host->lock, flags);
 	if (enable) {

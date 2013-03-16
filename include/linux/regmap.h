@@ -34,39 +34,6 @@ struct reg_default {
 
 #ifdef CONFIG_REGMAP
 
-/**
- * Configuration for the register map of a device.
- *
- * @reg_bits: Number of bits in a register address, mandatory.
- * @pad_bits: Number of bits of padding between register and value.
- * @val_bits: Number of bits in a register value, mandatory.
- *
- * @writeable_reg: Optional callback returning true if the register
- *                 can be written to.
- * @readable_reg: Optional callback returning true if the register
- *                can be read from.
- * @volatile_reg: Optional callback returning true if the register
- *                value can't be cached.
- * @precious_reg: Optional callback returning true if the rgister
- *                should not be read outside of a call from the driver
- *                (eg, a clear on read interrupt status register).
- *
- * @max_register: Optional, specifies the maximum valid register index.
- * @reg_defaults: Power on reset values for registers (for use with
- *                register cache support).
- * @num_reg_defaults: Number of elements in reg_defaults.
- *
- * @read_flag_mask: Mask to be set in the top byte of the register when doing
- *                  a read.
- * @write_flag_mask: Mask to be set in the top byte of the register when doing
- *                   a write. If both read_flag_mask and write_flag_mask are
- *                   empty the regmap_bus default masks are used.
- *
- * @cache_type: The actual cache type.
- * @reg_defaults_raw: Power on reset values for registers (for use with
- *                    register cache support).
- * @num_reg_defaults_raw: Number of elements in reg_defaults_raw.
- */
 struct regmap_config {
 	int reg_bits;
 	int pad_bits;

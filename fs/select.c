@@ -66,18 +66,6 @@ struct poll_table_page {
 #define POLL_TABLE_FULL(table) \
 	((unsigned long)((table)->entry+1) > PAGE_SIZE + (unsigned long)(table))
 
-/*
- * Ok, Peter made a complicated, but straightforward multiple_wait() function.
- * I have rewritten this, taking some shortcuts: This code may not be easy to
- * follow, but it should be free of race-conditions, and it's practical. If you
- * understand what I'm doing here, then you understand how the linux
- * sleep/wakeup mechanism works.
- *
- * Two very simple procedures, poll_wait() and poll_freewait() make all the
- * work.  poll_wait() is an inline-function defined in <linux/poll.h>,
- * as all select/poll functions have to call it to add an entry to the
- * poll table.
- */
 static void __pollwait(struct file *filp, wait_queue_head_t *wait_address,
 		       poll_table *p);
 
@@ -191,17 +179,6 @@ int poll_schedule_timeout(struct poll_wqueues *pwq, int state,
 		rc = schedule_hrtimeout_range(expires, slack, HRTIMER_MODE_ABS);
 	__set_current_state(TASK_RUNNING);
 
-	/*
-	 * Prepare for the next iteration.
-	 *
-	 * The following set_mb() serves two purposes.  First, it's
-	 * the counterpart rmb of the wmb in pollwake() such that data
-	 * written before wake up is always visible after wake up.
-	 * Second, the full barrier guarantees that triggered clearing
-	 * doesn't pass event check of the next iteration.  Note that
-	 * this problem doesn't exist for the first iteration as
-	 * add_wait_queue() has full barrier semantics.
-	 */
 	set_mb(pwq->triggered, 0);
 
 	return rc;

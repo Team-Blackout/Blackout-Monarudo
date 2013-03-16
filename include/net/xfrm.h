@@ -455,11 +455,6 @@ struct xfrm_mgr {
 extern int xfrm_register_km(struct xfrm_mgr *km);
 extern int xfrm_unregister_km(struct xfrm_mgr *km);
 
-/*
- * This structure is used for the duration where packets are being
- * transformed by IPsec.  As soon as the packet leaves IPsec the
- * area beyond the generic IP part may be overwritten.
- */
 struct xfrm_skb_cb {
 	union {
 		struct inet_skb_parm h4;

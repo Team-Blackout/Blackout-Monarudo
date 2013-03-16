@@ -25,7 +25,7 @@ enum bh_state_bits {
 	BH_Delay,	
 	BH_Boundary,	
 	BH_Write_EIO,	
-	BH_Unwritten,	/* Buffer is allocated on disk but not written */
+	BH_Unwritten,	
 	BH_Quiet,	
 
 	BH_PrivateStart,

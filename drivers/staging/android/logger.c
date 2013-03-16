@@ -171,18 +171,6 @@ static size_t get_next_entry_by_uid(struct logger_log *log,
 	return off;
 }
 
-/*
- * logger_read - our log's read() method
- *
- * Behavior:
- *
- *	- O_NONBLOCK works
- *	- If there are no log entries to read, blocks until log is written to
- *	- Atomically reads exactly one log entry
- *
- * Will set errno to EINVAL if read
- * buffer is insufficient to hold next entry.
- */
 static ssize_t logger_read(struct file *file, char __user *buf,
 			   size_t count, loff_t *pos)
 {

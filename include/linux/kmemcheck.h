@@ -35,31 +35,6 @@ int kmemcheck_hide_addr(unsigned long address);
 
 bool kmemcheck_is_obj_initialized(unsigned long addr, size_t size);
 
-/*
- * Bitfield annotations
- *
- * How to use: If you have a struct using bitfields, for example
- *
- *     struct a {
- *             int x:8, y:8;
- *     };
- *
- * then this should be rewritten as
- *
- *     struct a {
- *             kmemcheck_bitfield_begin(flags);
- *             int x:8, y:8;
- *             kmemcheck_bitfield_end(flags);
- *     };
- *
- * Now the "flags_begin" and "flags_end" members may be used to refer to the
- * beginning and end, respectively, of the bitfield (and things like
- * &x.flags_begin is allowed). As soon as the struct is allocated, the bit-
- * fields should be annotated:
- *
- *     struct a *a = kmalloc(sizeof(struct a), GFP_KERNEL);
- *     kmemcheck_annotate_bitfield(a, flags);
- */
 #define kmemcheck_bitfield_begin(name)	\
 	int name##_begin[0];
 

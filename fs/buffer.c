@@ -323,54 +323,6 @@ void mark_buffer_async_write(struct buffer_head *bh)
 EXPORT_SYMBOL(mark_buffer_async_write);
 
 
-/*
- * fs/buffer.c contains helper functions for buffer-backed address space's
- * fsync functions.  A common requirement for buffer-based filesystems is
- * that certain data from the backing blockdev needs to be written out for
- * a successful fsync().  For example, ext2 indirect blocks need to be
- * written back and waited upon before fsync() returns.
- *
- * The functions mark_buffer_inode_dirty(), fsync_inode_buffers(),
- * inode_has_buffers() and invalidate_inode_buffers() are provided for the
- * management of a list of dependent buffers at ->i_mapping->private_list.
- *
- * Locking is a little subtle: try_to_free_buffers() will remove buffers
- * from their controlling inode's queue when they are being freed.  But
- * try_to_free_buffers() will be operating against the *blockdev* mapping
- * at the time, not against the S_ISREG file which depends on those buffers.
- * So the locking for private_list is via the private_lock in the address_space
- * which backs the buffers.  Which is different from the address_space 
- * against which the buffers are listed.  So for a particular address_space,
- * mapping->private_lock does *not* protect mapping->private_list!  In fact,
- * mapping->private_list will always be protected by the backing blockdev's
- * ->private_lock.
- *
- * Which introduces a requirement: all buffers on an address_space's
- * ->private_list must be from the same address_space: the blockdev's.
- *
- * address_spaces which do not place buffers at ->private_list via these
- * utility functions are free to use private_lock and private_list for
- * whatever they want.  The only requirement is that list_empty(private_list)
- * be true at clear_inode() time.
- *
- * FIXME: clear_inode should not call invalidate_inode_buffers().  The
- * filesystems should do that.  invalidate_inode_buffers() should just go
- * BUG_ON(!list_empty).
- *
- * FIXME: mark_buffer_dirty_inode() is a data-plane operation.  It should
- * take an address_space, not an inode.  And it should be called
- * mark_buffer_dirty_fsync() to clearly define why those buffers are being
- * queued up.
- *
- * FIXME: mark_buffer_dirty_inode() doesn't need to add the buffer to the
- * list if it is already on a list.  Because if the buffer is on a list,
- * it *must* already be on the right one.  If not, the filesystem is being
- * silly.  This will save a ton of locking.  But first we have to ensure
- * that buffers are taken *off* the old inode's list when they are freed
- * (presumably in truncate).  That requires careful auditing of all
- * filesystems (do it inside bforget()).  It could also be done by bringing
- * b_inode back.
- */
 
 static void __remove_assoc_queue(struct buffer_head *bh)
 {
@@ -437,17 +389,6 @@ void emergency_thaw_all(void)
 	}
 }
 
-/**
- * sync_mapping_buffers - write out & wait upon a mapping's "associated" buffers
- * @mapping: the mapping which wants those buffers written
- *
- * Starts I/O against the buffers at mapping->private_list, and waits upon
- * that I/O.
- *
- * Basically, this is a convenience function for fsync().
- * @mapping is a file or directory which needs those buffers to be written for
- * a successful fsync().
- */
 int sync_mapping_buffers(struct address_space *mapping)
 {
 	struct address_space *buffer_mapping = mapping->assoc_mapping;
@@ -460,12 +401,6 @@ int sync_mapping_buffers(struct address_space *mapping)
 }
 EXPORT_SYMBOL(sync_mapping_buffers);
 
-/*
- * Called when we've recently written block `bblock', and it is known that
- * `bblock' was for a buffer_boundary() buffer.  This means that the block at
- * `bblock + 1' is probably a dirty indirect block.  Hunt it down and, if it's
- * dirty, schedule it for IO.  So that indirects merge nicely with their data.
- */
 void write_boundary_block(struct block_device *bdev,
 			sector_t bblock, unsigned blocksize)
 {
@@ -1165,22 +1100,6 @@ void unmap_underlying_metadata(struct block_device *bdev, sector_t block)
 EXPORT_SYMBOL(unmap_underlying_metadata);
 
 
-/*
- * While block_write_full_page is writing back the dirty buffers under
- * the page lock, whoever dirtied the buffers may decide to clean them
- * again at any time.  We handle that by only looking at the buffer
- * state inside lock_buffer().
- *
- * If block_write_full_page() is called for regular writeback
- * (wbc->sync_mode == WB_SYNC_NONE) then it will redirty a page which has a
- * locked buffer.   This only can happen if someone has written the buffer
- * directly, with submit_bh().  At the address_space level PageWriteback
- * prevents this contention from occurring.
- *
- * If block_write_full_page() is called with wbc->sync_mode ==
- * WB_SYNC_ALL, the writes are posted using WRITE_SYNC; this
- * causes the writes to be flagged as synchronous writes.
- */
 static int __block_write_full_page(struct inode *inode, struct page *page,
 			get_block_t *get_block, struct writeback_control *wbc,
 			bh_end_io_t *handler)
@@ -1296,11 +1215,6 @@ recover:
 	goto done;
 }
 
-/*
- * If a page has any new buffers, zero them out here, and mark them uptodate
- * and dirty so they'll be written out (in order to prevent uninitialised
- * block data from leaking). And clear the new bit.
- */
 void page_zero_new_buffers(struct page *page, unsigned from, unsigned to)
 {
 	unsigned int block_start, block_end;
@@ -1481,18 +1395,6 @@ int block_write_end(struct file *file, struct address_space *mapping,
 	start = pos & (PAGE_CACHE_SIZE - 1);
 
 	if (unlikely(copied < len)) {
-		/*
-		 * The buffers that were written will now be uptodate, so we
-		 * don't have to worry about a readpage reading them and
-		 * overwriting a partial write. However if we have encountered
-		 * a short write and only partially written into a buffer, it
-		 * will not be marked uptodate, so a readpage might come in and
-		 * destroy our partial write.
-		 *
-		 * Do the simplest thing, and just treat any short write to a
-		 * non uptodate page as a zero-length write, and force the
-		 * caller to redo the whole thing.
-		 */
 		if (!PageUptodate(page))
 			copied = 0;
 
@@ -1771,24 +1673,6 @@ int block_commit_write(struct page *page, unsigned from, unsigned to)
 }
 EXPORT_SYMBOL(block_commit_write);
 
-/*
- * block_page_mkwrite() is not allowed to change the file size as it gets
- * called from a page fault handler when a page is first dirtied. Hence we must
- * be careful to check for EOF conditions here. We set the page up correctly
- * for a written page which means we get ENOSPC checking when writing into
- * holes and correct delalloc and unwritten extent mapping on filesystems that
- * support these features.
- *
- * We are not allowed to take the i_mutex here so we have to play games to
- * protect against truncate races as the page could now be beyond EOF.  Because
- * truncate writes the inode size before removing pages, once we have the
- * page lock we can determine safely if the page is beyond EOF. If it is not
- * beyond EOF, then the page is guaranteed safe against truncation until we
- * unlock the page.
- *
- * Direct callers of this function should call vfs_check_frozen() so that page
- * fault does not busyloop until the fs is thawed.
- */
 int __block_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf,
 			 get_block_t get_block)
 {
@@ -1971,13 +1855,6 @@ int nobh_write_begin(struct address_space *mapping,
 
 failed:
 	BUG_ON(!ret);
-	/*
-	 * Error recovery is a bit difficult. We need to zero out blocks that
-	 * were newly allocated, and dirty them to ensure they get written out.
-	 * Buffers need to be attached to the page at this point, otherwise
-	 * the handling of potential IO errors during writeout would be hard
-	 * (could try doing synchronous writeout, but what if that fails too?)
-	 */
 	attach_nobh_buffers(page, head);
 	page_zero_new_buffers(page, from, to);
 
@@ -2050,13 +1927,6 @@ int nobh_writepage(struct page *page, get_block_t *get_block,
 		return 0; 
 	}
 
-	/*
-	 * The page straddles i_size.  It must be zeroed out on each and every
-	 * writepage invocation because it may be mmapped.  "A file is mapped
-	 * in multiples of the page size.  For a file that is not a multiple of
-	 * the  page size, the remaining memory is zeroed when mapped, and
-	 * writes to that region are not written out to the file."
-	 */
 	zero_user_segment(page, offset, PAGE_CACHE_SIZE);
 out:
 	ret = mpage_writepage(page, get_block, wbc);
@@ -2242,13 +2112,6 @@ int block_write_full_page_endio(struct page *page, get_block_t *get_block,
 		return 0; 
 	}
 
-	/*
-	 * The page straddles i_size.  It must be zeroed out on each and every
-	 * writepage invocation because it may be mmapped.  "A file is mapped
-	 * in multiples of the page size.  For a file that is not a multiple of
-	 * the  page size, the remaining memory is zeroed when mapped, and
-	 * writes to that region are not written out to the file."
-	 */
 	zero_user_segment(page, offset, PAGE_CACHE_SIZE);
 	return __block_write_full_page(inode, page, get_block, wbc, handler);
 }

@@ -186,25 +186,6 @@ int hsic_sysmon_read(enum hsic_sysmon_device_id id, char *data, size_t len,
 }
 EXPORT_SYMBOL(hsic_sysmon_read);
 
-/**
- * hsic_sysmon_write() - Write data to the HSIC sysmon interface.
- * @id: the HSIC system monitor device to open
- * @data: pointer to caller-allocated buffer to write
- * @len: length in bytes of the data in buffer to write
- * @actual_len: pointer to a location to put the actual length written
- *	in bytes
- * @timeout: time in msecs to wait for the message to complete before
- *	timing out (if 0 the wait is forever)
- *
- * Context: !in_interrupt ()
- *
- * Synchronously writes data to the HSIC interface. The call will return
- * after the write has completed, encountered an error, or timed out. Upon
- * successful return actual_len will reflect the number of bytes written.
- *
- * If successful, it returns 0, otherwise a negative error number.  The number
- * of actual bytes transferred will be stored in the actual_len paramater.
- */
 int hsic_sysmon_write(enum hsic_sysmon_device_id id, const char *data,
 		      size_t len, int timeout)
 {

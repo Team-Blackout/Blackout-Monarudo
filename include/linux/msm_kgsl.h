@@ -72,10 +72,6 @@ struct kgsl_devinfo {
 	unsigned int gmem_sizebytes;
 };
 
-/* this structure defines the region of memory that can be mmap()ed from this
-   driver. The timestamp fields are volatile because they are written by the
-   GPU
-*/
 struct kgsl_devmemstore {
 	volatile unsigned int soptimestamp;
 	unsigned int sbz;

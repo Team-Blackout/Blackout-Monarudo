@@ -512,20 +512,6 @@ ssize_t simple_read_from_buffer(void __user *to, size_t count, loff_t *ppos,
 	return count;
 }
 
-/**
- * simple_write_to_buffer - copy data from user space to the buffer
- * @to: the buffer to write to
- * @available: the size of the buffer
- * @ppos: the current position in the buffer
- * @from: the user space buffer to read from
- * @count: the maximum number of bytes to read
- *
- * The simple_write_to_buffer() function reads up to @count bytes from the user
- * space address starting at @from into the buffer @to at offset @ppos.
- *
- * On success, the number of bytes written is returned and the offset @ppos is
- * advanced by this number, or negative value is returned on error.
- **/
 ssize_t simple_write_to_buffer(void *to, size_t available, loff_t *ppos,
 		const void __user *from, size_t count)
 {

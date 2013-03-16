@@ -80,22 +80,6 @@ static inline bool is_local_client(struct zcache_client *cli)
 	return cli == &zcache_host;
 }
 
-/**********
- * Compression buddies ("zbud") provides for packing two (or, possibly
- * in the future, more) compressed ephemeral pages into a single "raw"
- * (physical) page and tracking them with data structures so that
- * the raw pages can be easily reclaimed.
- *
- * A zbud page ("zbpg") is an aligned page containing a list_head,
- * a lock, and two "zbud headers".  The remainder of the physical
- * page is divided up into aligned 64-byte "chunks" which contain
- * the compressed data for zero, one, or two zbuds.  Each zbpg
- * resides on: (1) an "unused list" if it has no zbuds; (2) a
- * "buddied" list if it is fully populated  with two zbuds; or
- * (3) one of PAGE_SIZE/64 "unbuddied" lists indexed by how many chunks
- * the one unbuddied zbud uses.  The data inside a zbpg cannot be
- * read or written unless the zbpg's lock is held.
- */
 
 #define ZBH_SENTINEL  0x43214321
 #define ZBPG_SENTINEL  0xdeadbeef

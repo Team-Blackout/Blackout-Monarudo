@@ -671,10 +671,6 @@ static void volume_ramp_func(struct work_struct *work)
 #if 1
 			int i;
 			for(i=0; i<15; i++) {
-				if(!rt5501_query.action_on) {
-					mutex_unlock(&rt5501_query.actionlock);
-					return;
-				}
 				msleep(1);
 				rt5501_write_reg(1,val);
 				val++;
@@ -740,8 +736,6 @@ int query_rt5501(void)
 void set_rt5501_amp(int on)
 {
     rt5501_query.gpio_off_cancel = 1;
-    if(!on)
-        rt5501_query.action_on = 0;
     cancel_delayed_work_sync(&rt5501_query.gpio_off_work);
     flush_work_sync(&rt5501_query.volume_ramp_work.work);
     mutex_lock(&rt5501_query.gpiolock);
@@ -761,7 +755,6 @@ void set_rt5501_amp(int on)
             rt5501_query.gpiostatus = AMP_GPIO_ON;
             msleep(1);
         }
-                rt5501_query.action_on = 1;
 		queue_delayed_work(ramp_wq, &rt5501_query.volume_ramp_work, msecs_to_jiffies(0));
 
     } else {

@@ -1,9 +1,3 @@
-/*
- *  fs/ext4/mballoc.h
- *
- *  Written by: Alex Tomas <alex@clusterfs.com>
- *
- */
 #ifndef _EXT4_MBALLOC_H
 #define _EXT4_MBALLOC_H
 

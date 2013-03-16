@@ -1,19 +1,4 @@
 
-/*
- * Changes:	Pedro Roque	:	Retransmit queue handled by TCP.
- *				:	Fragmentation on mtu decrease
- *				:	Segment collapse on retransmit
- *				:	AF independence
- *
- *		Linus Torvalds	:	send_delayed_ack
- *		David S. Miller	:	Charge memory using the right skb
- *					during syn/ack processing.
- *		David S. Miller :	Output engine completely rewritten.
- *		Andrea Arcangeli:	SYNACK carry ts_recent in tsecr.
- *		Cacophonix Gaul :	draft-minshall-nagle-01
- *		J Hadi Salim	:	ECN support
- *
- */
 
 #include <net/tcp.h>
 

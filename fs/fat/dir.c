@@ -1,17 +1,3 @@
-/*
- *  linux/fs/fat/dir.c
- *
- *  directory handling functions for fat-based filesystems
- *
- *  Written 1992,1993 by Werner Almesberger
- *
- *  Hidden files 1995 by Albert Cahalan <albert@ccs.neu.edu> <adc@coe.neu.edu>
- *
- *  VFAT extensions by Gordon Chaffee <chaffee@plateau.cs.berkeley.edu>
- *  Merged with msdos fs by Henrik Storner <storner@osiris.ping.dk>
- *  Rewritten for constant inumbers. Plugged buffer overrun in readdir(). AV
- *  Short name translation 1999, 2001 by Wolfram Pienkoss <wp@bszh.de>
- */
 
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -22,16 +8,7 @@
 #include <linux/kernel.h>
 #include "fat.h"
 
-/*
- * Maximum buffer size of short name.
- * [(MSDOS_NAME + '.') * max one char + nul]
- * For msdos style, ['.' (hidden) + MSDOS_NAME + '.' + nul]
- */
 #define FAT_MAX_SHORT_SIZE	((MSDOS_NAME + 1) * NLS_MAX_CHARSET_SIZE + 1)
-/*
- * Maximum buffer size of unicode chars from slots.
- * [(max longname slots * 13 (size in a slot) + nul) * sizeof(wchar_t)]
- */
 #define FAT_MAX_UNI_CHARS	((MSDOS_SLOTS - 1) * 13 + 1)
 #define FAT_MAX_UNI_SIZE	(FAT_MAX_UNI_CHARS * sizeof(wchar_t))
 

@@ -72,22 +72,6 @@ EXPORT_SYMBOL(laptop_mode);
 
 unsigned long global_dirty_limit;
 
-/*
- * Scale the writeback cache size proportional to the relative writeout speeds.
- *
- * We do this by keeping a floating proportion between BDIs, based on page
- * writeback completions [end_page_writeback()]. Those devices that write out
- * pages fastest will get the larger share, while the slower will get a smaller
- * share.
- *
- * We use page writeout completions because we are interested in getting rid of
- * dirty pages. Having them written out is the primary goal.
- *
- * We introduce a concept of time, a period over which we measure these events,
- * because demand can/will vary over time. The length of this period itself is
- * measured in page writeback completions.
- *
- */
 static struct prop_descriptor vm_completions;
 
 
@@ -423,13 +407,6 @@ static void bdi_update_write_bandwidth(struct backing_dev_info *bdi,
 	unsigned long old = bdi->write_bandwidth;
 	u64 bw;
 
-	/*
-	 * bw = written * HZ / elapsed
-	 *
-	 *                   bw * elapsed + write_bandwidth * (period - elapsed)
-	 * write_bandwidth = ---------------------------------------------------
-	 *                                          period
-	 */
 	bw = written - bdi->written_stamp;
 	bw *= HZ;
 	if (unlikely(elapsed > period)) {
@@ -689,12 +666,6 @@ static void balance_dirty_pages(struct address_space *mapping,
 	for (;;) {
 		unsigned long now = jiffies;
 
-		/*
-		 * Unstable writes are a feature of certain networked
-		 * filesystems (i.e. NFS) in which data may have been
-		 * written to the server's write cache, but has not yet
-		 * been flushed to permanent storage.
-		 */
 		nr_reclaimable = global_page_state(NR_FILE_DIRTY) +
 					global_page_state(NR_UNSTABLE_NFS);
 		nr_dirty = nr_reclaimable + global_page_state(NR_WRITEBACK);
@@ -922,11 +893,6 @@ void laptop_io_completion(struct backing_dev_info *info)
 	mod_timer(&info->laptop_mode_wb_timer, jiffies + laptop_mode);
 }
 
-/*
- * We're in laptop mode and we've just synced. The sync's writes will have
- * caused another writeback to be scheduled by laptop_io_completion.
- * Nothing needs to be written back anymore, so we unschedule the writeback.
- */
 void laptop_sync_completion(void)
 {
 	struct backing_dev_info *bdi;
@@ -974,20 +940,6 @@ void __init page_writeback_init(void)
 	prop_descriptor_init(&vm_completions, shift);
 }
 
-/**
- * tag_pages_for_writeback - tag pages to be written by write_cache_pages
- * @mapping: address space structure to write
- * @start: starting page index
- * @end: ending page index (inclusive)
- *
- * This function scans the page range from @start to @end (inclusive) and tags
- * all pages that have DIRTY tag set with a special TOWRITE tag. The idea is
- * that write_cache_pages (or whoever calls this function) will then use
- * TOWRITE tag to identify pages eligible for writeback.  This mechanism is
- * used to avoid livelocking of writeback by a process steadily creating new
- * dirty pages in the file (thus it is important for this function to be quick
- * so that it can tag pages faster than a dirtying process can create them).
- */
 void tag_pages_for_writeback(struct address_space *mapping,
 			     pgoff_t start, pgoff_t end)
 {
@@ -1007,28 +959,6 @@ void tag_pages_for_writeback(struct address_space *mapping,
 }
 EXPORT_SYMBOL(tag_pages_for_writeback);
 
-/**
- * write_cache_pages - walk the list of dirty pages of the given address space and write all of them.
- * @mapping: address space structure to write
- * @wbc: subtract the number of written pages from *@wbc->nr_to_write
- * @writepage: function called for each page
- * @data: data passed to writepage function
- *
- * If a page is already under I/O, write_cache_pages() skips it, even
- * if it's dirty.  This is desirable behaviour for memory-cleaning writeback,
- * but it is INCORRECT for data-integrity system calls such as fsync().  fsync()
- * and msync() need to guarantee that all the data which was dirty at the time
- * the call was made get new I/O started against them.  If wbc->sync_mode is
- * WB_SYNC_ALL then we were called for data integrity and we must wait for
- * existing IO to complete.
- *
- * To avoid livelocks (when other process dirties new pages), we first tag
- * pages which should be written back with TOWRITE tag and only then start
- * writing them. For data-integrity sync we have to be careful so that we do
- * not miss some pages (e.g., because some other process has cleared TOWRITE
- * tag we set). The rule we follow is that TOWRITE tag can be cleared only
- * by the process clearing the DIRTY tag (and submitting the page for IO).
- */
 int write_cache_pages(struct address_space *mapping,
 		      struct writeback_control *wbc, writepage_t writepage,
 		      void *data)
@@ -1124,12 +1054,6 @@ continue_unlock:
 				}
 			}
 
-			/*
-			 * We stop writing back only if we are not doing
-			 * integrity sync. In case of integrity sync we have to
-			 * keep going until we have written all the pages
-			 * we tagged for writeback prior to entering this loop.
-			 */
 			if (--wbc->nr_to_write <= 0 &&
 			    wbc->sync_mode == WB_SYNC_NONE) {
 				done = 1;
@@ -1161,14 +1085,6 @@ static int __writepage(struct page *page, struct writeback_control *wbc,
 	return ret;
 }
 
-/**
- * generic_writepages - walk the list of dirty pages of the given address space and writepage() all of them.
- * @mapping: address space structure to write
- * @wbc: subtract the number of written pages from *@wbc->nr_to_write
- *
- * This is a library function, which implements the writepages()
- * address_space_operation.
- */
 int generic_writepages(struct address_space *mapping,
 		       struct writeback_control *wbc)
 {
@@ -1286,13 +1202,6 @@ int __set_page_dirty_nobuffers(struct page *page)
 }
 EXPORT_SYMBOL(__set_page_dirty_nobuffers);
 
-/*
- * Call this whenever redirtying a page, to de-account the dirty counters
- * (NR_DIRTIED, BDI_DIRTIED, tsk->nr_dirtied), so that they match the written
- * counters (NR_WRITTEN, BDI_WRITTEN) in long term. The mismatches will lead to
- * systematic errors in balanced_dirty_ratelimit and the dirty pages position
- * control.
- */
 void account_page_redirty(struct page *page)
 {
 	struct address_space *mapping = page->mapping;
@@ -1318,16 +1227,6 @@ int set_page_dirty(struct page *page)
 
 	if (likely(mapping)) {
 		int (*spd)(struct page *) = mapping->a_ops->set_page_dirty;
-		/*
-		 * readahead/lru_deactivate_page could remain
-		 * PG_readahead/PG_reclaim due to race with end_page_writeback
-		 * About readahead, if the page is written, the flags would be
-		 * reset. So no problem.
-		 * About lru_deactivate_page, if the page is redirty, the flag
-		 * will be reset. So no problem. but if the page is used by readahead
-		 * it will confuse readahead and make it restart the size rampup
-		 * process. But it's a trivial problem.
-		 */
 		ClearPageReclaim(page);
 #ifdef CONFIG_BLOCK
 		if (!spd)

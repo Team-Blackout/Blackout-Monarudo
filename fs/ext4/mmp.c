@@ -154,10 +154,6 @@ static int kmmpd(void *data)
 			put_bh(bh_check);
 		}
 
-		 /*
-		 * Adjust the mmp_check_interval depending on how much time
-		 * it took for the MMP block to be written.
-		 */
 		mmp_check_interval = max(min(EXT4_MMP_CHECK_MULT * diff / HZ,
 					     EXT4_MMP_MAX_CHECK_INTERVAL),
 					 EXT4_MMP_MIN_CHECK_INTERVAL);

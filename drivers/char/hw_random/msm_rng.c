@@ -130,7 +130,7 @@ static int __devinit msm_rng_enable_hw(struct msm_rng_device *msm_rng_dev)
 		val |= PRNG_LFSR_CFG_MASK;
 		writel_relaxed(val, msm_rng_dev->base + PRNG_LFSR_CFG_OFFSET);
 
-		/* The PRNG CONFIG register should be first written */
+		
 		mb();
 
 		reg_val = readl_relaxed(msm_rng_dev->base + PRNG_CONFIG_OFFSET)

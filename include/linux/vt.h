@@ -83,7 +83,7 @@ struct vt_setactivate {
 #define VT_DEALLOCATE		0x0002 
 #define VT_WRITE		0x0003 
 #define VT_UPDATE		0x0004 
-#define VT_PREWRITE		0x0005 /* A char is about to be written to the console */
+#define VT_PREWRITE		0x0005 
 
 #ifdef CONFIG_VT_CONSOLE
 

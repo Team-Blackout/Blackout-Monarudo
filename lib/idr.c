@@ -520,17 +520,6 @@ void idr_init(struct idr *idp)
 EXPORT_SYMBOL(idr_init);
 
 
-/**
- * DOC: IDA description
- * IDA - IDR based ID allocator
- *
- * This is id allocator without id -> pointer translation.  Memory
- * usage is much lower than full blown idr because each id only
- * occupies a bit.  ida uses a custom leaf node which contains
- * IDA_BITMAP_BITS slots.
- *
- * 2007-04-25  written by Tejun Heo <htejun@gmail.com>
- */
 
 static void free_bitmap(struct ida *ida, struct ida_bitmap *bitmap)
 {

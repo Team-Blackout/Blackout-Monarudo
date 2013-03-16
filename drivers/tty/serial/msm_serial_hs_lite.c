@@ -14,9 +14,6 @@
  * GNU General Public License for more details.
  */
 
-/* Acknowledgements:
- * This file is based on msm_serial.c, originally
- * Written by Robert Love <rlove@google.com>  */
 
 #if defined(CONFIG_SERIAL_MSM_HSL_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ

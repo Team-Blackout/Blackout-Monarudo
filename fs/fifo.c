@@ -1,13 +1,3 @@
-/*
- *  linux/fs/fifo.c
- *
- *  written by Paul H. Hargrove
- *
- *  Fixes:
- *	10-06-1999, AV: fixed OOM handling in fifo_open(), moved
- *			initialization there, switched to external
- *			allocation of pipe_inode_info.
- */
 
 #include <linux/mm.h>
 #include <linux/fs.h>

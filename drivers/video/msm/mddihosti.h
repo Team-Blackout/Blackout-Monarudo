@@ -255,29 +255,6 @@ typedef struct GCC_PACKED {
 	uint16 video_data_format_descriptor;
 
 	uint16 pixel_data_attributes;
-	/* interpreted as follows:
-	 * Bits [1:0] = 11  pixel data is displayed to both eyes
-	 * Bits [1:0] = 10  pixel data is routed to the left eye only.
-	 * Bits [1:0] = 01  pixel data is routed to the right eye only.
-	 * Bits [1:0] = 00  pixel data is routed to the alternate display.
-	 * Bit 2 is 0  Pixel Data is in the standard progressive format.
-	 * Bit 2 is 1  Pixel Data is in interlace format.
-	 * Bit 3 is 0  Pixel Data is in the standard progressive format.
-	 * Bit 3 is 1  Pixel Data is in alternate pixel format.
-	 * Bit 4 is 0  Pixel Data is to or from the display frame buffer.
-	 * Bit 4 is 1  Pixel Data is to or from the camera.
-	 * Bit 5 is 0  pixel data contains the next consecutive row of pixels.
-	 * Bit 5 is 1  X Left Edge, Y Top Edge, X Right Edge, Y Bottom Edge,
-	 *             X Start, and Y Start parameters are not defined and
-	 *             shall be ignored by the client.
-	 * Bits [7:6] = 01  Pixel data is written to the offline image buffer.
-	 * Bits [7:6] = 00  Pixel data is written to the buffer to refresh display.
-	 * Bits [7:6] = 11  Pixel data is written to all image buffers.
-	 * Bits [7:6] = 10  Invalid. Reserved for future use.
-	 * Bits 8 through 11 alternate display number.
-	 * Bits 12 through 14 are reserved for future use and shall be set to zero.
-	 * Bit 15 is 1 the row of pixels is the last row of pixels in a frame.
-	 */
 
 	uint16 x_left_edge;
 	uint16 y_top_edge;
@@ -315,7 +292,7 @@ typedef struct GCC_PACKED {
 	uint16 read_write_info;
 
 	uint32 register_address;
-	/* the register address that is to be written to or read from. */
+	
 
 	uint16 parameter_CRC;
 	

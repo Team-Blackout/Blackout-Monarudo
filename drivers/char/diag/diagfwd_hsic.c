@@ -160,10 +160,6 @@ static void diag_hsic_read_complete_callback(void *ctxt, char *buf,
 					 *(buf+actual_size-2) != ESC_CHAR))
 				pkt_hdr = 1;
 #endif
-			/*
-			 * Send data in buf to be written on the
-			 * appropriate device, e.g. USB MDM channel
-			 */
 			driver->write_len_mdm = actual_size;
 			err = diag_device_write((void *)buf, HSIC_DATA, NULL);
 			
@@ -506,11 +502,6 @@ static void diag_read_mdm_work_fn(struct work_struct *work)
 		return;
 	}
 
-	/*
-	 * If there is no data being read from the usb mdm channel
-	 * and there is no mdm channel data currently being written
-	 * to the hsic
-	 */
 	if (!driver->in_busy_hsic_read_on_device &&
 				 !driver->in_busy_hsic_write) {
 		APPEND_DEBUG('x');

@@ -333,15 +333,6 @@ load_b:
 }
 EXPORT_SYMBOL(sk_run_filter);
 
-/*
- * Security :
- * A BPF program is able to use 16 cells of memory to store intermediate
- * values (check u32 mem[BPF_MEMWORDS] in sk_run_filter())
- * As we dont want to clear mem[] array for each packet going through
- * sk_run_filter(), we check that filter loaded by user never try to read
- * a cell if not previously written, and we check all branches to be sure
- * a malicious user doesn't try to abuse us.
- */
 static int check_load_and_stores(struct sock_filter *filter, int flen)
 {
 	u16 *masks, memvalid = 0; 
