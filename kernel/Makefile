@@ -2,8 +2,6 @@
 # Makefile for the linux kernel.
 #
 ifdef CONFIG_CC_OPTIMIZE_ALOT
-CFLAGS_workqueue.o += -O2
-CFLAGS_module.o += -O2
 
 endif
 obj-y     = fork.o exec_domain.o panic.o printk.o \

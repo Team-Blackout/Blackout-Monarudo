@@ -78,7 +78,7 @@ uint32_t cmdline_maxkhz = CONFIG_MSM_CPU_FREQ_MAX, cmdline_minkhz = 192000;
 char cmdline_gov[16] = "AssWax";
 #endif
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_BADASS
-char cmdline_gov[16] = "Badass";
+char cmdline_gov[16] = "badass";
 #endif
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE
 char cmdline_gov[16] = "userspace";
@@ -104,7 +104,7 @@ bool cmdline_scroff = false;
 
 /* only override the governor 2 times, when
  * initially bringing up cpufreq on the cpus */
-int cmdline_gov_cnt = 2;
+int cmdline_gov_cnt = CONFIG_NR_CPUS;
 
 static int __init cpufreq_read_maxkhz_cmdline(char *maxkhz)
 {
@@ -608,7 +608,7 @@ static int msm_cpufreq_pm_event(struct notifier_block *this,
 		return NOTIFY_DONE;
 	}
 }
-#ifdef CONFIG_CMDLINE_OPTIONS
+#if 0
 static ssize_t show_max_screen_off_khz(struct cpufreq_policy *policy, char *buf)
 {
 	return sprintf(buf, "%u\n", cmdline_maxscroff);
@@ -655,7 +655,7 @@ struct freq_attr msm_cpufreq_attr_max_screen_off_khz = {
 #endif
 static struct freq_attr *msm_freq_attr[] = {
 	&cpufreq_freq_attr_scaling_available_freqs,
-#ifdef CONFIG_CMDLINE_OPTIONS
+#if 0
 	&msm_cpufreq_attr_max_screen_off_khz,
 #endif
 	NULL,
