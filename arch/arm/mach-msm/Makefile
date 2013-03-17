@@ -317,11 +317,16 @@ obj-$(CONFIG_MACH_MONARUDO) += board-monarudo-all.o board-monarudo-regulator.o
 obj-$(CONFIG_MACH_DELUXE_J) += board-deluxe_j-all.o board-deluxe_j-regulator.o
 obj-$(CONFIG_MACH_DELUXE_U) += board-deluxe_u-all.o board-deluxe_u-regulator.o
 obj-$(CONFIG_FORCE_FAST_CHARGE) += fastchg.o
-
 ifdef CONFIG_HTC_UTIL
+obj-$(CONFIG_MACH_MONARUDO) += htc_util.o
 obj-$(CONFIG_MACH_DELUXE_J) += htc_util.o
+endif
 obj-$(CONFIG_MACH_DELUXE_J) += ADP5585_ioextender.o
+ifdef CONFIG_HTC_UTIL
 obj-$(CONFIG_MACH_DELUXE_U) += htc_util.o
+endif
+ifdef CONFIG_HTC_UTIL
+endif
 obj-$(CONFIG_MACH_ELITE) += board-elite.o board-elite-regulator.o board-elite-gpiomux.o board-elite-storage.o board-elite-audio.o board-elite-camera.o
 obj-$(CONFIG_MACH_ELITE) += board-elite-keypad.o
 obj-$(CONFIG_MACH_ELITE) += htc_bdaddress.o
@@ -339,10 +344,13 @@ obj-$(CONFIG_MACH_JET) += board-jet-keypad.o
 obj-$(CONFIG_MACH_JET) += htc_bdaddress.o
 ifdef CONFIG_HTC_UTIL
 obj-$(CONFIG_MACH_JET) += htc_util.o
+endif
 obj-$(CONFIG_MACH_JEWEL_DD) += board-jel_dd.o board-jel_dd-regulator.o board-jel_dd-gpiomux.o board-jel_dd-storage.o board-jel_dd-audio.o board-jel_dd-camera.o
 obj-$(CONFIG_MACH_JEWEL_DD) += board-jel_dd-keypad.o
 obj-$(CONFIG_MACH_JEWEL_DD) += htc_bdaddress.o
+ifdef CONFIG_HTC_UTIL
 obj-$(CONFIG_MACH_JEWEL_DD) += htc_util.o
+endif
 obj-$(CONFIG_MACH_TC2) += board-tc2.o board-tc2-all.o board-tc2-regulator.o
 obj-$(CONFIG_MACH_TC2) += htc_bdaddress.o board-tc2-rfkill.o htc_sleep_clk.o htc_util.o
 #obj-$(CONFIG_MACH_TC2) += board-tc2-camera.o htc_acoustic.o
@@ -372,7 +380,9 @@ obj-$(CONFIG_MACH_VILLEC2) += board-villec2.o devices_htc.o
 obj-$(CONFIG_MACH_VILLEC2) += htc_bdaddress.o board-villec2-rfkill.o
 #obj-$(CONFIG_MACH_VILLEC2) += board-villec2-mmc.o board-villec2-wifi.o
 obj-$(CONFIG_MACH_VILLEC2) += board-villec2-mmc.o
+ifdef CONFIG_HTC_UTIL
 obj-$(CONFIG_MACH_VILLEC2) += htc_util.o
+endif
 obj-$(CONFIG_MACH_VILLEC2) += board-villec2-audio.o
 
 CFLAGS_msm_vibrator.o += -Idrivers/staging/android
