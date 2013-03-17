@@ -93,7 +93,7 @@ static int __init devices_read_3dgpu_cmdline(char *khz)
 	}
 
 	/* Check if parsed value is valid */
-	if (ui_khz > 512000000)
+	if (ui_khz > 500000000)
 		cmdline_3dgpu[1] = CMDLINE_3DGPU_DEFKHZ_1;
 		cmdline_3dgpu[0] = CMDLINE_3DGPU_DEFKHZ_0;
 
