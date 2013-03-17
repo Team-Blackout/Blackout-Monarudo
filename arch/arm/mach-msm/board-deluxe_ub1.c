@@ -4968,7 +4968,7 @@ static void __init deluxe_ub1_fixup(struct tag *tags, char **cmdline, struct mem
 	}
 }
 
-MACHINE_START(DELUXE_UB1, "UNKNOWN")
+MACHINE_START(DELUXE_U, "UNKNOWN")
 	.fixup = deluxe_ub1_fixup,
 	.map_io = deluxe_ub1_map_io,
 	.reserve = deluxe_ub1_reserve,

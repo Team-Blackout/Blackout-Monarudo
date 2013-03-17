@@ -30,9 +30,9 @@ obj-$(CONFIG_ARCH_OMAP4)		+= omap4-common.o omap-wakeupgen.o \
 					   sleep44xx.o
 
 plus_sec := $(call as-instr,.arch_extension sec,+sec)
-AFLAGS_omap-headsmp.o			:=-Wa,-march=armv7-a$(plus_sec)
-AFLAGS_omap-smc.o			:=-Wa,-march=armv7-a$(plus_sec)
-AFLAGS_sleep44xx.o			:=-Wa,-march=armv7-a$(plus_sec)
+AFLAGS_omap-headsmp.o			:=-Wa, $(plus_sec)
+AFLAGS_omap-smc.o			:=-Wa, $(plus_sec)
+AFLAGS_sleep44xx.o			:=-Wa, $(plus_sec)
 
 # Functions loaded to SRAM
 obj-$(CONFIG_SOC_OMAP2420)		+= sram242x.o
@@ -41,7 +41,7 @@ obj-$(CONFIG_ARCH_OMAP3)		+= sram34xx.o
 
 AFLAGS_sram242x.o			:=-Wa,-march=armv6
 AFLAGS_sram243x.o			:=-Wa,-march=armv6
-AFLAGS_sram34xx.o			:=-Wa,-march=armv7-a
+AFLAGS_sram34xx.o			:=-Wa, 
 
 # Pin multiplexing
 obj-$(CONFIG_SOC_OMAP2420)		+= mux2420.o
@@ -73,7 +73,7 @@ obj-$(CONFIG_OMAP_SMARTREFLEX)          += sr_device.o smartreflex.o
 obj-$(CONFIG_OMAP_SMARTREFLEX_CLASS3)	+= smartreflex-class3.o
 
 AFLAGS_sleep24xx.o			:=-Wa,-march=armv6
-AFLAGS_sleep34xx.o			:=-Wa,-march=armv7-a$(plus_sec)
+AFLAGS_sleep34xx.o			:=-Wa, $(plus_sec)
 
 ifeq ($(CONFIG_PM_VERBOSE),y)
 CFLAGS_pm_bus.o				+= -DDEBUG

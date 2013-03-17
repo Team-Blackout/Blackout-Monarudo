@@ -67,7 +67,7 @@ obj-$(CONFIG_HAVE_IMX_GPC) += gpc.o
 obj-$(CONFIG_HAVE_IMX_MMDC) += mmdc.o
 obj-$(CONFIG_HAVE_IMX_SRC) += src.o
 obj-$(CONFIG_CPU_V7) += head-v7.o
-AFLAGS_head-v7.o :=-Wa,-march=armv7-a
+AFLAGS_head-v7.o :=-Wa, 
 obj-$(CONFIG_SMP) += platsmp.o
 obj-$(CONFIG_HOTPLUG_CPU) += hotplug.o
 obj-$(CONFIG_SOC_IMX6Q) += clock-imx6q.o mach-imx6q.o

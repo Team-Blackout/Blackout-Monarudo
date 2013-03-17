@@ -16,7 +16,7 @@
 #
 
 ini_set("rom_name",             "Beastmode Viverrine");
-ini_set("rom_version",          "Blackout-Viverrine-B1.2-DLXU");
+ini_set("rom_version",          "Blackout-Viverrine-B1.0-DLXUB1");
 ini_set("rom_author",           "Zarboz");
 ini_set("rom_device",           "HTC Butterfly DLX_U");
 ini_set("rom_date",             "March, 09 2012");
