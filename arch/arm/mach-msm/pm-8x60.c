@@ -895,12 +895,12 @@ int msm_pm_idle_prepare(struct cpuidle_device *dev,
 				allow = false;
 				break;
 			}
-
+#ifdef CONFIG_HTC_UTIL
 			if (has_htc_idle_wakelock()) {
 				allow = false;
 				break;
 			}
-
+#endif
 			/* fall through */
 		case MSM_PM_SLEEP_MODE_POWER_COLLAPSE_STANDALONE:
 			if (!allow)
@@ -1508,9 +1508,10 @@ static int __init msm_pm_init(void)
 	store_pm_boot_vector_addr(addr);
 
 	keep_dig_voltage_low_in_idle(true);
-
+#ifdef CONFIG_HTC_UTIL
 	if(board_mfg_mode() == 6 || board_mfg_mode() == 8)
 		htc_idle_wake_lock();
+#endif
 
 
 	return 0;
