@@ -820,7 +820,7 @@ static struct attribute *g[] = {
 	&wake_lock_attr.attr,
 	&wake_unlock_attr.attr,
 #endif
-#if 0
+#ifdef CONFIG_HTC_ONMODE_CHARGING
 	&state_onchg_attr.attr,
 #endif
 #endif

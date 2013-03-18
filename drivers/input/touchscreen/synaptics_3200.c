@@ -7,12 +7,7 @@
  * License version 2, as published by the Free Software Foundation, and
  * may be copied, distributed, and modified under those terms.
  *
- * Synaptics sweep2wake mods based off of showp1984's cypress mod / chads atmel mod
- * Ported to ATMEL by Chad Goodman   4/2012 for Gingerbread (Linux 2.6)
- * Adopted for ICS 5/2012 (Linux 3.0) by Chad Goodman
- * SYSFS support for Off/On/On +backlight by 6/2012 by Chad Goodman
- * SYSFS start and end points by Chad Goodman
- * Copyright (C) 2012 Chad Goodman <chad.goodman@gmail.com> , All Rights Reserved
+ * Synaptics sweep2wake mods based off of showp1984's endevoru sweep2wake
  * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -145,7 +140,7 @@ static int synaptics_init_panel(struct synaptics_ts_data *ts);
 static irqreturn_t synaptics_irq_thread(int irq, void *ptr);
 
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
-#define BACK_BUTTON		180
+#define BACK_BUTTON		240
 #define HOME_BUTTON		540
 #define MENU_BUTTON		900
 
@@ -1545,7 +1540,7 @@ static ssize_t atmel_sweep2wake_about_show(struct device *dev,
 {
 	size_t count = 0;
 
-	count += sprintf(buf, "Ported to Synaptics Touchscreen by Chad Goodman Copyright (C) 2012 Chad Goodman <chad.goodman@gmail.com> , All Rights Reserved\n");
+	count += sprintf(buf, "Thank you ShowP for sweep2wake\n");
 
 	return count;
 }
@@ -2113,7 +2108,7 @@ static void synaptics_ts_finger_func(struct synaptics_ts_data *ts)
 				if ((barrier[0] == true) ||
 				   ((finger_data[i][0] > barrier1) &&
 				    (finger_data[i][0] < barrier2) &&
-				    (finger_data[i][1] > 2725))) {
+				    (finger_data[i][1] > 2715))) {
 					if ((led_exec_count == true) && (scr_on_touch == false) && (s2w_switch == 2)) {
 // 						pm8058_drvx_led_brightness_set(sweep2wake_leddev, 255);
 						printk(KERN_INFO "[sweep2wake]: activated button backlight.\n");
@@ -2123,10 +2118,10 @@ static void synaptics_ts_finger_func(struct synaptics_ts_data *ts)
 					if ((barrier[1] == true) ||
 					   ((finger_data[i][0] > barrier2) &&
 					    (finger_data[i][0] < barrier3) &&
-					    (finger_data[i][1] > 2725))) {
+					    (finger_data[i][1] > 2715))) {
 						barrier[1] = true;
 						if ((finger_data[i][0] > barrier3) &&
-						    (finger_data[i][1] > 2725)) {
+						    (finger_data[i][1] > 2715)) {
 							if (exec_count) {
 								printk(KERN_INFO "[sweep2wake]: POWER ON.\n");
 								sweep2wake_pwrtrigger();
@@ -2142,15 +2137,15 @@ static void synaptics_ts_finger_func(struct synaptics_ts_data *ts)
 				if ((barrier[0] == true) ||
 				   ((finger_data[i][0] < barrier4) &&
 			    	    (finger_data[i][0] > barrier3) &&
-				    (finger_data[i][1] > 2725))) {
+				    (finger_data[i][1] > 2715))) {
 					barrier[0] = true;
 					if ((barrier[1] == true) ||
 					   ((finger_data[i][0] < barrier3) &&
 					    (finger_data[i][0] > barrier2) &&
-					    (finger_data[i][1] > 2725))) {
+					    (finger_data[i][1] > 2715))) {
 						barrier[1] = true;
 						if ((finger_data[i][0] < barrier2) &&
-						    (finger_data[i][1] > 2725)) {
+						    (finger_data[i][1] > 2715)) {
 							if (exec_count) {
 								printk(KERN_INFO "[sweep2wake]: POWER OFF.\n");
 								sweep2wake_pwrtrigger();
