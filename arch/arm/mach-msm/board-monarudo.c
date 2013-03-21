@@ -30,6 +30,7 @@
 #include <linux/ion.h>
 #include <linux/memory.h>
 #include <linux/memblock.h>
+#include <linux/msm_thermal.h>
 #include <linux/i2c/atmel_mxt_ts.h>
 #include <linux/cyttsp.h>
 #include <linux/gpio_keys.h>
@@ -222,21 +223,13 @@ static struct i2c_board_info msm_i2c_gsbi1_tfa9887_info[] = {
 enum {
        SX150X_EPM,
 };
-#ifdef CONFIG_CMDLINE_OPTIONS
-	/* setters for cmdline_gpu */
-	int set_kgsl_3d0_freq(unsigned int freq0, unsigned int freq1);
-	int set_kgsl_2d0_freq(unsigned int freq);
-	int set_kgsl_2d1_freq(unsigned int freq);
-#endif
-#ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE
-int set_two_phase_freq(int cpufreq);
+
+#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND
+int id_set_two_phase_freq(int cpufreq);
 #endif
 
-#ifdef CONFIG_CPU_FREQ_GOV_BADASS_2_PHASE
-int set_two_phase_freq_badass(int cpufreq);
-#endif
-#ifdef CONFIG_CPU_FREQ_GOV_BADASS_3_PHASE
-int set_three_phase_freq_badass(int cpufreq);
+#ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE
+int set_two_phase_freq(int cpufreq);
 #endif
 
 #ifdef CONFIG_KERNEL_PMEM_EBI_REGION
@@ -3159,7 +3152,7 @@ static struct mdm_platform_data mdm_platform_data = {
 static struct tsens_platform_data apq_tsens_pdata  = {
 		.tsens_factor		= 1000,
 		.hw_type		= APQ_8064,
-		.tsens_num_sensor	= 11,
+		.tsens_num_sensor	= 5,
 		.slope = {1176, 1176, 1154, 1176, 1111,
 			1132, 1132, 1199, 1132, 1199, 1132},
 };
@@ -3167,6 +3160,24 @@ static struct tsens_platform_data apq_tsens_pdata  = {
 static struct platform_device msm_tsens_device = {
 	.name   = "tsens8960-tm",
 	.id = -1,
+};
+
+static struct msm_thermal_data msm_thermal_pdata = {
+	.sensor_id = 5,
+	.poll_ms = 150,
+	.shutdown_temp = 120,
+
+	.allowed_max_high = 110,
+	.allowed_max_low = 101,
+	.allowed_max_freq = 702000,
+
+	.allowed_mid_high = 100,
+	.allowed_mid_low = 96,
+	.allowed_mid_freq = 1026000,
+
+	.allowed_low_high = 95,
+	.allowed_low_low = 90,
+	.allowed_low_freq = 1512000,
 };
 
 #define MSM_SHARED_RAM_PHYS 0x80000000
@@ -3301,13 +3312,14 @@ static struct msm_rpmrs_platform_data msm_rpmrs_data __initdata = {
 		[MSM_RPMRS_VDD_MEM_RET_LOW]	= 750000,
 		[MSM_RPMRS_VDD_MEM_RET_HIGH]	= 750000,
 		[MSM_RPMRS_VDD_MEM_ACTIVE]	= 1050000,
-		[MSM_RPMRS_VDD_MEM_MAX]		= 1150000,
+		[MSM_RPMRS_VDD_MEM_MAX]		= 1250000,
+
 	},
 	.vdd_dig_levels = {
 		[MSM_RPMRS_VDD_DIG_RET_LOW]	= 500000,
 		[MSM_RPMRS_VDD_DIG_RET_HIGH]	= 750000,
 		[MSM_RPMRS_VDD_DIG_ACTIVE]	= 950000,
-		[MSM_RPMRS_VDD_DIG_MAX]		= 1150000,
+		[MSM_RPMRS_VDD_DIG_MAX]		= 1250000,
 	},
 	.vdd_mask = 0x7FFFFF,
 	.rpmrs_target_id = {
@@ -4154,6 +4166,9 @@ static struct platform_device *common_devices[] __initdata = {
 #ifdef CONFIG_PERFLOCK
 	&msm8064_device_perf_lock,
 #endif
+#ifdef CONFIG_PERFLOCK
+	&msm8064_device_perf_lock,
+#endif
 /* HTC_AUD_START LPA5 */
 	&apq_compr_dsp,
 	&apq_multi_ch_pcm,
@@ -4659,6 +4674,8 @@ static void __init monarudo_common_init(void)
 	int rc = 0;
 	struct kobject *properties_kobj;
 
+	msm_thermal_init(&msm_thermal_pdata);
+
 	if (socinfo_init() < 0)
 		pr_err("socinfo_init() failed!\n");
 
@@ -4826,10 +4843,6 @@ static void __init monarudo_allocate_memory_regions(void)
 	monarudo_allocate_fb_region();
 }
 
-#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND
-int id_set_two_phase_freq(int cpufreq);
-#endif
-
 static void __init monarudo_cdp_init(void)
 {
 #if 1
@@ -4837,9 +4850,6 @@ static void __init monarudo_cdp_init(void)
 #endif
 	pr_info("%s: init starts\r\n", __func__);
 	msm_tsens_early_init(&apq_tsens_pdata);
-#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND
-	id_set_two_phase_freq(1134000);
-#endif
 	monarudo_common_init();
 	ethernet_init();
 	msm_rotator_set_split_iommu_domain();
@@ -4870,18 +4880,9 @@ static void __init monarudo_cdp_init(void)
         if(!cpu_is_krait_v1())
                 set_two_phase_freq(1134000);
 #endif
-#ifdef CONFIG_CPU_FREQ_GOV_BADASS_2_PHASE
-	set_two_phase_freq_badass(CONFIG_CPU_FREQ_GOV_BADASS_2_PHASE_FREQ);
-#endif
-#ifdef CONFIG_CPU_FREQ_GOV_BADASS_3_PHASE
-	set_three_phase_freq_badass(CONFIG_CPU_FREQ_GOV_BADASS_3_PHASE_FREQ);
-#endif
-	
-#ifdef CONFIG_CMDLINE_OPTIONS
-	/* setters for cmdline_gpu */
-	set_kgsl_3d0_freq(cmdline_3dgpu[0], cmdline_3dgpu[1]);
-	set_kgsl_2d0_freq(cmdline_2dgpu);
-	set_kgsl_2d1_freq(cmdline_2dgpu);
+
+#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND
+	id_set_two_phase_freq(1134000);
 #endif
 
 	/*usb driver won't be loaded in MFG 58 station and gift mode*/
@@ -4958,4 +4959,3 @@ MACHINE_START(MONARUDO, "UNKNOWN")
 	.init_very_early = monarudo_early_reserve,
 	.restart = msm_restart,
 MACHINE_END
-
