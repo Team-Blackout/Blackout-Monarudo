@@ -597,6 +597,7 @@ static struct l2_level l2_freq_tbl_8960_kraitv2[] = {
 	[17] = { { 1242000, HFPLL, 1, 0, 0x2E }, 1150000, 1150000, 6 },
 	[18] = { { 1296000, HFPLL, 1, 0, 0x30 }, 1150000, 1150000, 6 },
 	[19] = { { 1350000, HFPLL, 1, 0, 0x32 }, 1150000, 1150000, 6 },
+	[20] = { { 1404000, HFPLL, 1, 0, 0x34 }, 1150000, 1150000, 6 },
 };
 
 static struct acpu_level acpu_freq_tbl_8960_kraitv2_slow[] = {
