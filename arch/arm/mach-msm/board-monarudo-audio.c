@@ -49,6 +49,25 @@ static int monarudo_enable_digital_mic(void)
     return 0;
 }
 
+int monarudo_support_beats(void)
+{
+	/* this means HW support 1V for beats */
+	/* PCB ID is defined by HW revision
+	 * [0] raised means support 1V headset
+	 * [7-4] set as "1000" stands for PVT device */
+//	if (((system_rev&0x1) == 0x1) && ((system_rev>>4&0xF) == 0x8))
+		return 1;
+//	else
+//		return 0;
+}
+
+void monarudo_enable_beats(int en)
+{
+	en = 1;
+	pr_aud_info("%s: %d\n", __func__, en);
+	set_beats_on(en);
+}
+
 void apq8064_set_q6_effect_mode(int mode)
 {
 	pr_info("%s: mode %d\n", __func__, mode);
