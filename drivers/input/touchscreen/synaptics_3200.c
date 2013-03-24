@@ -2139,12 +2139,6 @@ static void synaptics_ts_finger_func(struct synaptics_ts_data *ts)
 								printk(KERN_INFO "[sweep2wake]: POWER ON.\n");
 								sweep2wake_pwrtrigger();
 								exec_count = false;
-								if ((s2w_switch == 2) &&
-								  (led_exec_count == false) &&
-								  (exec_count == false)) {
-								  pm8xxx_led_current_set(sweep2wake_leddev, 0);
-								    printk(KERN_INFO "[sweep2wake]: deactivated button backlight.\n");
-								    }
 								break;
 							}
 						}
