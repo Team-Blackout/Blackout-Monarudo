@@ -35,14 +35,14 @@ calibrate(
 "1.2868","92","1.3144","56","yes"
 );
 viewbox(
-    "<~welcome.title>",
+    "<~Beastmode Viverrine>",
   
-    "<~welcome.text1> <b>"+
+    "<~Thanks for trying> <b>"+
 	  #-- Get Config Value
 	  ini_get("rom_name")+
 	"</b> <~common.for> <b>"+ini_get("rom_device")+"</b>.\n\n"+
     
-    "<~welcome.text2>\n\n"+
+    "<~Feel free to proceed>\n\n"+
 	
       "  <~welcome.version>\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
       "  <~welcome.codename>\t: <b><#selectbg_g>Viverrine</#></b>\n"+
@@ -55,16 +55,16 @@ viewbox(
 
 
 agreebox(
-    "<~terms.title>",
-    "<~terms.desc>",
+    "<~GNU GPL>",
+    "<~Licensing>",
     "@license",
     resread("license.txt"),
-    "<~terms.check>",
-    "<~terms.confirm>"
+    "<~Agree>",
+    "<~You didn't agree to the terms>"
 );
 
 textbox(
-    "<~changelog.title>",
+    "<~Git Log>",
         "<~changelog.desc>",
   "@update",
     resread("changelog.txt")
