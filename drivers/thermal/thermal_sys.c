@@ -41,38 +41,6 @@ MODULE_AUTHOR("Zhang Rui");
 MODULE_DESCRIPTION("Generic thermal management sysfs support");
 MODULE_LICENSE("GPL");
 
-#ifdef pr_emerg
-#undef pr_emerg
-#endif
-#define pr_emerg(fmt, args...) \
-	printk(KERN_EMERG "[THERMAL] " pr_fmt(fmt), ## args)
-
-#ifdef pr_err
-#undef pr_err
-#endif
-#define pr_err(fmt, args...) \
-	printk(KERN_ERR "[THERMAL] " pr_fmt(fmt), ## args)
-
-#ifdef pr_warning
-#undef pr_warning
-#endif
-#define pr_warning(fmt, args...) \
-	printk(KERN_WARNING "[THERMAL] " pr_fmt(fmt), ## args)
-
-#ifdef pr_info
-#undef pr_info
-#endif
-#define pr_info(fmt, args...) \
-	printk(KERN_INFO "[THERMAL] " pr_fmt(fmt), ## args)
-
-#if defined(DEBUG)
-#ifdef pr_debug
-#undef pr_debug
-#endif
-#define pr_debug(fmt, args...) \
-	printk(KERN_DEBUG "[THERMAL] " pr_fmt(fmt), ## args)
-#endif
-
 struct thermal_cooling_device_instance {
 	int id;
 	char name[THERMAL_NAME_LENGTH];
@@ -1132,14 +1100,8 @@ void thermal_zone_device_update(struct thermal_zone_device *tz)
 	enum thermal_trip_type trip_type;
 	struct thermal_cooling_device_instance *instance;
 	struct thermal_cooling_device *cdev;
-	int denominator;
 
 	mutex_lock(&tz->lock);
-
-	if (!strcmp(tz->type, "pm8921_tz") || !strcmp(tz->type, "pm8038_tz"))
-		denominator = 1000;
-	else
-		denominator = 1;
 
 	if (tz->ops->get_temp(tz, &temp)) {
 		/* get_temp failed - retry it later */
@@ -1147,13 +1109,9 @@ void thermal_zone_device_update(struct thermal_zone_device *tz)
 		goto leave;
 	}
 
-	pr_info("%s: Current temperature (%ld C)\n",tz->device.kobj.name, temp/denominator);
-
 	for (count = 0; count < tz->trips; count++) {
 		tz->ops->get_trip_type(tz, count, &trip_type);
 		tz->ops->get_trip_temp(tz, count, &trip_temp);
-
-		pr_info("trip_temp:%ld, type:%d\n", trip_temp/denominator, trip_type);
 
 		switch (trip_type) {
 		case THERMAL_TRIP_CRITICAL:
@@ -1162,14 +1120,10 @@ void thermal_zone_device_update(struct thermal_zone_device *tz)
 					ret = tz->ops->notify(tz, count,
 							      trip_type);
 				if (!ret) {
-					pr_info("%s:%s: current temp(%ld) higher or equal max limit temp(%ld)\n",
-						__func__, tz->device.kobj.name, temp/denominator, trip_temp/denominator);
-#if defined(CONFIG_THERMAL_MAX_TEMP_PROTECT)
 					pr_emerg("Critical temperature reached (%ld C), shutting down\n",
-						 temp/denominator);
+						 temp/1000);
 					orderly_poweroff(true);
-#endif
-}
+				}
 			}
 			break;
 		case THERMAL_TRIP_HOT:
@@ -1193,11 +1147,10 @@ void thermal_zone_device_update(struct thermal_zone_device *tz)
 					ret = tz->ops->notify(tz, count,
 								trip_type);
 			if (!ret) {
-#if defined(CONFIG_THERMAL_MIN_TEMP_PROTECT)
-				pr_emerg("Critical temperature reached (%ld C), \
-					shutting down.\n", temp/denominator);
+				printk(KERN_EMERG
+				"Critical temperature reached (%ld C), \
+					shutting down.\n", temp/1000);
 				orderly_poweroff(true);
-#endif
 				}
 			}
 			break;
