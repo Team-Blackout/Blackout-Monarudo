@@ -140,9 +140,9 @@ static int synaptics_init_panel(struct synaptics_ts_data *ts);
 static irqreturn_t synaptics_irq_thread(int irq, void *ptr);
 
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
-#define BACK_BUTTON		180
-#define HOME_BUTTON		540
-#define MENU_BUTTON		900
+#define BACK_BUTTON		250
+#define HOME_BUTTON		818
+#define MENU_BUTTON		1335
 
 int s2w_switch = 1;
 int s2w_temp = 1;
@@ -158,9 +158,9 @@ typedef struct {
 } button;
 
 static button buttons[] = {
-			{180, "BACK"},			
-			{540, "HOME"},
-			{900, "MENU"},
+			{BACK_BUTTON, "BACK"},			
+			{HOME_BUTTON, "HOME"},
+			{MENU_BUTTON, "MENU"},
 };
 				
 int s2w_startbutton = -1;
