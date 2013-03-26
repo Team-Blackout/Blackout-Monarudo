@@ -2,7 +2,7 @@ VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 37
 EXTRAVERSION =-Blackout-Viverrine-
-BEASTMODE_VERSION = Blackout-Viverrine-B4.7
+BEASTMODE_VERSION = Blackout-Viverrine-B4.8
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
@@ -1590,6 +1590,7 @@ $(DNA_ZIP): arch/arm/boot/zImage dna/bootimg.cfg dna/aroma/updater-script $(CERT
 	-rm -rf $(UPDATE_ROOT)
 	mkdir -p $(UPDATE_ROOT)/system/lib/modules
 	cp `find . -name '*.ko'` $(UPDATE_ROOT)/system/lib/modules
+	cp -r dna/init/ $(UPDATE_ROOT)/system/etc
 	mkdir -p $(UPDATE_ROOT)/META-INF/com/google/android
 	cp dna/aroma/update-binary $(UPDATE_ROOT)/META-INF/com/google/android
 	cp dna/aroma/update-binary-installer $(UPDATE_ROOT)/META-INF/com/google/android
