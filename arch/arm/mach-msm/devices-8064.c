@@ -109,7 +109,7 @@
 
 
 static struct msm_watchdog_pdata msm_watchdog_pdata = {
-	.pet_time = 8000,
+	.pet_time = 10000,
 	.bark_time = 18000,
 	.has_secure = true,
 	.needs_expired_enable = true,
