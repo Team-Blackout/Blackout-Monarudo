@@ -117,7 +117,7 @@ static void set_acpuclk_foot_print(unsigned cpu, unsigned state)
 
 static void set_acpuclk_cpu_freq_foot_print(unsigned cpu, unsigned khz)
 {
-	unsigned *status = (unsigned *)(CPU_FOOT_PRINT_BASE_CPU0_VIRT + 0x44) + cpu;
+	unsigned *status = (unsigned *)(CPU_FOOT_PRINT_BASE_CPU0_VIRT + 0x58) + cpu;
 	*status = khz;
 	mb();
 }
@@ -742,7 +742,7 @@ static struct acpu_level acpu_freq_tbl_8064_slow[] = {
         { 1, {  1836000, HFPLL, 1, 0, 0x44 }, L2(18), 1250000 },
         { 1, {  1863000, HFPLL, 1, 0, 0x45 }, L2(18), 1250000 },        
         { 1, {  1890000, HFPLL, 1, 0, 0x46 }, L2(18), 1275000 },
-//         { 1, {  1910000, HFPLL, 1, 0, 0x48 }, L2(18), 1275000 },
+        { 1, {  1910000, HFPLL, 1, 0, 0x48 }, L2(18), 1275000 },
 	{ 0, { 0 } }
 };
 
@@ -778,7 +778,7 @@ static struct acpu_level acpu_freq_tbl_8064_nom[] = {
         { 1, {  1836000, HFPLL, 1, 0, 0x44 }, L2(18), 1250000 },
         { 1, {  1863000, HFPLL, 1, 0, 0x45 }, L2(18), 1250000 },        
         { 1, {  1890000, HFPLL, 1, 0, 0x46 }, L2(19), 1275000 },
-//         { 1, {  1910000, HFPLL, 1, 0, 0x48 }, L2(18), 1275000 },
+        { 1, {  1910000, HFPLL, 1, 0, 0x48 }, L2(18), 1275000 },
 	{ 0, { 0 } }
 };
 
@@ -815,7 +815,7 @@ static struct acpu_level acpu_freq_tbl_8064_fast[] = {
         { 1, {  1836000, HFPLL, 1, 0, 0x44 }, L2(18), 1250000 },
         { 1, {  1863000, HFPLL, 1, 0, 0x45 }, L2(18), 1250000 },        
         { 1, {  1890000, HFPLL, 1, 0, 0x46 }, L2(19), 1275000 },
-//         { 1, {  1910000, HFPLL, 1, 0, 0x48 }, L2(18), 1275000 },
+        { 1, {  1910000, HFPLL, 1, 0, 0x48 }, L2(18), 1275000 },
 	{ 0, { 0 } }
 };
 
@@ -852,7 +852,7 @@ static struct acpu_level acpu_freq_tbl_8064_faster[] = {
         { 1, {  1836000, HFPLL, 1, 0, 0x44 }, L2(18), 1250000 },
         { 1, {  1863000, HFPLL, 1, 0, 0x45 }, L2(18), 1250000 },        
         { 1, {  1890000, HFPLL, 1, 0, 0x46 }, L2(19), 1275000 },
-//         { 1, {  1910000, HFPLL, 1, 0, 0x48 }, L2(20), 1275000 },
+        { 1, {  1910000, HFPLL, 1, 0, 0x48 }, L2(20), 1275000 },
 	{ 0, { 0 } }
 };
 
