@@ -2,7 +2,7 @@ VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 37
 EXTRAVERSION =-Blackout-Viverrine-
-BEASTMODE_VERSION = Beastmode-Viverrine-B4.9
+BEASTMODE_VERSION = Beastmode-Viverrine-B5.0
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
@@ -1586,7 +1586,7 @@ dna/update-this-version.zip:
 $(CERT):
 	
 
-$(DNA_ZIP): arch/arm/boot/zImage dna/bootimg.cfg dna/aroma/updater-script $(CERT)
+$(DNA_ZIP): arch/arm/boot/zImage dna/aroma/updater-script $(CERT)
 	-rm -rf $(UPDATE_ROOT)
 	mkdir -p $(UPDATE_ROOT)/system/lib/modules
 	cp `find . -name '*.ko'` $(UPDATE_ROOT)/system/lib/modules
