@@ -112,10 +112,10 @@ static inline unsigned int get_cpu_idle_time(unsigned int cpu)
 	unsigned int add_nice = 0, ret;
 
 	if (dbs_tuners_ins.ignore_nice)
-		add_nice = kstat_cpu(cpu).cpustat.nice;
+		add_nice = kcpustat_cpu(cpu).cpustat[CPUTIME_NICE];
 
-	ret = kstat_cpu(cpu).cpustat.idle +
-		kstat_cpu(cpu).cpustat.iowait +
+	ret = kcpustat_cpu(cpu).cpustat[CPUTIME_IDLE] +
+		kcpustat_cpu(cpu).cpustat[CPUTIME_IOWAIT] +
 		add_nice;
 
 	return ret;
@@ -660,3 +660,4 @@ fs_initcall(cpufreq_gov_dbs_init);
 module_init(cpufreq_gov_dbs_init);
 #endif
 module_exit(cpufreq_gov_dbs_exit); 
+

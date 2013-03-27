@@ -875,3 +875,4 @@ MODULE_DESCRIPTION ("'cpufreq_smartass2' - A smart cpufreq governor");
 MODULE_LICENSE ("GPL");
 
 module_exit(cpufreq_smartass_exit);
+
