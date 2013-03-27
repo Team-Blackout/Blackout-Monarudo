@@ -87,7 +87,7 @@ char cmdline_gov[16] = "userspace";
 char cmdline_gov[16] = "powersave";
 #endif
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_LIONHEART
-char cmdline_gov[16] = "lionheart";
+char cmdline_gov[16] = "Lionheart";
 #endif
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND
 char cmdline_gov[16] = "ondemand";
@@ -531,12 +531,12 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 		return -ENODEV;
 
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
-#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+#if 0
 		policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
 		policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
 #endif
 	}
-#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+#if 0
 	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
 	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
 #endif
@@ -572,8 +572,8 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 	init_completion(&cpu_work->complete);
 #endif
 	/* set safe default min and max speeds */
-	policy->max = 1674000;
-	policy->min = 192000;
+	policy->max = 1512000;
+	policy->min = 384000;
 
 	return 0;
 }
