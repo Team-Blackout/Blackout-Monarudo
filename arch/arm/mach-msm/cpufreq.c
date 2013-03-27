@@ -567,8 +567,8 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 	init_completion(&cpu_work->complete);
 #endif
 	/* set safe default min and max speeds */
-	policy->max = 1512000;
-	policy->min = 384000;
+	policy->max = cmdline_maxkhz;
+	policy->min = cmdline_minkhz;
 
 	return 0;
 }
