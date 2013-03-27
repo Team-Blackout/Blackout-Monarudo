@@ -1593,6 +1593,7 @@ $(DNA_ZIP): arch/arm/boot/zImage dna/bootimg.cfg dna/aroma/updater-script $(CERT
 	cp -r dna/init/ $(UPDATE_ROOT)/system/etc
 	mkdir -p $(UPDATE_ROOT)/META-INF/com/google/android
 	cp -r dna/tools $(UPDATE_ROOT)/tools
+	mkdir -p $(UPDATE_ROOT)/boot
 	cp arch/arm/boot/zImage $(UPDATE_ROOT)/boot
 	cp dna/aroma/update-binary $(UPDATE_ROOT)/META-INF/com/google/android
 	cp dna/aroma/update-binary-installer $(UPDATE_ROOT)/META-INF/com/google/android
