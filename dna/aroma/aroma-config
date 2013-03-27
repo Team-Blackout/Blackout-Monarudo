@@ -1,4 +1,4 @@
-﻿### LICENSE:
+### LICENSE:
 #
 # Copyright (C) 2011 Ahmad Amarullah ( http://amarullz.com/ )
 #
@@ -86,9 +86,77 @@ menubox(
 );
 
 
+
 if (prop("type.prop","selected")=="1") then
   writetmpfile(
-	  "gpu.prop",
+	  "maxkhz.prop",
+	  "selected=2\n"    #-- Default CPU Clock at 1.5ghz
+  );
+else
+  selectbox(
+      "GPU Speeds",
+      "Please select The Max cpu Speed:",
+      "@default",
+      "maxkhz.prop",
+
+	  "Cpu max Speed",                "",                      2,  #-- Group 1. key = "selected"
+	    "1.51 ghz",        "cpu max clock set at 1.51ghz",       1,      #-- selected = 1
+	    "1.53 ghz",        "cpu max clock set at 1.53ghz",       0,      #-- selected = 2
+	    "1.67 ghz",        "cpu max clock set at 1.67ghz",       0,      #-- selected = 3
+	    "1.75 ghz",        "cpu max clock set at 1.75ghz",       0,      #-- selected = 4
+	    "1.78 ghz",        "cpu max clock set at 1.78ghz",       0,      #-- selected = 5
+	    "1.80 ghz",        "cpu max clock set at 1.80ghz",       0,      #-- selected = 6
+	    "1.83 ghz",        "cpu max clock set at 1.83ghz",       0,      #-- selected = 7
+	    "1.86 ghz",        "cpu max clock set at 1.86ghz",       0,      #-- selected = 8
+	    "1.89 ghz",        "cpu max clock set at 1.89ghz",       0,      #-- selected = 9
+	    "1.91 ghz",        "cpu max clock set at 1.91ghz",       0       #-- selected = 10
+
+  );
+endif;
+
+if (prop("type.prop","selected")=="1") then
+  writetmpfile(
+	  "minkhz.prop",
+	  "selected=2\n"    #-- Default CPU Clock at 1.5ghz
+  );
+else
+  selectbox(
+      "GPU Speeds",
+      "Please select The Min cpu Speed:",
+      "@default",
+      "minkhz.prop",
+
+	  "Cpu min Speed",                "",                      2,  #-- Group 1. key = "selected"
+	    "192 mhz",        "cpu min clock set at 192 mhz",       1,      #-- selected = 1
+	    "384 mhz",        "cpu min clock set at 384 mhz",       0,      #-- selected = 2
+	    "432 mhz",        "cpu min clock set at 432 mhz",       0      #-- selected = 3
+
+  );
+endif;
+
+if (prop("type.prop","selected")=="1") then
+  writetmpfile(
+	  "scroff.prop",
+	  "selected=3\n"    #-- Default CPU Clock at 1.5ghz
+  );
+else
+  selectbox(
+      "GPU Speeds",
+      "Please select The Min cpu Speed:",
+      "@default",
+      "scroff.prop",
+
+	  "Max Screen Off Clock",      "",                         2,  #-- Group 2. key = "selected"
+		"594 mhz",     "Max Screen Off clock @ 594mhz",        0,      #-- selected = 1
+		"540 mhz",     "Max Screen Off clock @ 540mhz",        0,      #-- selected = 2
+		"486 mhz",     "Max Screen Off clock @ 486mhz",        1       #-- selected = 3
+
+  );
+endif;
+
+if (prop("type.prop","selected")=="1") then
+  writetmpfile(
+	  "3dgpu.prop",
 	  "selected=2\n"    #-- Default 3d GPU Clock of 450mhz
   );
 else
@@ -96,31 +164,34 @@ else
       "GPU Speeds",
       "Please select The 3D Gpu Speed:",
       "@default",
-      "gpu.prop",
+      "3dgpu.prop",
 
 	  "3d Gpu Speed",                "",                      2,  #-- Group 1. key = "selected"
-	    "500 mhz",        "3d Gpu clock set at 500mhz",       1,      #-- selected = 1
-	    "450 mhz",        "3d Gpu clock set at 450mhz",       0,      #-- selected = 2
-            "400 mhz",        "3d Gpu clock set at 400mhz",       0       #-- selected = 3
+	    "550 mhz",        "3d Gpu clock set at 550mhz",       0,      #-- selected = 1
+	    "500 mhz",        "3d Gpu clock set at 500mhz",       1,      #-- selected = 2
+	    "450 mhz",        "3d Gpu clock set at 450mhz",       0,      #-- selected = 3
+        "300 mhz",        "3d Gpu clock set at 400mhz",        0,      #-- selected = 4
+        "266 mhz",        "3d Gpu clock set at 400mhz",        0       #-- selected = 5
 
   );
 endif;
+
 if (prop("type.prop","selected")=="1") then
- writetmpfile(
-	  "scroff.prop",
-	  "selected=3\n"     #-- Default Screenoff speed of 486mhz
+  writetmpfile(
+	  "2dgpu.prop",
+	  "selected=2\n"    #-- Default 2d GPU Clock of 266mhz
   );
-  else
+else
   selectbox(
       "GPU Speeds",
-      "Please select The 3D Gpu Speed:",
+      "Please select The 2D Gpu Speed:",
       "@default",
-      "scroff.prop",
+      "2dgpu.prop",
 
-      "Max Screen Off Clock",      "",                         2,  #-- Group 2. key = "selected"
-	    "594 mhz",     "Max Screen Off clock @ 594mhz",        1,      #-- selected = 1
-		"540 mhz",     "Max Screen Off clock @ 540mhz",        0,      #-- selected = 2
-		"486 mhz",     "Max Screen Off clock @ 486mhz",        0      #-- selected = 3
+	  "2d Gpu Speed",                "",                      2,  #-- Group 1. key = "selected"
+	    "300 mhz",        "2d Gpu clock set at 300mhz",       1,      #-- selected = 1
+	    "266 mhz",        "2d Gpu clock set at 266mhz",       0,      #-- selected = 2
+	    "200 mhz",        "2d Gpu clock set at 200mhz",       0       #-- selected = 3
 
   );
 endif;

@@ -1,3 +1,102 @@
+0bc445a updating defconfig
+46c1811 	deleted:    dna/bootimg.cfg.exp
+ddaa876 adding qdsp6v2 parts from mako
+5c9e905 adding etc scripts to remove min clock settings
+a975b13 updating some stuff for testing
+abc2487 bumping version number up
+0890c1e increase pet time
+8857c41 Bumping back up to 450mhz optimum speed
+4823327 adding 1.9ghz back since we force 1.6 on boot
+4318761 fixing button values for sweep2wake
+9bccb5c cpufreq: set safe default min/max speeds from the config
+a3435a0 Looking to force min/max policy on boot
+a975dae mach-msm/cpufreq: set safe frequencies from config
+22a6987 power: Remove legacy wakelock code.
+b5c940c PM / Sleep: Add wakeup_source_activate and wakeup_source_deactivate tracepoints
+4a05c53 PM / Sleep: Change wakeup source statistics to follow Android
+5595468 PM / Sleep: Use wait queue to signal "no wakeup events in progress"
+30d00bc PM / Sleep: Look for wakeup events in later stages of device suspend
+24e7239 Linux 3.4.37
+3a33079 6lowpan: Fix endianness issue in is_addr_link_local().
+3b388db dcbnl: fix various netlink info leaks
+a28e0fd rtnl: fix info leak on RTM_GETLINK request for VF devices
+3903d9e ipv6: stop multicast forwarding to process interface scoped addresses
+a3f10da bridging: fix rx_handlers return code
+6814280 netlabel: correctly list all the static label mappings
+3a05bee macvlan: Set IFF_UNICAST_FLT flag to prevent unnecessary promisc mode.
+b7f416a tun: add a missing nf_reset() in tun_net_xmit()
+da25938 tcp: fix double-counted receiver RTT when leaving receiver fast path
+f35822d net: ipv6: Don't purge default router if accept_ra=2
+32612ec rds: limit the size allocated by rds_message_alloc()
+7dde7e7 l2tp: Restore socket refcount when sendmsg succeeds
+b636499 drm/i915: Increase the RC6p threshold.
+8ae836d loopdev: fix a deadlock
+3db1bd3 block: use i_size_write() in bd_set_size()
+34bc90e hwmon: (sht15) Fix memory leak if regulator_enable() fails
+d9616db drm/i915: EBUSY status handling added to i915_gem_fault().
+264baa2 atmel_lcdfb: fix 16-bpp modes on older SOCs
+8ed5ec3 btrfs: use rcu_barrier() to wait for bdev puts at unmount
+c0aad20 s390/mm: fix flush_tlb_kernel_range()
+b6904d9 s390: critical section cleanup vs. machine checks
+cf785a4 perf,x86: fix link failure for non-Intel configs
+809c6f3 perf,x86: fix wrmsr_on_cpu() warning on suspend/resume
+e749ae5 selinux: use GFP_ATOMIC under spin_lock
+990543f powerpc: Fix cputable entry for 970MP rev 1.0
+c0a3906 powerpc: Fix STAB initialization
+102a57e w1: fix oops when w1_search is called from netlink connector
+f56228d hwmon: (lineage-pem) Add missing terminating entry for pem_[input|fan]_attributes
+9bac5b9 hwmon: (pmbus/ltc2978) Fix temperature reporting
+5d46808 ALSA: seq: Fix missing error handling in snd_seq_timer_open()
+47c2ffd perf,x86: fix kernel crash with PEBS/BTS after suspend/resume
+5c65562 TTY: do not reset master's packet mode
+a9536a4 tty: serial: fix typo "ARCH_S5P6450"
+9b98795 serial: 8250_pci: add support for another kind of NetMos Technology PCI 9835 Multi-I/O Controller
+2bf7104 ext3: Fix format string issues
+5b9a888 signal: always clear sa_restorer on execve
+e7b79e8 staging: vt6656: Fix oops on resume from suspend.
+0af163e USB: EHCI: don't check DMA values in QH overlays
+73630a9 USB: storage: fix Huawei mode switching regression
+ee1f752 usb: serial: Add Rigblaster Advantage to device table
+796f985 USB: added support for Cinterion's products AH6 and PLS8
+61ffbb1 usb: cp210x new Vendor/Device IDs
+65be2bb USB: cdc-wdm: fix buffer overflow
+f70effc USB: option: add Huawei E5331
+9e080c4 virtio: rng: disallow multiple device registrations, fixes crashes
+4d9575c xen/pciback: Don't disable a PCI device that is already disabled.
+5b98edd qcaux: add Franklin U600
+1868b57 rwsem: do not block readers at head of queue if other readers are active
+b54b3a6 rwsem: implement support for write lock stealing on the fastpath
+15683bb rwsem: simplify __rwsem_do_wake
+c40b858 rwsem: skip initial trylock in rwsem_down_write_failed
+13287c3 rwsem: avoid taking wait_lock in rwsem_down_write_failed
+9389815 rwsem: use cmpxchg for trying to steal write lock
+86d31e0 rwsem: more agressive lock stealing in rwsem_down_write_failed
+8ffdd07 rwsem: simplify rwsem_down_write_failed
+5e6c143 rwsem: simplify rwsem_down_read_failed
+3ac3801 rwsem: move rwsem_down_failed_common code into rwsem_down_{read,write}_failed
+8091f3a rwsem: shorter spinlocked section in rwsem_down_failed_common()
+2118ab8 rwsem: make the waiter type an enumeration rather than a bitmask
+cdef03c rwsem: Implement writer lock-stealing for better scalability
+3eb9651 rwsem-spinlock: Implement writer lock-stealing for better scalability
+5b2197a Patching thermalD upstream
+15c7549 mach-msm:acpuclock adding some voltage to help faster chips boot
+cd902f1 mach-msm:acpuclock8960: Removing 1.9ghz step as it causes failure to boot on most devices
+7b34d47 Updating aroma-config
+3afe22a finishing forcing of beats hack
+3f98b37 sound: Hack beats to always being enabled
+3125c32 Disabling 1.9ghz value as it causes failure to boot on some models
+663a964 Update BadAss.
+3319c29 block: row: Update initial values of ROW data structures
+be50d46 block: row: Don't notify URGENT if there are un-completed urgent req
+3050dc8 block: row: Idling mechanism re-factoring
+0505a21 block: row: Dispatch requests according to their io-priority
+ee3d132 updating the default aroma license  from apache to GPL GNU
+f2a407d Updating msm_thermal upstream
+ee6673c mach-msm: acpuclock-8960.c fixing steps hfpll values were wrong
+a1778d9 	deleted:    dna/aroma/aroma/sample.png
+6b553bf finishing a few autobuild things
+5a80031d including changelog automatically into build scripting
+1ee0b96 Linux 3.4.36
 f88565e USB: Fix connected device switch to Inactive state.
 e39e02e Revert "ALSA: hda - hdmi: Make jacks phantom, if they're not detectable"
 f9507b6 USB: Rip out recursive call on warm port reset.
@@ -84,3 +183,319 @@ ed0c174 msm: kgsl: Remove lowest power level
 a8d82f4 msm: vidc: enable video core clock to 266Mhz
 5122cd2 Finishing cherry-pick
 be40586 arch/arm/mach-msm: Allow building without htc_util and fix building without it
+d929598 cleaning up some .gitignore files
+1e61464 updating build no to 3.9
+51042f2 updating clock tables to reflect current CAF apq8064 settings for 1.7ghz table
+5273804 fixing autobuild for main branch and updating versin to 3.8_repack, main branch is missing all cmdline options as users reported many errors
+09f1c14a Updating a few last things in the autobuilder thanks crpalmer i was lazy and totally kanged this from your github
+2014729 updating autobuild scripts
+c0e4cf0 updating defconfig
+dab3a9a Finishing LED control for s2w
+caa978f cleaning up final LED code
+0972924 Testing phase of LED control after showp fix0rd my code
+14ff0fd some additions to LED control for s2w
+44631bb initial LED control support for S2W. Still not done yet
+38ede53 Finishing updating all clock steps through 1.78ghz to reflect the CAF version for 8064
+01713ea updating overclock tables a tad
+5ae5872 updating defconfig
+6f935ab Refining LED control
+79cce22 updating exp branch temp will ammend this commit later
+850e810 cleaning up the autobuild function a bit
+3db7d81 net/sunrpc: fix 'subbuf.[...]' may be used uninitialized in this function
+5f409ac kernel/workqueue.c: avoid array subscript above array boundaries
+b3375a9 Adding proper max cpu core detection for governor setting
+ae63550 updating version to 3.4-EXP
+8cd1753 starting to change installer over to aroma for customization of cmdline options
+76bec9d adding I/O selection via cmdline
+9a3755a adding governor selection via cmdline
+efeed4f Mach-msm: inserting cmdline function for GPU control
+d5a0260 Updating a few last things in the autobuilder thanks crpalmer i was lazy and totally kanged this from your github
+467097b updating autobuild scripts
+3a6fad9 updating defconfig
+f5a4e2a Finishing LED control for s2w
+57bae66 cleaning up final LED code
+354396c Testing phase of LED control after showp fix0rd my code
+93706cd some additions to LED control for s2w
+d2fc101 initial LED control support for S2W. Still not done yet
+8071def mach-msm: clock-8960 : Fix nominal 3d clock choice
+4d714f2 Moving 2d KGSL stuffs into monarudo board files instead of 8960 board files
+334e91d adjusting mbps conversion rates for kgsl
+9093e81 sched: remove HTC attempt to patch exit/rename race condition
+dcfb160 Linux 3.4.35
+e0f2361 usb hid quirks for Masterkit MA901 usb radio
+3373652 ata_piix: Add Device IDs for Intel Wellsburg PCH
+00c7909 ata_piix: IDE-mode SATA patch for Intel Avoton DeviceIDs
+38cc45f perf tools: Fix build with bison 2.3 and older.
+3a5c6e7 staging: comedi: check s->async for poll(), read() and write()
+954d07f staging: comedi: ni_labpc: set up command4 register *after* command3
+9ddee16 staging: comedi: ni_labpc: correct differential channel sequence for AI commands
+17e09ab ACPI: Add DMI entry for Sony VGN-FW41E_H
+42e74f1 ab8500_btemp: Demote initcall sequence
+aebc8e5 ab8500-chargalg: Only root should have write permission on sysfs file
+576493d cgroup: fix exit() vs rmdir() race
+b08cc7f cpuset: fix cpuset_print_task_mems_allowed() vs rename() race
+0118d05 pstore: Avoid deadlock in panic and emergency-restart path
+2795fd2 ath9k_hw: fix calibration issues on chainmask that don't include chain 0
+eb71d76 unbreak automounter support on 64-bit kernel with 32-bit userspace (v2)
+035e41a fuse: don't WARN when nlink is zero
+fe9b52b vhost: fix length for cross region descriptor
+3a39b34 svcrpc: make svc_age_temp_xprts enqueue under sv_lock
+2ba1462 nfsd: Fix memleak
+b638e04 ext4: fix free clusters calculation in bigalloc filesystem
+ddf0fd2 ext4: fix xattr block allocation/release with bigalloc
+469c9cc ext4: fix race in ext4_mb_add_n_trim()
+d4010d6 ext4: check bh in ext4_read_block_bitmap()
+c8ee36d media: rc: unlock on error in show_protocols()
+2bfe0e5 fs: Fix possible use-after-free with AIO
+7c2fb38 sysctl: fix null checking in bin_dn_node_address()
+d527f10 firewire: add minor number range check to fw_device_init()
+a951070 block: fix synchronization and limit check in blk_alloc_devt()
+6ae4560 idr: fix a subtle bug in idr_get_next()
+728303c4 xen/blkback: Don't trust the handle from the frontend.
+ac75309 xen-blkback: do not leak mode property
+b35bcd6 block: fix ext_devt_idr handling
+e116731 ocfs2: ac->ac_allow_chain_relink=0 won't disable group relink
+964cea2 ocfs2: fix ocfs2_init_security_and_acl() to initialize acl correctly
+b0ee8e8 ocfs2: fix possible use-after-free with AIO
+0d46981 target: Add missing mapped_lun bounds checking during make_mappedlun setup
+6a624f2 target: Fix lookup of dynamic NodeACLs during cached demo-mode operation
+99e9f3b x86: Make sure we can boot in the case the BDA contains pure garbage
+2577b8b doc, kernel-parameters: Document 'console=hvc<n>'
+d0409db doc, xen: Mention 'earlyprintk=xen' in the documentation.
+7856649 x86, efi: Make "noefi" really disable EFI runtime serivces
+806a9c3 ftrace: Call ftrace cleanup module notifier after all other notifiers
+6388026 posix-timer: Don't call idr_find() with out-of-range ID
+fc7efb6 iommu/amd: Initialize device table after dma_ops
+2b5a639 quota: autoload the quota_v2 module for QFMT_VFS_V1 quota format
+a95d9a0 ALSA: hda - hdmi: Make jacks phantom, if they're not detectable
+8a2e490 lowmemorykiller: remove cma support (not available in DNA kernel)
+a22075f android/lowmemorykiller: Ignore tasks with freed mm
+a4b9d85 lowmemorykiller: pull in CAF's version
+f585559 USB: usb-storage: unusual_devs update for Super TOP SATA bridge
+4e27334 USB: storage: properly handle the endian issues of idProduct
+1bf4ac5 USB: ehci-omap: Fix autoloading of module
+2c6e58d USB: option: add Huawei "ACM" devices using protocol = vendor
+1b0b9c3 USB: option: add Yota / Megafon M100-1 4g modem
+f4521a6 USB: option: add and update Alcatel modems
+83d61aa dca: check against empty dca_domains list before unregister provider
+77a9b0e vlan: adjust vlan_set_encap_proto() for its callers
+963f17f sock_diag: Fix out-of-bounds access to sock_diag_handlers[]
+1d4c57f ipv6: use a stronger hash for tcp
+c4ab2c8 ipv4: fix a bug in ping_err().
+3684959 net: fix a compile error when SOCK_REFCNT_DEBUG is enabled
+ab863ce xen-netback: cancel the credit timer when taking the vif down
+aaa19b5 xen-netback: correctly return errors from netbk_count_requests()
+1fff639 net: fix infinite loop in __skb_recv_datagram()
+6f784f6 bridge: set priority of STP packets
+4b6d8e1 HID: wiimote: fix nunchuck button parser
+57115c6 mmc: sdhci-esdhc-imx: fix host version read
+310ca23 fb: Yet another band-aid for fixing lockdep mess
+71356ed fb: rework locking to fix lock ordering on takeover
+71984cd fbcon: don't lose the console font across generic->chip driver switch
+da1650ac drivers/video: fsl-diu-fb: fix pixel formats for 24 and 16 bpp
+6287b7a pcmcia/vrc4171: Add missing spinlock init
+4f5131a Purge existing TLB entries in set_pte_at and ptep_set_wrprotect
+a34656e powerpc/kexec: Disable hard IRQ before kexec
+cbd56b4 ARM: 7643/1: sched: correct update_sched_clock()
+78d19ca ARM: samsung: fix assembly syntax for new gas
+4e3460c ARM: PXA3xx: program the CSMSADRCFG register
+ba56345 ASoC: wm2200: correct IN2L and IN3L digital mute
+e9349e9 staging: vt6656: Fix URB submitted while active warning.
+a071546 staging: comedi: disallow COMEDI_DEVCONFIG on non-board minors
+093f480 drm/i915: Set i9xx sdvo clock limits according to specifications
+bcdfb48 drm/i915: disable shared panel fitter for pipe
+55a1040 intel/iommu: force writebuffer-flush quirk on Gen 4 Chipsets
+107b951 target: Fix divide by zero bug in fabric_max_sectors for unconfigured devices
+b933cef drm/usb: bind driver to correct device
+b2f8586 drm: Use C8 instead of RGB332 when determining the format from depth/bpp
+6e308a9 drm: Fill depth/bits_per_pixel for C8 format
+decb9bc drm: don't add inferred modes for monitors that don't support them
+ca00c80 vgacon/vt: clear buffer attributes when we load a 512 character font (v2)
+4ba1d3f drm/udl: disable fb_defio by default
+ff37878 drm/udl: make usage as a console safer
+046da36 drm/radeon/dce6: fix display powergating
+ac1f848 sunvdc: Fix off-by-one in generic_request().
+ce92cac ALSA: hda - hdmi: ELD shouldn't be valid after unplug
+f0c64b6 ALSA: hda - Workaround for silent output on Sony Vaio VGC-LN51JGB with ALC889
+92e7c4d ALSA: hda - Release assigned pin/cvt at error path of hdmi_pcm_open()
+5487ef7 ALSA: usb: Fix Processing Unit Descriptor parsers
+d3b3b91 ALSA: usb-audio: fix Roland A-PRO support
+a931c86 p54usb: corrected USB ID for T-Com Sinus 154 data II
+a446b7c NLM: Ensure that we resend all pending blocking locks after a reclaim
+a2b51e0 umount oops when remove blocklayoutdriver first
+2bdb3e3 drivercore: Fix ordering between deferred_probe and exiting initcalls
+3ca0fc6 mm/fadvise.c: drain all pagevecs if POSIX_FADV_DONTNEED fails to discard all pages
+977068e tmpfs: fix use-after-free of mempolicy object
+af44ab5 drivers/video/backlight/adp88?0_bl.c: fix resume
+9153cb7 ocfs2: unlock super lock if lockres refresh failed
+3d72f65 fs/block_dev.c: page cache wrongly left invalidated after revalidate_disk()
+2193c83 inotify: remove broken mask checks causing unmount to be EINVAL
+508eb6a futex: Revert "futex: Mark get_robust_list as deprecated"
+ac0fc48 s390/kvm: Fix store status for ACRS/FPRS
+be1ca54 KVM: s390: Handle hosts not supporting s390-virtio.
+8d032f6 mmu_notifier_unregister NULL Pointer deref and multiple ->release() callouts
+fb091d7 mm: mmu_notifier: make the mmu_notifier srcu static
+fb8c934 mm: mmu_notifier: have mmu_notifiers use a global SRCU so they may safely schedule
+4e90400 Driver core: treat unregistered bus_types as having no devices
+d0f62bc xen: close evtchn port if binding to irq fails
+c478f48 xen: Send spinlock IPI to all waiters
+1614e22 rtlwifi: usb: allocate URB control message setup_packet and data buffer separately
+737521b rtlwifi: rtl8192cu: Add new USB ID
+19c2896 b43: Increase number of RX DMA slots
+e8ad293 USB: serial: fix null-pointer dereferences on disconnect
+a403a0f tty: set_termios/set_termiox should not return -EINTR
+413851f tty: Prevent deadlock in n_gsm driver
+f6cf742 ALSA: rme32.c irq enabling after spin_lock_irq
+e39c99b ALSA: ali5451: remove irq enabling in pointer callback
+838ba55 posix-cpu-timers: Fix nanosleep task_struct leak
+08af255 wakelock: instead of directly going to suspend_mem, use the new suspend_freeze
+73b2662 PM: Introduce suspend state PM_SUSPEND_FREEZE
+3510312 rwsem: steal writing sem for better performance
+bfeb3cc cpufreq: Convert the cpufreq_driver_lock to use RCU
+c594bcb cpufreq: Convert the cpufreq_driver_lock to a rwlock
+4487c89 Disable CONFIG_MSM_SHOW_RESUME_IRQ
+43d5b16 Don't force RUN_QUEUE_STATS to be on
+ec9425c updating Makefile
+0b0a444 attempting to force vsync in board file
+8633e53 	modified:   drivers/cpufreq/Kconfig
+1627bea removing 1.9ghz step for slow and nom boards
+afad2e0 msm_fb: display: blt always enabled for 720p,1080p, secure buf
+8c732d1 msm_fb: display: Fix flickering when BLT is enabled/disabled
+6f5c7e9 msm: mdp: Set clock rates on external interface as needed
+c90fa3d msm: mdp: Disable vsync in video off.
+f0af691 msm: mdp: Send fake vsync only when enabled from userspace
+bc43eb7 revert: L2 increase
+37e1e58 mach-msm: acpuclock-8960.c Fixing l2 cache clocks for higher freq steps
+e32ce4c mach-msm: acpuclock-8960.c Enabling 1.9ghz for all PVS bins for stability testing
+02c3e0d enabling cmdline control of screen of clock
+e44f688 adjusting BACK location to making waking a tad easier
+cd77b39 Drivers: Synaptics_3200 Increasing sweep2wake Y listen area
+a2cb6aa block: Importing upstream noop, deadline, cfq I/O schedulers from current linux.org 3.4.25 source
+ac30305 mach-msm: Board-monarudo-gpu.c update GPU OC for proper bottleneck
+c45d8c9 experimental build with linaro gcc 4.8
+3124c65 acpu: export krait variant to debugfs
+2e8043a Updating Mdeejays overclock to allow 1.9ghz on faster pvs binned cpus
+a88ac1b CPU OC 1728MHz
+e0d3930 mach-msm: Add msm_mpdecision and update msm_thermal.
+24e2ed1 drivers: thermal: msm-thermal kernel based temp protection
+bdc3b55 revert hacks for the previous misuse of __cpuinit for hotplug only functions
+b7e6800 kbuild: drop cpuinit/cpuexit checks in modpost
+55c3839 cpuinit: turn __cpuinit into nops
+26cc4e5 cpuinit: get rid of __cpuinit, manual fixups
+e1b7b1e cpuinit: get rid of __cpuinit, sixth regexp
+cd2f514 cpuinit: get rid of __cpuinit, fifth regexp
+2a27071 cpuinit: get rid of __cpuinit, fourth regexp
+e6c2255 cpuinit: get rid of __cpuinit, third regexp
+6bdd042 cpuinit: get rid of __cpuinit, second regexp
+49e916c cpuinit: get rid of __cpuinit, first regexp
+3cfe458 msm: Add support for 8064v1.1 FASTER PVS bin
+dfd2696 Added Lionheart Governor.
+d36fb54 Added Badass Governor.
+fe0c632 Use AC charging for unknown chargers.
+e3d52d3 Added SIO Scheduler.
+5a36bdf USB: Prevent system suspend when HSIC device is active
+2c6bf21 USB: Allow skipping device resume during system resume
+1be8231 Linux 3.4.33
+2ebd836 Linux 3.4.32
+d031700 Linux 3.4.31
+12d9258 Linux 3.4.30
+9e49b5b fix more linaro -O3 compliance changes
+a47d526 Linux 3.4.29
+1daa3c3 Linux 3.4.28
+efebb5b Linux 3.4.27
+211f8c0 Linux 3.4.26
+25963f9 Linux 3.4.25
+163bccf Linux 3.4.24
+ebaab51 Linux 3.4.23
+0f613e4 Linux 3.4.22
+5550d86 Linux 3.4.21
+9d42679 Linux 3.4.20
+2c2c15e Linux 3.4.19
+c24a587 Linux 3.4.18
+f105328 Linux 3.4.17
+ce18cfa Linux 3.4.16
+cb9249b Linux 3.4.15
+11679c8 Linux 3.4.14
+84a9957 Linux 3.4.13
+2dc7c66 Linux 3.4.12
+8e6366e Linux 3.4.11
+5d4cc29 adding defconfig for easy building
+27f5e02 sched: Improve scalability via 'CPU buddies', which withstand random perturbations
+668f54a block: row: Idling mechanism re-factoring
+af4724c block: row: Dispatch requests according to their io-priority
+1044cdf block: row: Aggregate row_queue parameters to one structure
+1e3afd1 block: row: fix sysfs functions - idle_time conversion
+95027ef block: row: Insert dispatch_quantum into struct row_queue
+671bbc8 block: row: Add some debug information on ROW queues
+69e3243 fix possible memory leak
+2bd249d block: updates from CAF for ROW support
+d14bb97 update ROW from CAF
+08871aa sched: fix rq->lock recursion
+f1436f9 scheduler: Re-compute time-average nr_running on read
+4db26da proc: enhance time-average nr_running stats
+a16bc05 scheduler: compute time-average nr_running per run-queue
+78519ea Optimized ARM RWSEM algorithm
+07999aa Adding Zram From 3.6.0 upstream to overcome the x86 dependancy
+97c1711 Add support for Google Snappy compression.
+a3a3a5b LOAD_FREQ (4*HZ+61) avoids loadavg Moire
+b7c141c cpupower: update the cpu_power according to cpu load
+9156917 Added Intellidemand Gov.
+7bf499b msm_hsic: decrease timeout duration in detecting stuck PHY during suspend
+90d0368 Voltage Control: initial voltage control for MSM S4-Pro SOC
+9a05418 arm/crypto: Add optimized AES and SHA1 routines
+884c5d8 Fix Sweep2Wake in call touchscreen issue.
+57b5439 Added ThermalD /sys entry.
+259149a sweep2wake: added with /sys
+4183244 Added Force Fast Charge -
+14d5e42 fs/dyn_sync_cntrl: dynamic sync control
+681bae0 switch do_fsync() to fget_light()
+38d6156 	arch/arm/configs/beastmode_defconfig 	drivers/staging/comedi/drivers/sedlcqrcB 	sound/pci/hda/sedaZWceY
+587e9d1 ARM: 7011/1: Add ARM cpu topology definition
+18aca46 Added FIOPS Scheduler.
+0fcb87d Updating new cortex makefile flags
+15db56e Finishing import of Qualcomm ROW I/O Scheduler.
+f1152da Added Qualcomm ROW I/O Scheduler
+3c1246e removed "+" from localversion
+4bf24e2 Disabled perflock / fixed interactive
+f977259 lib/string: use glibc version
+06c59a5 lib/memcopy: use glibc version
+1765b51 vfp: compile with neon
+ed3d653 SCHEDULER: Autogroup patch group by current user android UID instead of task ID
+03d68db defconfig: build cifs & tun & prima wifi as modules
+51d05a1 defconfig: use xz compression
+5a7db4c its late and i finished o3 night
+51f9510 net/unix/af_unix: fix: 'warning: '...' may be used uninitialized in this function'
+7dd8fab net/bluetooth/l2cap_core: fix: 'warning: '...' may be used uninitialized in this function'
+506e9bc drivers/power/pm8921-charger-htc.c fix :  warning: 'val' may be used uninitialized in this function
+918ff67 drivers/power/pm8921-charger-htc.c fix :  warning: 'usb_ma' may be used uninitialized in this function
+24cb951 drivers/power/pm8921-bms-htc.c fix: warning: 'val' may be used uninitialized in this function
+3dbd905 drivers/power/pm8921-bms-htc.c fix: warning: 'vsense' may be used uninitialized
+898b4ef drivers/power/pm8xxx-ccadc.c: fix: warning: 'val' may be used uninitialized
+c2314b8  drivers/power/isl9519q.c fix: warning: 'temp' may be used uninitialized
+a8544f2 drivers/net/ethernet/micrel/ks8851.c fix: warning: 'rxb[0]' may be used uninitialized
+622cf80 drivers/net/ethernet/micrel ks8851 fix: warning: 'rxb[0]' may be used uninitialized in this function
+ef9fed9 drivers enc-subdev fix: warning: array subscript is above array bounds
+82a1d66 drivers/power/pm8xxx-ccadc: fix: 'warning: 'ibat' may be used uninitialized in this function'
+e53b8cc drivers/net/ppp/ppp_generic: fix: 'warning: 'code' may be used uninitialized in this function'
+85d696d drivers/media/common/tuners/xc4000: fix 'warning: '...' may be used uninitialized in this function'
+c58b38d drivers/media/common/tuners/xc5000: fix 'warning: 'adc_envelope' may be used uninitialized in this function'
+92e889a drivers/media/common/tuners/xc5000: fix 'warning: 'lock_status' may be used uninitialized in this function'
+b5e9a77 drivers/media/common/tuners/xc5000: fix 'warning: 'frame_lines' may be used uninitialized in this function'
+134bee4 drivers/media/common/tuners/xc5000: fix 'warning: 'quality' may be used uninitialized in this function'
+6438d2d drivers: bma250_bosch.c fix: warning: 'data' may be used uninitialized
+6c74655 drivers: bma250_bosch.c fix: warning: 'data1' may be used uninitialized
+a70b87b  drivers: bma250_bosch.c Fix warning: 'data' may be used uninitialized
+019fda2 drivers: cm3629: Fix: warning: 'cmd[1]' may be used uninitialized
+ac562c8 drivers/char/msm_rotator: fix: 'warning: 'ps0_need' may be used uninitialized in this function'
+d002e5d fs/jbd2/journal: fix: 'warning: 'blocknr' may be used uninitialized in this function'
+d5dc142 fs/jbd/journal: fix: 'warning: 'blocknr' may be used uninitialized in this function'
+353a73f fs/fuse/control: fix 'warning: 'val' may be used uninitialized in this function'
+c51d377 FS: namespace: Fix  warning: 'kernel_type' may be used uninitialize
+20d842b fs: namespace: Fix warning: 'kernel_dev' may be used uninitialized
+805b2fc kernel: cgroup: fix warning: 'it.task' may be used uninitialized
+b1d25e2 kernel/Makefile: Don't use highest optimization level on workqueue.c
+2f45ec1 kernel/sysctl: fix: 'warning: 'kbuf' may be used uninitialized in this function' #2
+4729c31 kernel/sysctl: fix: 'warning: 'kbuf' may be used uninitialized in this function'
+274fbc8 Makefile: Added Snapdragon optimizations
+631e91b Makefile: adding config variable for Os/O2/O3 compilation
+ecb1a07 base commit linaro 4.7.3 compilable

@@ -2,7 +2,7 @@ VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 37
 EXTRAVERSION =-Blackout-Viverrine-
-BEASTMODE_VERSION = Blackout-Viverrine-B4.8
+BEASTMODE_VERSION = Beastmode-Viverrine-B4.9
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
@@ -1592,13 +1592,14 @@ $(DNA_ZIP): arch/arm/boot/zImage dna/bootimg.cfg dna/aroma/updater-script $(CERT
 	cp `find . -name '*.ko'` $(UPDATE_ROOT)/system/lib/modules
 	cp -r dna/init/ $(UPDATE_ROOT)/system/etc
 	mkdir -p $(UPDATE_ROOT)/META-INF/com/google/android
+	cp -r dna/tools $(UPDATE_ROOT)/tools
+	cp arch/arm/boot/zImage $(UPDATE_ROOT)/boot
 	cp dna/aroma/update-binary $(UPDATE_ROOT)/META-INF/com/google/android
 	cp dna/aroma/update-binary-installer $(UPDATE_ROOT)/META-INF/com/google/android
 	cp -r dna/aroma/aroma $(UPDATE_ROOT)/META-INF/com/google/android
 	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/aroma/aroma-config > $(UPDATE_ROOT)/META-INF/com/google/android/aroma-config
 	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/aroma/updater-script > $(UPDATE_ROOT)/META-INF/com/google/android/updater-script
 	git log --oneline > $(UPDATE_ROOT)/META-INF/com/google/android/aroma/changelog.txt
-	abootimg --create $(UPDATE_ROOT)/boot.img -k arch/arm/boot/zImage -f dna/bootimg.cfg -r dna/initrd.img
 	-rm -f dna/*.zip
 	cd $(UPDATE_ROOT) && zip -r ../out/$(BEASTMODE_VERSION).zip .
 	 $
