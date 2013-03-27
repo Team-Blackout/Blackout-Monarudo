@@ -19,7 +19,7 @@ ini_set("rom_name",             "Beastmode Viverrine");
 ini_set("rom_version",          "@@VERSION@@");
 ini_set("rom_author",           "Zarboz");
 ini_set("rom_device",           "Droid DNA VZW");
-ini_set("rom_date",             "March, 09 2012");
+ini_set("rom_date",             "March, 26 2012");
 
 splash(
     2000,
@@ -44,28 +44,35 @@ viewbox(
     
     "<~Feel free to proceed>\n\n"+
 	
-      "  <~welcome.version>\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
-      "  <~welcome.codename>\t: <b><#selectbg_g>Viverrine</#></b>\n"+
-      "  <~welcome.updated>\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n"+
+      "  <~Version>\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
+      "  <~Project>\t: <b><#selectbg_g>Viverrine</#></b>\n"+
+      "  <~Last updated>\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n"+
 
-    "<~welcome.next>",
+    "<~Proceed>",
   
     "@welcome"
 );
 
 
 agreebox(
-    "<~GNU GPL>",
-    "<~Licensing>",
+    "<~Terms And Conditions>",
+    "<~Terms>",
     "@license",
-    resread("license.txt"),
+    resread("Terms.txt"),
     "<~Agree>",
     "<~You didn't agree to the terms>"
 );
 
 textbox(
+    "<~GNU GPL>",
+        "<~GNU GPL>",
+  "@update",
+    resread("license.txt")
+)
+
+textbox(
     "<~Git Log>",
-        "<~changelog.desc>",
+        "<~Git log>",
   "@update",
     resread("changelog.txt")
 );
@@ -107,8 +114,8 @@ else
 	    "1.78 ghz",        "Max Clock set to 1.78ghz",       0,      #-- selected = 5
 	    "1.80 ghz",        "Max Clock set to 1.80ghz",       0,      #-- selected = 6
 	    "1.83 ghz",        "Max Clock set to 1.83ghz",       0,      #-- selected = 7
-	    "1.86 ghz",        "Max Clock set to 1.86ghz",       0,      #-- selected = 8
-	    "1.89 ghz",        "Max Clock set to 1.89ghz",       0,      #-- selected = 9
+	    "1.86 ghz",        "Max Clock set to 1.86ghz (WARNING MAY NOT BOOT!)",       0,      #-- selected = 8
+	    "1.89 ghz",        "Max Clock set to 1.89ghz (WARNING MAY NOT BOOT!)",       0,      #-- selected = 9
 	    "1.91 ghz",        "Max Clock set to 1.91ghz (WARNING MAY NOT BOOT!)",       0       #-- selected = 10
 
   );
@@ -216,8 +223,8 @@ else
 
 	  "3d Gpu Speed",                "",                      2,  #-- Group 1. key = "selected"
 	    "550 mhz",        "3d Gpu clock set at 550mhz HIGH OVERCLOCK",       0,      #-- selected = 1
-	    "500 mhz",        "3d Gpu clock set at 500mhz HIGH OVERCLOCK",       1,      #-- selected = 2
-	    "450 mhz",        "3d Gpu clock set at 450mhz",       0,      #-- selected = 3
+	    "500 mhz",        "3d Gpu clock set at 500mhz HIGH OVERCLOCK",       0,      #-- selected = 2
+	    "450 mhz",        "3d Gpu clock set at 450mhz",       1,      #-- selected = 3
            "300 mhz",        "3d Gpu clock set at 400mhz",        0,      #-- selected = 4
            "266 mhz",        "3d Gpu clock set at 400mhz",        0       #-- selected = 5
 
