@@ -15,6 +15,19 @@ case $val in
   3)
     scheduler="cfq"
     ;;
+  4)
+    scheduler="sio"
+    ;;
+  5)
+    scheduler="ROW"
+    ;;
+  6)
+    scheduler="fiops"
+    ;;
+  7)
+    scheduler="bfq"
+    ;;
+  
 esac
 
 #Add scheduler to the kernels cmdline.

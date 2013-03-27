@@ -94,22 +94,22 @@ if (prop("type.prop","selected")=="1") then
   );
 else
   selectbox(
-      "GPU Speeds",
+      "CPU Speeds",
       "Please select The Max cpu Speed:",
       "@default",
       "maxkhz.prop",
 
 	  "Cpu max Speed",                "",                      2,  #-- Group 1. key = "selected"
-	    "1.51 ghz",        "cpu max clock set at 1.51ghz",       1,      #-- selected = 1
-	    "1.53 ghz",        "cpu max clock set at 1.53ghz",       0,      #-- selected = 2
-	    "1.67 ghz",        "cpu max clock set at 1.67ghz",       0,      #-- selected = 3
-	    "1.75 ghz",        "cpu max clock set at 1.75ghz",       0,      #-- selected = 4
-	    "1.78 ghz",        "cpu max clock set at 1.78ghz",       0,      #-- selected = 5
-	    "1.80 ghz",        "cpu max clock set at 1.80ghz",       0,      #-- selected = 6
-	    "1.83 ghz",        "cpu max clock set at 1.83ghz",       0,      #-- selected = 7
-	    "1.86 ghz",        "cpu max clock set at 1.86ghz",       0,      #-- selected = 8
-	    "1.89 ghz",        "cpu max clock set at 1.89ghz",       0,      #-- selected = 9
-	    "1.91 ghz",        "cpu max clock set at 1.91ghz",       0       #-- selected = 10
+	    "1.51 ghz",        "Max Clock set to 1.51ghz",       1,      #-- selected = 1
+	    "1.53 ghz",        "Max Clock set to 1.53ghz",       0,      #-- selected = 2
+	    "1.67 ghz",        "Max Clock set to 1.67ghz",       0,      #-- selected = 3
+	    "1.75 ghz",        "Max Clock set to 1.75ghz",       0,      #-- selected = 4
+	    "1.78 ghz",        "Max Clock set to 1.78ghz",       0,      #-- selected = 5
+	    "1.80 ghz",        "Max Clock set to 1.80ghz",       0,      #-- selected = 6
+	    "1.83 ghz",        "Max Clock set to 1.83ghz",       0,      #-- selected = 7
+	    "1.86 ghz",        "Max Clock set to 1.86ghz",       0,      #-- selected = 8
+	    "1.89 ghz",        "Max Clock set to 1.89ghz",       0,      #-- selected = 9
+	    "1.91 ghz",        "Max Clock set to 1.91ghz (WARNING MAY NOT BOOT!)",       0       #-- selected = 10
 
   );
 endif;
@@ -121,15 +121,15 @@ if (prop("type.prop","selected")=="1") then
   );
 else
   selectbox(
-      "GPU Speeds",
+      "CPU Speeds",
       "Please select The Min cpu Speed:",
       "@default",
       "minkhz.prop",
 
 	  "Cpu min Speed",                "",                      2,  #-- Group 1. key = "selected"
-	    "192 mhz",        "cpu min clock set at 192 mhz",       1,      #-- selected = 1
-	    "384 mhz",        "cpu min clock set at 384 mhz",       0,      #-- selected = 2
-	    "432 mhz",        "cpu min clock set at 432 mhz",       0      #-- selected = 3
+	    "192 mhz",        "Min Clock set to 192 mhz",       1,      #-- selected = 1
+	    "384 mhz",        "Min Clock set to 384 mhz",       0,      #-- selected = 2
+	    "432 mhz",        "Min Clock set to 432 mhz",       0      #-- selected = 3
 
   );
 endif;
@@ -141,7 +141,7 @@ if (prop("type.prop","selected")=="1") then
   );
 else
   selectbox(
-      "GPU Speeds",
+      "CPU Speeds",
       "Please select The Min cpu Speed:",
       "@default",
       "scroff.prop",
@@ -152,6 +152,54 @@ else
 		"486 mhz",     "Max Screen Off clock @ 486mhz",        1       #-- selected = 3
 
   );
+endif;
+
+if (prop("type.prop","selected")=="1") then
+  writetmpfile(
+	  "gov.prop",
+	  "selected=2\n"    #-- Default CPU Clock at 1.5ghz
+  );
+else
+selectbox(
+  "CPU: GOVERNOR",
+  "default governor:",
+  "icons/personalize",
+  "gov.prop",
+  "ondemand","",0,
+  "Lionheart","Blackout Recommended",1,
+  "conservative","",0,
+  "userspace","",0,
+  "powersave","",0,
+  "performance","",0,
+  "lagfree","",0,
+  "msm-dcvs","Wont OC at all",0,
+  "Smartassv2","",0,
+  "interactivex2","",0,
+  "intellidemand","",0,
+  "badass","",0,
+  "interactive","",0
+);
+endif;
+
+if (prop("type.prop","selected")=="1") then
+  writetmpfile(
+	  "scheduler.prop",
+	  "selected=5\n"    #-- Default CPU Clock at 1.5ghz
+  );
+else
+selectbox(
+  "I/O: SCHEDULER",
+  "default i/o scheduler:",
+  "icons/personalize",
+  "scheduler.prop",
+  "deadline","",0,
+  "noop","",0,
+  "cfq","",0,
+  "sio","",0,
+  "ROW","Blackout Recommended",1,
+  "FIOPS","",0,
+  "BFQ","",0
+);
 endif;
 
 if (prop("type.prop","selected")=="1") then
@@ -167,11 +215,11 @@ else
       "3dgpu.prop",
 
 	  "3d Gpu Speed",                "",                      2,  #-- Group 1. key = "selected"
-	    "550 mhz",        "3d Gpu clock set at 550mhz",       0,      #-- selected = 1
-	    "500 mhz",        "3d Gpu clock set at 500mhz",       1,      #-- selected = 2
+	    "550 mhz",        "3d Gpu clock set at 550mhz HIGH OVERCLOCK",       0,      #-- selected = 1
+	    "500 mhz",        "3d Gpu clock set at 500mhz HIGH OVERCLOCK",       1,      #-- selected = 2
 	    "450 mhz",        "3d Gpu clock set at 450mhz",       0,      #-- selected = 3
-        "300 mhz",        "3d Gpu clock set at 400mhz",        0,      #-- selected = 4
-        "266 mhz",        "3d Gpu clock set at 400mhz",        0       #-- selected = 5
+           "300 mhz",        "3d Gpu clock set at 400mhz",        0,      #-- selected = 4
+           "266 mhz",        "3d Gpu clock set at 400mhz",        0       #-- selected = 5
 
   );
 endif;
@@ -196,6 +244,62 @@ else
   );
 endif;
 
+selectbox(
+  "SWEEP2WAKE: CONFIG",
+  "Please Select:",
+  "icons/personalize",
+  "sweep.prop",
+  "Disabled","",0,
+  "Enabled Without Capacitive Backlight","",0,
+  "Enabled With Capacitive Backlight","Blackout Default",1
+);
+
+if
+    file_getprop("/tmp/aroma-data/sweep.prop","selected.0") == "2"
+then
+selectbox(
+  "SWEEP2WAKE KEYS",
+  "Default Sweep2Wake Start Point:",
+  "icons/personalize",
+  "sweep_start.prop",
+  
+  "Back","Default",1,
+  "Home","",0
+);
+
+selectbox(
+  "SWEEP2WAKE KEYS",
+  "Default Sweep2Wake End Point:",
+  "icons/personalize",
+  "sweep_end.prop",
+  
+  "Recent Apps","",1,
+  "Home","",0
+);
+endif;
+if
+    file_getprop("/tmp/aroma-data/sweep.prop","selected.0") == "3"
+then
+selectbox(
+  "SWEEP2WAKE KEYS",
+  "Default Sweep2Wake Start Point:",
+  "icons/personalize",
+  "sweep_start.prop",
+  
+  "Back","Default",1,
+  "Home","",0
+);
+
+selectbox(
+  "SWEEP2WAKE KEYS",
+  "Default Sweep2Wake End Point:",
+  "icons/personalize",
+  "sweep_end.prop",
+  
+  "Recent Apps","",1,
+  "Home","",0
+);
+endif;
 ini_set("text_next", "Install Now");
 
 viewbox(

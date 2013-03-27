@@ -58,7 +58,7 @@ esac
 ##end Get cpu maxclock from aroma tmp
 
 ##Get CPU max screen off clock from aroma tmp
-val=$(cat /tmp/aroma-data/cpuscoff.prop | cut -d"=" -f2)
+val=$(cat /tmp/aroma-data/scroff.prop | cut -d"=" -f2)
 case $val in
   1)
     maxscroff="594000"
@@ -119,7 +119,7 @@ case $val in
     gov="ondemand"
     ;;
   2)
-    gov="interactive"
+    gov="Lionheart"
     ;;
   3)
     gov="conservative"
@@ -137,34 +137,22 @@ case $val in
     gov="lagfree"
     ;;
   8)
-    gov="smartass"
+    gov="msm-dcvs"
     ;;
   9)
-    gov="lazy"
+    gov="smartassv2"
     ;;
  10)
-    gov="ondemandx"
+    gov="interactivex2"
     ;;
  11)
-    gov="interactivex"
+    gov="intellidemand"
     ;;
  12)
-    gov="intellidemand"
+    gov="badass"
     ;;   
  13)
-    gov="wheatley"
-    ;;
- 14)
-    gov="scary"
-    ;;
- 15)
-    gov="AssWax"
-    ;;
- 16)
-    gov="basass"
-    ;;
-  7)
-    gov="hotplug"
+    gov="interactive"
     ;;
 
 esac
