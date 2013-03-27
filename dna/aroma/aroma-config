@@ -58,7 +58,7 @@ agreebox(
     "<~Terms And Conditions>",
     "<~Terms>",
     "@license",
-    resread("Terms.txt"),
+    resread("terms.txt"),
     "<~Agree>",
     "<~You didn't agree to the terms>"
 );
@@ -68,7 +68,7 @@ textbox(
         "<~GNU GPL>",
   "@update",
     resread("license.txt")
-)
+);
 
 textbox(
     "<~Git Log>",
@@ -87,11 +87,21 @@ menubox(
     "@install",
     "type.prop",
 	
-	"Default",                "Will install default features and configurations",          "@install",      #-- selected = 1
+    "Default",                "Will install default features and configurations",          "@install",      #-- selected = 1
     "Custom",                 "Choose which program or mod features you want to installed. "+
 	                          "Recommended for advanced users",                            "@customize"     #-- selected = 2
 );
 
+if (prop("type.prop","selected")=="2") then
+alert (
+ "** INFORMATION **",
+ "The following options are hardcoded into your RAMDISK with the settings\n"+
+ "you select.  If the options you select do not 'stick' you may have a script \n"+
+ "that is overriding or changing the 'default' settings.",
+ "icons/alert",
+ "OK"
+ );
+ endif;
 
 
 if (prop("type.prop","selected")=="1") then
