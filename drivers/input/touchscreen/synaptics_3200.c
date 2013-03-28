@@ -144,13 +144,15 @@ static irqreturn_t synaptics_irq_thread(int irq, void *ptr);
 #define HOME_BUTTON		818
 #define MENU_BUTTON		1335
 
-int s2w_switch = 1;
-int s2w_temp = 1;
+int s2w_switch = 2;
+int s2w_temp = 2;
 
 bool scr_suspended = false, exec_count = true, s2w_switch_changed = false;;
 bool scr_on_touch = false, led_exec_count = false, barrier[2] = {false, false};
-
+static struct input_dev * sweep2wake_pwrdev;
+static struct led_classdev * sweep2wake_leddev;
 int barrier1 = 0, barrier2 = 0, barrier3 = 0, barrier4 = 0;
+static DEFINE_MUTEX(pwrlock);
 
 typedef struct {
 	int	x;
@@ -182,7 +184,7 @@ int sweep2wake_buttonset(const char * button_name) {
 
 		if (strcmp(temp_button_name,temp_button_name_from_array) == 0)
 			future_button = buttons[i].x;
-		
+
 		temp_button_name_from_array[0] = tolower(temp_button_name_from_array[0]);
 
 		if (strcmp(temp_button_name,temp_button_name_from_array) == 0)
@@ -192,57 +194,55 @@ int sweep2wake_buttonset(const char * button_name) {
 	return future_button;
 }
 
-static struct input_dev * sweep2wake_pwrdev;
-static struct led_classdev * sweep2wake_leddev;
-static DEFINE_MUTEX(pwrlock);
+
 
 #ifdef CONFIG_CMDLINE_OPTIONS
-static int __init atmel_read_s2w_cmdline(char *s2w)
+static int __init synaptics_read_s2w_cmdline(char *s2w)
 {
 	if (strcmp(s2w, "2") == 0) {
-		printk(KERN_INFO "[SWEEP2WAKE]: Sweep2Wake enabled with backlight. | s2w='%s'", s2w);
+		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake enabled with button backlight. | s2w='%s'", s2w);
 		s2w_switch = 2;
 		s2w_temp = 2;
 	} else if (strcmp(s2w, "1") == 0) {
-		printk(KERN_INFO "[SWEEP2WAKE]: Sweep2Wake enabled without backlight. | s2w='%s'", s2w);
+		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake enabled without button backlight. | s2w='%s'", s2w);
 		s2w_switch = 1;
 		s2w_temp = 1;
 	} else if (strcmp(s2w, "0") == 0) {
-		printk(KERN_INFO "[SWEEP2WAKE]: Sweep2Wake disabled. | s2w='%s'", s2w);
+		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake disabled. | s2w='%s'", s2w);
 		s2w_switch = 0;
 		s2w_temp = 0;
 	} else {
-		printk(KERN_INFO "[SWEEP2WAKE]: No valid input found. Sweep2Wake disabled. | s2w='%s'", s2w);
+		printk(KERN_INFO "[cmdline_s2w]: No valid input found. Sweep2Wake disabled. | s2w='%s'", s2w);
 		s2w_switch = 0;
 		s2w_temp = 0;
 	}
 	return 1;
 }
-__setup("s2w=", atmel_read_s2w_cmdline);
+__setup("s2w=", synaptics_read_s2w_cmdline);
 
-static int __init atmel_read_s2w_start_cmdline(char *s2w_start)
+static int __init synaptics_read_s2w_start_cmdline(char *s2w_start)
 {
 	s2w_startbutton = sweep2wake_buttonset(s2w_start);
 	if (s2w_startbutton > 0) {
-		printk(KERN_INFO "[SWEEP2WAKE]: Sweep2Wake start button set to %s. | s2w_start='%s'", s2w_start, s2w_start);
+		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake start button set to %s. | s2w_start='%s'", s2w_start, s2w_start);
 	} else {
-		printk(KERN_INFO "[SWEEP2WAKE]: No valid input found for start button. | s2w_start='%s'", s2w_start);
+		printk(KERN_INFO "[cmdline_s2w]: No valid input found for start button. | s2w_start='%s'", s2w_start);
 	}
 	return 1;
 }
-__setup("s2w_start=", atmel_read_s2w_start_cmdline);
+__setup("s2w_start=", synaptics_read_s2w_start_cmdline);
 
-static int __init atmel_read_s2w_end_cmdline(char *s2w_end)
+static int __init synaptics_read_s2w_end_cmdline(char *s2w_end)
 {
 	s2w_endbutton = sweep2wake_buttonset(s2w_end);
 	if (s2w_endbutton > 0) {
-		printk(KERN_INFO "[SWEEP2WAKE]: Sweep2Wake end button set to %s. | s2w_end='%s'", s2w_end, s2w_end);
+		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake end button set to %s. | s2w_end='%s'", s2w_end, s2w_end);
 	} else {
-		printk(KERN_INFO "[SWEEP2WAKE]: No valid input found for end button. | s2w_end='%s'", s2w_end);
+		printk(KERN_INFO "[cmdline_s2w]: No valid input found for end button. | s2w_end='%s'", s2w_end);
 	}
 	return 1;
 }
-__setup("s2w_end=", atmel_read_s2w_end_cmdline);
+__setup("s2w_end=", synaptics_read_s2w_end_cmdline);
 #endif
 
 extern void sweep2wake_setdev(struct input_dev * input_device) {
@@ -1497,7 +1497,7 @@ static ssize_t set_en_sr(struct device *dev, struct device_attribute *attr,
 static DEVICE_ATTR(sr_en, S_IWUSR, 0, set_en_sr);
 
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
-static ssize_t atmel_sweep2wake_show(struct device *dev,
+static ssize_t synaptics_sweep2wake_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	size_t count = 0;
@@ -1510,7 +1510,7 @@ static ssize_t atmel_sweep2wake_show(struct device *dev,
 	return count;
 }
 
-static ssize_t atmel_sweep2wake_dump(struct device *dev,
+static ssize_t synaptics_sweep2wake_dump(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
 	if (buf[0] >= '0' && buf[0] <= '2' && buf[1] == '\n')
@@ -1533,9 +1533,9 @@ static ssize_t atmel_sweep2wake_dump(struct device *dev,
 }
 
 static DEVICE_ATTR(sweep2wake, (S_IWUSR|S_IRUGO),
-	atmel_sweep2wake_show, atmel_sweep2wake_dump);
+	synaptics_sweep2wake_show, synaptics_sweep2wake_dump);
 
-static ssize_t atmel_sweep2wake_about_show(struct device *dev,
+static ssize_t synaptics_sweep2wake_about_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	size_t count = 0;
@@ -1545,9 +1545,9 @@ static ssize_t atmel_sweep2wake_about_show(struct device *dev,
 	return count;
 }
 static DEVICE_ATTR(sweep2wake_about, S_IRUGO,
-	atmel_sweep2wake_about_show, NULL);
+	synaptics_sweep2wake_about_show, NULL);
 
-static ssize_t atmel_sweep2wake_buttons_show(struct device *dev,
+static ssize_t synaptics_sweep2wake_buttons_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	int i = 0;
@@ -1563,10 +1563,10 @@ static ssize_t atmel_sweep2wake_buttons_show(struct device *dev,
 	return count;
 }
 static DEVICE_ATTR(sweep2wake_buttons, S_IRUGO,
-	atmel_sweep2wake_buttons_show, NULL);
+	synaptics_sweep2wake_buttons_show, NULL);
 
 
-static ssize_t atmel_sweep2wake_startbutton_show(struct device *dev,
+static ssize_t synaptics_sweep2wake_startbutton_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	int i = 0;
@@ -1587,7 +1587,7 @@ static ssize_t atmel_sweep2wake_startbutton_show(struct device *dev,
 	return count;
 }
 
-static ssize_t atmel_sweep2wake_startbutton_dump(struct device *dev,
+static ssize_t synaptics_sweep2wake_startbutton_dump(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
 	int s2w_tempbutton = 0;
@@ -1614,10 +1614,10 @@ static ssize_t atmel_sweep2wake_startbutton_dump(struct device *dev,
 }
 
 static DEVICE_ATTR(sweep2wake_startbutton, (S_IWUSR|S_IRUGO),
-	atmel_sweep2wake_startbutton_show, atmel_sweep2wake_startbutton_dump);
+	synaptics_sweep2wake_startbutton_show, synaptics_sweep2wake_startbutton_dump);
 
 //end button
-static ssize_t atmel_sweep2wake_endbutton_show(struct device *dev,
+static ssize_t synaptics_sweep2wake_endbutton_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	int i = 0;
@@ -1638,7 +1638,7 @@ static ssize_t atmel_sweep2wake_endbutton_show(struct device *dev,
 	return count;
 }
 
-static ssize_t atmel_sweep2wake_endbutton_dump(struct device *dev,
+static ssize_t synaptics_sweep2wake_endbutton_dump(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
 	int s2w_tempbutton = 0;
@@ -1665,7 +1665,7 @@ static ssize_t atmel_sweep2wake_endbutton_dump(struct device *dev,
 }
 
 static DEVICE_ATTR(sweep2wake_endbutton, (S_IWUSR|S_IRUGO),
-	atmel_sweep2wake_endbutton_show, atmel_sweep2wake_endbutton_dump);
+	synaptics_sweep2wake_endbutton_show, synaptics_sweep2wake_endbutton_dump);
 
 //end of end button
 
