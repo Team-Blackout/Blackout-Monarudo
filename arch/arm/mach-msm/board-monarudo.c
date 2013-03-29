@@ -3152,7 +3152,7 @@ static struct mdm_platform_data mdm_platform_data = {
 static struct tsens_platform_data apq_tsens_pdata  = {
 		.tsens_factor		= 1000,
 		.hw_type		= APQ_8064,
-		.tsens_num_sensor	= 5,
+		.tsens_num_sensor	= 11,
 		.slope = {1176, 1176, 1154, 1176, 1111,
 			1132, 1132, 1199, 1132, 1199, 1132},
 };
@@ -3163,7 +3163,7 @@ static struct platform_device msm_tsens_device = {
 };
 
 static struct msm_thermal_data msm_thermal_pdata = {
-	.sensor_id = 5,
+	.sensor_id = 7,
 	.poll_ms = 150,
 	.shutdown_temp = 120,
 
