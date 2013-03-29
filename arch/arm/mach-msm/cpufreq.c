@@ -72,7 +72,7 @@ static int override_cpu;
  */
 
 /* to be safe, fill vars with defaults */
-uint32_t cmdline_maxkhz = CONFIG_MSM_CPU_FREQ_MAX, cmdline_minkhz = 192000;
+uint32_t cmdline_maxkhz = 1512000, cmdline_minkhz = CONFIG_MSM_CPU_FREQ_MIN;
 
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_ASSWAX
 char cmdline_gov[16] = "AssWax";
@@ -352,7 +352,7 @@ static void msm_cpufreq_late_resume(struct early_suspend *h)
 }
 
 static struct early_suspend msm_cpufreq_early_suspend_handler = {
-	.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 10,
+	.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 2,
 	.suspend = msm_cpufreq_early_suspend,
 	.resume = msm_cpufreq_late_resume,
 };
@@ -526,12 +526,12 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 		cpumask_setall(policy->cpus);
 
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
-#if 0
+#ifdef CONFIG_CMDLINE_OPTIONS 
 		policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
 		policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
 #endif
 	}
-#if 0
+#ifdef CONFIG_CMDLINE_OPTIONS 
 	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
 	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
 #endif
@@ -567,9 +567,10 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 	init_completion(&cpu_work->complete);
 #endif
 	/* set safe default min and max speeds */
+#ifdef CONFIG_CMDLINE_OPTIONS 
 	policy->max = cmdline_maxkhz;
 	policy->min = cmdline_minkhz;
-
+#endif
 	return 0;
 }
 
@@ -658,7 +659,7 @@ struct freq_attr msm_cpufreq_attr_max_screen_off_khz = {
 #endif
 static struct freq_attr *msm_freq_attr[] = {
 	&cpufreq_freq_attr_scaling_available_freqs,
-#ifdef CONFIG_CMDLINE_OPTIONS
+#ifdef CONFIG_CMDLINE_OPTIONS 
 	&msm_cpufreq_attr_max_screen_off_khz,
 #endif
 	NULL,
