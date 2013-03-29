@@ -144,8 +144,8 @@ static irqreturn_t synaptics_irq_thread(int irq, void *ptr);
 #define HOME_BUTTON		818
 #define MENU_BUTTON		1335
 
-int s2w_switch = 2;
-
+int s2w_switch = -1;
+int s2w_temp = -1;
 
 bool scr_suspended = false, exec_count = true, s2w_switch_changed = false;;
 bool scr_on_touch = false, led_exec_count = false, barrier[2] = {false, false};
@@ -202,15 +202,19 @@ static int __init synaptics_read_s2w_cmdline(char *s2w)
 	if (strcmp(s2w, "2") == 0) {
 		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake enabled with button backlight. | s2w='%s'", s2w);
 		s2w_switch = 2;
+		s2w_temp = 2;
 	} else if (strcmp(s2w, "1") == 0) {
 		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake enabled without button backlight. | s2w='%s'", s2w);
 		s2w_switch = 1;
+		s2w_temp = 1;
 	} else if (strcmp(s2w, "0") == 0) {
 		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake disabled. | s2w='%s'", s2w);
 		s2w_switch = 0;
+		s2w_temp = 0;
 	} else {
 		printk(KERN_INFO "[cmdline_s2w]: No valid input found. Sweep2Wake disabled. | s2w='%s'", s2w);
 		s2w_switch = 0;
+		s2w_temp = 0;
 	}
 	return 1;
 }
@@ -233,10 +237,6 @@ static int __init synaptics_read_s2w_end_cmdline(char *s2w_end)
 	s2w_endbutton = sweep2wake_buttonset(s2w_end);
 	if (s2w_endbutton > 0) {
 		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake end button set to %s. | s2w_end='%s'", s2w_end, s2w_end);
-	barrier1 = s2w_startbutton - 100; //0;
-	barrier2 = ((s2w_endbutton - s2w_startbutton) / 4) + s2w_startbutton; //333;
-	barrier3 = (((s2w_endbutton - s2w_startbutton) / 4) * 3) + s2w_startbutton; //667;
-	barrier4 = s2w_endbutton + 100; //1000;
 	} else {
 		printk(KERN_INFO "[cmdline_s2w]: No valid input found for end button. | s2w_end='%s'", s2w_end);
 	}
@@ -1502,7 +1502,10 @@ static ssize_t synaptics_sweep2wake_show(struct device *dev,
 {
 	size_t count = 0;
 
+	if (s2w_switch == s2w_temp )
 		count += sprintf(buf, "%d\n", s2w_switch);
+	else
+		count += sprintf(buf, "%d->%d\n", s2w_switch, s2w_temp);
 
 	return count;
 }
@@ -1511,8 +1514,20 @@ static ssize_t synaptics_sweep2wake_dump(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
 	if (buf[0] >= '0' && buf[0] <= '2' && buf[1] == '\n')
-		if (s2w_switch != buf[0] - '0')
-			s2w_switch = buf[0] - '0';
+		if (s2w_switch != buf[0] - '0') {
+			s2w_temp = buf[0] - '0';
+			if (scr_suspended == false)
+				s2w_switch = s2w_temp;
+			else 
+				s2w_switch_changed = true;
+		}
+
+	if (s2w_temp == 0) 
+		printk(KERN_INFO "[SWEEP2WAKE]: Disabled.\n");
+	else if (s2w_temp == 1)
+		printk(KERN_INFO "[SWEEP2WAKE]: Enabled without Backlight.\n");
+	else if (s2w_temp == 2)
+		printk(KERN_INFO "[SWEEP2WAKE]: Enabled with Backlight.\n");
 
 	return count;
 }
