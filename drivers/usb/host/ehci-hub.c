@@ -313,7 +313,7 @@ static int ehci_bus_resume (struct usb_hcd *hcd)
 	}
 
 	power_okay = ehci_readl(ehci, &ehci->regs->intr_enable);
-	ehci_info(ehci, "resume root hub%s\n",
+	ehci_dbg(ehci, "resume root hub%s\n",
 			power_okay ? "" : " after power loss");
 
 	ehci_writel(ehci, 0, &ehci->regs->intr_enable);
@@ -410,11 +410,11 @@ skip_clear_resume:
 
 	
 	ehci_writel(ehci, INTR_MASK, &ehci->regs->intr_enable);
-	ehci_info(ehci, "debug resume wakeup- pivot 1\n");
+	ehci_dbg(ehci, "debug resume wakeup- pivot 1\n");
 	spin_unlock_irq (&ehci->lock);
-	ehci_info(ehci, "debug resume wakeup- pivot 2\n");
+	ehci_dbg(ehci, "debug resume wakeup- pivot 2\n");
 	ehci_handover_companion_ports(ehci);
-	ehci_info(ehci, "debug resume wakeup- pivot 3\n");
+	ehci_dbg(ehci, "debug resume wakeup- pivot 3\n");
 	return 0;
 }
 
