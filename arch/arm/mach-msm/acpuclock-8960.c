@@ -1014,13 +1014,7 @@ static unsigned long acpuclk_8960_get_rate(int cpu)
 }
 
 /* Get the selected source on primary MUX. */
-static int get_pri_clk_src(struct scalable *sc)
-{
-	uint32_t regval;
 
-	regval = get_l2_indirect_reg(sc->l2cpmr_iaddr);
-	return regval & 0x3;
-}
 
 /* Set the selected source on primary MUX. */
 static void set_pri_clk_src(struct scalable *sc, uint32_t pri_src_sel)
@@ -1037,13 +1031,7 @@ static void set_pri_clk_src(struct scalable *sc, uint32_t pri_src_sel)
 }
 
 /* Get the selected source on secondary MUX. */
-static int get_sec_clk_src(struct scalable *sc)
-{
-	uint32_t regval;
 
-	regval = get_l2_indirect_reg(sc->l2cpmr_iaddr);
-	return (regval >> 2) & 0x3;
-}
 
 /* Set the selected source on secondary MUX. */
 static void set_sec_clk_src(struct scalable *sc, uint32_t sec_src_sel)
@@ -1710,56 +1698,33 @@ static int acpuclock_cpu_callback(struct notifier_block *nfb,
 					    unsigned long action, void *hcpu)
 {
 	static int prev_khz[NR_CPUS];
-	static int prev_pri_src[NR_CPUS];
-	static int prev_sec_src[NR_CPUS];
-	int cpu = (int)hcpu;
+	int rc, cpu = (int)hcpu;
+	struct scalable *sc = &scalable[cpu];
+	unsigned long hot_unplug_khz = STBY_KHZ;
 
-	switch (action) {
-	case CPU_DYING:
-	case CPU_DYING_FROZEN:
-		/*
-		 * On Krait v1, the primary and secondary muxes must be set to
-		 * QSB before L2 power collapse and restored after.
-		 */
-		if (cpu_is_krait_v1()) {
-			prev_sec_src[cpu] = get_sec_clk_src(&scalable[cpu]);
-			prev_pri_src[cpu] = get_pri_clk_src(&scalable[cpu]);
-			set_sec_clk_src(&scalable[cpu], SEC_SRC_SEL_QSB);
-			set_pri_clk_src(&scalable[cpu], PRI_SRC_SEL_SEC_SRC);
-		}
-		break;
+	switch (action & ~CPU_TASKS_FROZEN) {
 	case CPU_DEAD:
-	case CPU_DEAD_FROZEN:
 		prev_khz[cpu] = acpuclk_8960_get_rate(cpu);
-		pr_info("CPU%d unplug, freq = %d\n", cpu, prev_khz[cpu]);
 		/* Fall through. */
 	case CPU_UP_CANCELED:
-	case CPU_UP_CANCELED_FROZEN:
-		if (scalable[cpu].clocks_initialized)
-			acpuclk_8960_set_rate(cpu, HOT_UNPLUG_KHZ,
-					      SETRATE_HOTPLUG);
+		acpuclk_8960_set_rate(cpu, hot_unplug_khz, SETRATE_HOTPLUG);
+		regulator_set_optimum_mode(sc->vreg[VREG_CORE].reg, 0);
 		break;
 	case CPU_UP_PREPARE:
-	case CPU_UP_PREPARE_FROZEN:
-		prev_khz[cpu] = 918000;
-		if (scalable[cpu].clocks_initialized)
-			acpuclk_8960_set_rate(cpu, prev_khz[cpu],
-					      SETRATE_HOTPLUG);
-		if (!scalable[cpu].regulators_initialized)
-			regulator_init(cpu, max_acpu_level);
-		pr_info("CPU%d hotplug prepare, freq = %d\n", cpu, prev_khz[cpu]);
-		break;
-	case CPU_STARTING:
-	case CPU_STARTING_FROZEN:
 		if (!scalable[cpu].clocks_initialized) {
-			per_cpu_init(NULL);
-		} else if (cpu_is_krait_v1()) {
-			set_sec_clk_src(&scalable[cpu], prev_sec_src[cpu]);
-			set_pri_clk_src(&scalable[cpu], prev_pri_src[cpu]);
+			rc = on_each_cpu(per_cpu_init, NULL, true);
+			if (rc)
+				return NOTIFY_BAD;
+			break;
 		}
+		if (WARN_ON(!prev_khz[cpu]))
+			return NOTIFY_BAD;
+		rc = regulator_set_optimum_mode(sc->vreg[VREG_CORE].reg,
+						sc->vreg[VREG_CORE].cur_vdd);
+		if (rc < 0)
+			return NOTIFY_BAD;
+		acpuclk_8960_set_rate(cpu, prev_khz[cpu], SETRATE_HOTPLUG);
 		break;
-	case CPU_ONLINE:
-		pr_info("CPU%d hotplug done, freq = %d\n", cpu, prev_khz[cpu]);
 	default:
 		break;
 	}
@@ -1936,7 +1901,7 @@ static void __init select_freq_plan(void)
 	/* Find the max supported scaling frequency. */
 	for (l = acpu_freq_tbl; l->speed.khz != 0; l++)
 #ifdef CONFIG_ARCH_APQ8064
-		if (l->use_for_scaling && (l->speed.khz <= 918000))
+		if (l->use_for_scaling )
 #else
 		if (l->use_for_scaling)
 #endif
