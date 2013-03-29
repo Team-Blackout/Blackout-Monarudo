@@ -144,8 +144,24 @@ static irqreturn_t synaptics_irq_thread(int irq, void *ptr);
 #define HOME_BUTTON		818
 #define MENU_BUTTON		1335
 
-int s2w_switch = -1;
-int s2w_temp = -1;
+
+
+/* Sweep to wake values are 
+ * 0 = no sweep2wake
+ * 1 = sweep2wake with no backlight
+ * 2 = sweep2wake with backlight
+ */
+#ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE_DISABLED
+int s2w_switch = 0;
+int s2w_temp = 0;
+#elif defined(CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE_ENABLED)
+int s2w_switch = 1;
+int s2w_temp = 1;
+#elif defined(CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE_ENABLED_WITH_BACKLIGHT)
+int s2w_switch = 2;
+int s2w_temp = 2;
+#endif
+
 
 bool scr_suspended = false, exec_count = true, s2w_switch_changed = false;;
 bool scr_on_touch = false, led_exec_count = false, barrier[2] = {false, false};
