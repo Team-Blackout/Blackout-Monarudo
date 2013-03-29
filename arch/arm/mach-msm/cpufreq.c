@@ -72,7 +72,7 @@ static int override_cpu;
  */
 
 /* to be safe, fill vars with defaults */
-uint32_t cmdline_maxkhz = CONFIG_MSM_CPU_FREQ_MAX, cmdline_minkhz = 192000;
+uint32_t cmdline_maxkhz = 1512000, cmdline_minkhz = CONFIG_MSM_CPU_FREQ_MAX;
 
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_ASSWAX
 char cmdline_gov[16] = "AssWax";
@@ -616,7 +616,7 @@ static int msm_cpufreq_pm_event(struct notifier_block *this,
 		return NOTIFY_DONE;
 	}
 }
-#if 0
+#ifdef CONFIG_CMDLINE_OPTIONS
 static ssize_t show_max_screen_off_khz(struct cpufreq_policy *policy, char *buf)
 {
 	return sprintf(buf, "%u\n", cmdline_maxscroff);
