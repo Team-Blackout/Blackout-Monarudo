@@ -72,7 +72,7 @@ static int override_cpu;
  */
 
 /* to be safe, fill vars with defaults */
-uint32_t cmdline_maxkhz = 1512000, cmdline_minkhz = CONFIG_MSM_CPU_FREQ_MIN;
+uint32_t cmdline_maxkhz = CONFIG_MSM_CPU_FREQ_MAX, cmdline_minkhz = CONFIG_MSM_CPU_FREQ_MIN;
 
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_ASSWAX
 char cmdline_gov[16] = "AssWax";
@@ -526,15 +526,8 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 		cpumask_setall(policy->cpus);
 
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
-#ifdef CONFIG_CMDLINE_OPTIONS 
-		policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
-		policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
-#endif
 	}
-#ifdef CONFIG_CMDLINE_OPTIONS 
-	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
-	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
-#endif
+
 
 	cur_freq = acpuclk_get_rate(policy->cpu);
 	if (cpufreq_frequency_table_target(policy, table, cur_freq,
@@ -568,8 +561,8 @@ static int msm_cpufreq_init(struct cpufreq_policy *policy)
 #endif
 	/* set safe default min and max speeds */
 #ifdef CONFIG_CMDLINE_OPTIONS 
-	policy->max = cmdline_maxkhz;
-	policy->min = cmdline_minkhz;
+	policy->max = 1512000;
+	policy->min = 192000;
 #endif
 	return 0;
 }
