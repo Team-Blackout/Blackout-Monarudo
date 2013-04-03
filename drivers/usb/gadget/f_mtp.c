@@ -68,11 +68,6 @@
 #define MTP_RESPONSE_DEVICE_BUSY    0x2019
 
 static int htc_mtp_performance_debug;
-static int mtp_qos;
-#ifdef CONFIG_PERFLOCK
-#include <mach/perflock.h>
-#endif
-
 
 static const char mtp_shortname[] = "mtp_usb";
 
@@ -116,11 +111,6 @@ struct mtp_dev {
 	uint32_t xfer_transaction_id;
 	int xfer_result;
 	bool mtp_perf_lock_on;
-#ifdef CONFIG_PERFLOCK
-	struct perf_lock perf_lock;
-	struct timer_list perf_timer;
-	unsigned long timer_expired;
-#endif
 	struct timeval st0;
 	struct timeval st1;
 };
@@ -287,58 +277,6 @@ struct mtp_device_status {
 
 /* temporary variable used between mtp_open() and mtp_gadget_bind() */
 static struct mtp_dev *_mtp_dev;
-
-#ifdef CONFIG_PERFLOCK
-static void mtp_setup_perflock(bool mtp_perf_lock_on)
-{
-	struct mtp_dev *dev = _mtp_dev;
-	dev->mtp_perf_lock_on = mtp_perf_lock_on;
-
-	/* reset the timer */
-	del_timer(&dev->perf_timer);
-	if (mtp_perf_lock_on) {
-		if (!is_perf_lock_active(&dev->perf_lock)) {
-			printk(KERN_INFO "[USB][MTP] %s, perf on\n", __func__);
-			perf_lock(&dev->perf_lock);
-		}
-	} else {
-		if (is_perf_lock_active(&dev->perf_lock)) {
-			printk(KERN_INFO "[USB][MTP] %s, perf off\n", __func__);
-			perf_unlock(&dev->perf_lock);
-		}
-	}
-}
-
-static void release_perflock_work_func(struct work_struct *data)
-{
-	mtp_setup_perflock(false);
-}
-
-/* 50 ms per file */
-#define MTP_QOS_N_RATIO		15
-#define MTP_TRANSFER_EXPIRED	(jiffies + msecs_to_jiffies(5000))
-static void mtp_qos_enable(int qos_n)
-{
-	struct mtp_dev *dev = _mtp_dev;
-	mtp_qos = qos_n;
-
-	if (qos_n) {
-		mtp_setup_perflock(true);
-		dev->timer_expired = qos_n * MTP_QOS_N_RATIO;
-		if (dev->timer_expired < 5000)
-			dev->timer_expired = 5000;
-		mod_timer(&dev->perf_timer,
-			jiffies + msecs_to_jiffies(dev->timer_expired));
-	} else
-		mtp_setup_perflock(false);
-}
-
-static void mtp_perf_lock_disable(unsigned long data)
-{
-	struct mtp_dev *dev = _mtp_dev;
-	schedule_work(&dev->release_perflock_work);
-}
-#endif
 
 static inline struct mtp_dev *func_to_mtp(struct usb_function *f)
 {
@@ -803,9 +741,6 @@ static void send_file_work(struct work_struct *data)
 		mtp_req_put(dev, &dev->tx_idle, req);
 
 	DBG(cdev, "send_file_work returning %d\n", r);
-#ifdef CONFIG_PERFLOCK
-	mod_timer(&dev->perf_timer, MTP_TRANSFER_EXPIRED);
-#endif
 	/* write the result */
 	dev->xfer_result = r;
 	smp_wmb();
@@ -904,9 +839,6 @@ static void receive_file_work(struct work_struct *data)
 		diff = (dev->st1.tv_sec-dev->st0.tv_sec)*1000 + (dev->st1.tv_usec-dev->st0.tv_usec)/1000;
 		printk(KERN_INFO "[USB][MTP]%s, total time:%ld\n", __func__, diff);
 	}
-#ifdef CONFIG_PERFLOCK
-	mod_timer(&dev->perf_timer, MTP_TRANSFER_EXPIRED);
-#endif
 	/* write the result */
 	dev->xfer_result = r;
 	smp_wmb();
@@ -959,9 +891,6 @@ static long mtp_ioctl(struct file *fp, unsigned code, unsigned long value)
 	{
 		struct mtp_file_range	mfr;
 		struct work_struct *work;
-#ifdef CONFIG_PERFLOCK
-		mtp_setup_perflock(true);
-#endif
 		spin_lock_irq(&dev->lock);
 		if (dev->state == STATE_CANCELED) {
 			/* report cancelation to userspace */
@@ -1037,7 +966,6 @@ static long mtp_ioctl(struct file *fp, unsigned code, unsigned long value)
 		{
 			if (value > 0) {
 				printk(KERN_INFO "[USB][MTP] %s: ioctl MTP_SET_CPU_PERF, files = %d\n", __func__, (int)value);
-				mtp_qos_enable((int)value);
 			}
 			break;
 	}
@@ -1075,9 +1003,6 @@ static int mtp_release(struct inode *ip, struct file *fp)
 	printk(KERN_INFO "mtp_release\n");
 
 	mtp_unlock(&_mtp_dev->open_excl);
-#ifdef CONFIG_PERFLOCK
-	mtp_setup_perflock(false);
-#endif
 	return 0;
 }
 
@@ -1417,12 +1342,6 @@ static int mtp_setup(void)
 
 	_mtp_dev = dev;
 	htc_mtp_performance_debug = 0;
-#ifdef CONFIG_PERFLOCK
-	INIT_WORK(&dev->release_perflock_work, release_perflock_work_func);
-	perf_lock_init(&dev->perf_lock, PERF_LOCK_HIGHEST, "htc_mtp");
-	setup_timer(&dev->perf_timer, mtp_perf_lock_disable, (unsigned long)dev);
-#endif
-
 	ret = misc_register(&mtp_device);
 	if (ret)
 		goto err2;
