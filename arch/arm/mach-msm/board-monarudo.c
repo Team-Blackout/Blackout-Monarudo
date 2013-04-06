@@ -224,9 +224,6 @@ enum {
        SX150X_EPM,
 };
 
-#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND
-int id_set_two_phase_freq(int cpufreq);
-#endif
 
 #ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE
 int set_two_phase_freq(int cpufreq);
@@ -4876,14 +4873,7 @@ static void __init monarudo_cdp_init(void)
 #endif
 	platform_device_register(&cdp_kp_pdev);
 
-#ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE
-        if(!cpu_is_krait_v1())
-                set_two_phase_freq(1134000);
-#endif
 
-#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND
-	id_set_two_phase_freq(1134000);
-#endif
 
 	/*usb driver won't be loaded in MFG 58 station and gift mode*/
 	/* fix me */
