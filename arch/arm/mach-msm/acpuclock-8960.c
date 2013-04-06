@@ -324,8 +324,8 @@ static struct scalable scalable_8064[] = {
 			.hfpll_base      = MSM_HFPLL_BASE + 0x200,
 			.aux_clk_sel     = MSM_ACC0_BASE  + 0x014,
 			.l2cpmr_iaddr    = L2CPUCPMR_IADDR,
-			.vreg[VREG_CORE] = { "krait0",     1300000 },
-			.vreg[VREG_MEM]  = { "krait0_mem", 1150000,
+			.vreg[VREG_CORE] = { "krait0",     1350000 },
+			.vreg[VREG_MEM]  = { "krait0_mem", 1250000,
 					     RPM_VREG_VOTER1,
 					     RPM_VREG_ID_PM8921_L24 },
 			.vreg[VREG_DIG]  = { "krait0_dig", 1150000,
@@ -339,8 +339,8 @@ static struct scalable scalable_8064[] = {
 			.hfpll_base      = MSM_HFPLL_BASE + 0x240,
 			.aux_clk_sel     = MSM_ACC1_BASE  + 0x014,
 			.l2cpmr_iaddr    = L2CPUCPMR_IADDR,
-			.vreg[VREG_CORE] = { "krait1",     1300000 },
-			.vreg[VREG_MEM]  = { "krait1_mem", 1150000,
+			.vreg[VREG_CORE] = { "krait1",     1350000 },
+			.vreg[VREG_MEM]  = { "krait1_mem", 1250000,
 					     RPM_VREG_VOTER2,
 					     RPM_VREG_ID_PM8921_L24 },
 			.vreg[VREG_DIG]  = { "krait1_dig", 1150000,
@@ -354,8 +354,8 @@ static struct scalable scalable_8064[] = {
 			.hfpll_base      = MSM_HFPLL_BASE + 0x280,
 			.aux_clk_sel     = MSM_ACC2_BASE  + 0x014,
 			.l2cpmr_iaddr    = L2CPUCPMR_IADDR,
-			.vreg[VREG_CORE] = { "krait2",     1300000 },
-			.vreg[VREG_MEM]  = { "krait2_mem", 1150000,
+			.vreg[VREG_CORE] = { "krait2",     1350000 },
+			.vreg[VREG_MEM]  = { "krait2_mem", 1250000,
 					     RPM_VREG_VOTER4,
 					     RPM_VREG_ID_PM8921_L24 },
 			.vreg[VREG_DIG]  = { "krait2_dig", 1150000,
@@ -369,8 +369,8 @@ static struct scalable scalable_8064[] = {
 			.hfpll_base      = MSM_HFPLL_BASE + 0x2C0,
 			.aux_clk_sel     = MSM_ACC3_BASE  + 0x014,
 			.l2cpmr_iaddr    = L2CPUCPMR_IADDR,
-			.vreg[VREG_CORE] = { "krait3",     1300000 },
-			.vreg[VREG_MEM]  = { "krait3_mem", 1150000,
+			.vreg[VREG_CORE] = { "krait3",     1350000 },
+			.vreg[VREG_MEM]  = { "krait3_mem", 1250000,
 					     RPM_VREG_VOTER5,
 					     RPM_VREG_ID_PM8921_L24 },
 			.vreg[VREG_DIG]  = { "krait3_dig", 1150000,
@@ -514,6 +514,8 @@ static struct msm_bus_paths bw_level_tbl[] = {
 	[5] = BW_MBPS(3600), /* At least 450 MHz on bus. */
 	[6] = BW_MBPS(3936), /* At least 492 MHz on bus. */
 	[7] = BW_MBPS(4264), /* At least 533 MHz on bus. */
+	[8] = BW_MBPS(4800), /* At least 600 MHz on bus. */
+	[9] = BW_MBPS(5000), /* At least 625 MHz on bus. */
 };
 
 static struct msm_bus_scale_pdata bus_client_pdata = {
@@ -681,7 +683,6 @@ static struct acpu_level acpu_freq_tbl_8960_kraitv2_fast[] = {
 	{ 0, { 0 } }
 };
 
-/* TODO: Update vdd_dig and vdd_mem when voltage data is available. */
 #undef L2
 #define L2(x) (&l2_freq_tbl_8064[(x)])
 static struct l2_level l2_freq_tbl_8064[] = {
@@ -815,6 +816,43 @@ static struct acpu_level acpu_freq_tbl_8064_fast[] = {
         { 1, {  1863000, HFPLL, 1, 0, 0x45 }, L2(18), 1250000 },        
         { 1, {  1890000, HFPLL, 1, 0, 0x46 }, L2(19), 1275000 },
         { 1, {  1910000, HFPLL, 1, 0, 0x48 }, L2(18), 1275000 },
+	{ 0, { 0 } }
+};
+
+static struct acpu_level acpu_freq_tbl_8064_faster[] = {
+	{ 0, { STBY_KHZ, QSB,   0, 0, 0x00 }, L2(0),   850000 },
+	{ 1, {   192000, PLL_8, 0, 2, 0x00 }, L2(1),   825000 },
+	{ 1, {   384000, PLL_8, 0, 2, 0x00 }, L2(7),   850000 },
+	{ 0, {   432000, HFPLL, 2, 0, 0x10 }, L2(7),   875000 },
+	{ 1, {   486000, HFPLL, 2, 0, 0x12 }, L2(7),   875000 },
+	{ 0, {   540000, HFPLL, 2, 0, 0x14 }, L2(7),   900000 },
+	{ 1, {   594000, HFPLL, 1, 0, 0x16 }, L2(7),   900000 },
+	{ 0, {   648000, HFPLL, 1, 0, 0x18 }, L2(7),   925000 },
+	{ 1, {   702000, HFPLL, 1, 0, 0x1A }, L2(7),   925000 },
+	{ 0, {   756000, HFPLL, 1, 0, 0x1C }, L2(7),   975000 },
+	{ 1, {   810000, HFPLL, 1, 0, 0x1E }, L2(7),   975000 },
+	{ 0, {   864000, HFPLL, 1, 0, 0x20 }, L2(7),  1000000 },
+	{ 1, {   918000, HFPLL, 1, 0, 0x22 }, L2(7),  1000000 },
+	{ 0, {   972000, HFPLL, 1, 0, 0x24 }, L2(7),  1025000 },
+	{ 1, {  1026000, HFPLL, 1, 0, 0x26 }, L2(7),  1025000 },
+	{ 0, {  1080000, HFPLL, 1, 0, 0x28 }, L2(17), 1075000 },
+	{ 1, {  1134000, HFPLL, 1, 0, 0x2A }, L2(17), 1075000 },
+	{ 0, {  1188000, HFPLL, 1, 0, 0x2C }, L2(17), 1100000 },
+	{ 1, {  1242000, HFPLL, 1, 0, 0x2E }, L2(17), 1100000 },
+	{ 0, {  1296000, HFPLL, 1, 0, 0x30 }, L2(17), 1125000 },
+	{ 1, {  1350000, HFPLL, 1, 0, 0x32 }, L2(17), 1125000 },
+	{ 0, {  1404000, HFPLL, 1, 0, 0x34 }, L2(17), 1137500 },
+	{ 1, {  1458000, HFPLL, 1, 0, 0x36 }, L2(17), 1137500 },
+	{ 1, {  1512000, HFPLL, 1, 0, 0x38 }, L2(17), 1150000 },
+	{ 1, {  1539000, HFPLL, 1, 0, 0x39 }, L2(17), 1150000 },
+        { 1, {  1674000, HFPLL, 1, 0, 0x40 }, L2(18), 1175000 },
+        { 1, {  1755000, HFPLL, 1, 0, 0x41 }, L2(18), 1225000 },
+        { 1, {  1782000, HFPLL, 1, 0, 0x42 }, L2(18), 1250000 },
+        { 1, {  1809000, HFPLL, 1, 0, 0x43 }, L2(18), 1250000 },
+        { 1, {  1836000, HFPLL, 1, 0, 0x44 }, L2(18), 1250000 },
+        { 1, {  1863000, HFPLL, 1, 0, 0x45 }, L2(18), 1250000 },        
+        { 1, {  1890000, HFPLL, 1, 0, 0x46 }, L2(19), 1275000 },
+        { 1, {  1910000, HFPLL, 1, 0, 0x48 }, L2(20), 1275000 },
 	{ 0, { 0 } }
 };
 
@@ -953,12 +991,11 @@ static struct acpu_level *acpu_freq_tbl_8960_v2[NUM_PVS] __initdata = {
 	[PVS_FAST] = acpu_freq_tbl_8960_kraitv2_fast,
 };
 
-/* TODO: update the faster table when data is available */
 static struct acpu_level *acpu_freq_tbl_8064[NUM_PVS] __initdata = {
 	[PVS_SLOW] = acpu_freq_tbl_8064_slow,
 	[PVS_NOM] = acpu_freq_tbl_8064_nom,
 	[PVS_FAST] = acpu_freq_tbl_8064_fast,
-	[PVS_FASTER] = acpu_freq_tbl_8064_fast,
+	[PVS_FASTER]  = acpu_freq_tbl_8064_faster,
 };
 
 static struct acpu_level *acpu_freq_tbl_8930_pvs[NUM_PVS] __initdata = {
@@ -1633,7 +1670,7 @@ void acpuclk_set_vdd(unsigned int khz, int vdd_uv) {
 #endif	/* CONFIG_CPU_VOTALGE_TABLE */
 
 #ifdef CONFIG_CPU_FREQ_MSM
-static struct cpufreq_frequency_table freq_table[NR_CPUS][30];
+static struct cpufreq_frequency_table freq_table[NR_CPUS][35];
 
 static void __init cpufreq_table_init(void)
 {
@@ -1763,7 +1800,7 @@ uint32_t acpu_check_khz_value(unsigned long khz)
 	if (khz < 192000)
 		return CONFIG_MSM_CPU_FREQ_MIN;
 
-	for (f = acpu_freq_tbl_8064_slow, acpu_freq_tbl_8064_nom, acpu_freq_tbl_8064_fast; f->speed.khz != 0; f++) {
+	for (f = acpu_freq_tbl_8064_slow, acpu_freq_tbl_8064_nom, acpu_freq_tbl_8064_fast, acpu_freq_tbl_8064_faster; f->speed.khz != 0; f++) {
 		if (khz < 192000) {
 			if (f->speed.khz == (khz*1000))
 				return f->speed.khz;
@@ -1797,7 +1834,7 @@ EXPORT_SYMBOL(acpu_check_khz_value);
 unsigned long acpuclk_8960_power_collapse(void)
 {
 	unsigned long rate = acpuclk_get_rate(smp_processor_id());
-	acpuclk_8960_set_rate(smp_processor_id(), 384000, SETRATE_PC);
+	acpuclk_8960_set_rate(smp_processor_id(), 192000, SETRATE_PC);
 	return rate;
 }
 

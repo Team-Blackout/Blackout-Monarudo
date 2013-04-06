@@ -2,7 +2,7 @@ VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 38
 EXTRAVERSION =-Blackout-Viverrine-
-BEASTMODE_VERSION = Blackout-Viverrine-B3.4-EXP
+BEASTMODE_VERSION = Blackout-Viverrine-B5.2
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
@@ -1578,8 +1578,7 @@ endif	# skip-makefile
 
 DNA_ZIP = dna/update/$(BEASTMODE_VERSION).zip
 UPDATE_ROOT = dna/update
-CERT = dna/keys/certificate.pem
-KEY = dna/keys/key.pk8
+
 
 dna/update-this-version.zip:
 	make $(DNA_ZIP)
@@ -1587,20 +1586,25 @@ dna/update-this-version.zip:
 $(CERT):
 	
 
-$(DNA_ZIP): arch/arm/boot/zImage dna/bootimg.cfg dna/updater-script $(CERT)
+$(DNA_ZIP): arch/arm/boot/zImage dna/aroma/updater-script $(CERT)
 	-rm -rf $(UPDATE_ROOT)
 	mkdir -p $(UPDATE_ROOT)/system/lib/modules
 	cp `find . -name '*.ko'` $(UPDATE_ROOT)/system/lib/modules
+	cp -r dna/init/ $(UPDATE_ROOT)/system/etc
 	mkdir -p $(UPDATE_ROOT)/META-INF/com/google/android
-	cp dna/update-binary $(UPDATE_ROOT)/META-INF/com/google/android
-	cp dna/update-binary-installer $(UPDATE_ROOT)/META-INF/com/google/android
-	cp -r dna/aroma $(UPDATE_ROOT)/META-INF/com/google/android
-	cp dna/aroma-config $(UPDATE_ROOT)/META-INF/com/google/android
-	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/updater-script > $(UPDATE_ROOT)/META-INF/com/google/android/updater-script
-	abootimg --create $(UPDATE_ROOT)/boot.img -k arch/arm/boot/zImage -f dna/bootimg.cfg -r dna/initrd.img
-	-rm -f dna/update.zip
-	cd $(UPDATE_ROOT) && zip -r ../$(BEASTMODE_VERSION).zip .
+	cp -r dna/tools $(UPDATE_ROOT)/tools
+	mkdir -p $(UPDATE_ROOT)/boot
+	cp arch/arm/boot/zImage $(UPDATE_ROOT)/boot
+	cp dna/aroma/update-binary $(UPDATE_ROOT)/META-INF/com/google/android
+	cp dna/aroma/update-binary-installer $(UPDATE_ROOT)/META-INF/com/google/android
+	cp -r dna/aroma/aroma $(UPDATE_ROOT)/META-INF/com/google/android
+	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/aroma/aroma-config > $(UPDATE_ROOT)/META-INF/com/google/android/aroma-config
+	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/aroma/updater-script > $(UPDATE_ROOT)/META-INF/com/google/android/updater-script
+	git log --oneline > $(UPDATE_ROOT)/META-INF/com/google/android/aroma/changelog.txt
+	-rm -f dna/*.zip
+	cd $(UPDATE_ROOT) && zip -r ../out/$(BEASTMODE_VERSION).zip .
 	 $
+	
 	
 	
 PHONY += FORCE
@@ -1609,3 +1613,4 @@ FORCE:
 # Declare the contents of the .PHONY variable as phony.  We keep that
 # information in a variable so we can use it in if_changed and friends.
 .PHONY: $(PHONY)
+
