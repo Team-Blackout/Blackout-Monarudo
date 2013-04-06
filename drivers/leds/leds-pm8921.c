@@ -25,6 +25,9 @@
 #include <linux/mfd/pm8xxx/core.h>
 #include <linux/mfd/pm8xxx/pwm.h>
 #include <linux/leds-pm8921.h>
+#ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
+#include <linux/synaptics_i2c_rmi.h>
+#endif
 
 #define SSBI_REG_ADDR_DRV_KEYPAD	0x48
 #define PM8XXX_DRV_KEYPAD_BL_MASK	0xf0
@@ -152,7 +155,7 @@ void pm8xxx_led_current_set_for_key(int brightness_key)
 
 	}
 }
-static void pm8xxx_led_current_set(struct led_classdev *led_cdev, enum led_brightness brightness)
+extern void pm8xxx_led_current_set(struct led_classdev *led_cdev, enum led_brightness brightness)
 {
 	struct pm8xxx_led_data *led = container_of(led_cdev,  struct pm8xxx_led_data, cdev);
 	int rc, offset;
@@ -715,6 +718,10 @@ static int __devinit pm8xxx_led_probe(struct platform_device *pdev)
 
 		if (!strcmp(led_dat->cdev.name, "button-backlight")) {
 			for_key_led_data = led_dat;
+#ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
+			sweep2wake_setleddev(&led_dat->cdev);
+			printk(KERN_INFO "[sweep2wake]: set led device %s, bank %i\n", led->cdev.name, led_dat->bank);
+#endif
 		}
 		if (!strcmp(led_dat->cdev.name, "green-back")) {
 			LED_INFO("%s: green-back, 000 probe, led_dat = %x\n", __func__, (unsigned int)led_dat);
@@ -724,6 +731,8 @@ static int __devinit pm8xxx_led_probe(struct platform_device *pdev)
 			LED_INFO("%s: amber-back\n", __func__);
 			amber_back_led_data = led_dat;
 		}
+		
+
 
 	}
 

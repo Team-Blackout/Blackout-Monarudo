@@ -114,4 +114,7 @@ struct pm8xxx_led_data {
 };
 void pm8xxx_led_current_set_for_key(int brightness_key);
 
+extern void pm8xxx_led_current_set(struct led_classdev *led_cdev,
+				   enum led_brightness brightness);
+
 #endif /* __LEDS_PM8XXX_H__ */

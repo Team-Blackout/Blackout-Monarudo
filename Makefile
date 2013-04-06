@@ -2,7 +2,7 @@ VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 38
 EXTRAVERSION =-Blackout-Viverrine-
-BEASTMODE_VERSION = Blackout-Viverrine-B5.2
+BEASTMODE_VERSION = Blackout-Viverrine-B5.3
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
@@ -1600,7 +1600,7 @@ $(DNA_ZIP): arch/arm/boot/zImage dna/aroma/updater-script $(CERT)
 	cp -r dna/aroma/aroma $(UPDATE_ROOT)/META-INF/com/google/android
 	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/aroma/aroma-config > $(UPDATE_ROOT)/META-INF/com/google/android/aroma-config
 	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/aroma/updater-script > $(UPDATE_ROOT)/META-INF/com/google/android/updater-script
-	git log --oneline > $(UPDATE_ROOT)/META-INF/com/google/android/aroma/changelog.txt
+	git log --oneline --since=04/05/2013 > $(UPDATE_ROOT)/META-INF/com/google/android/aroma/changelog.txt
 	-rm -f dna/*.zip
 	cd $(UPDATE_ROOT) && zip -r ../out/$(BEASTMODE_VERSION).zip .
 	 $
