@@ -1056,12 +1056,7 @@ static void dbs_input_event(struct input_handle *handle, unsigned int type,
 	}
 
 	for_each_online_cpu(i) {
-		/* Only allow queue work when cpufreq initialization has finished */
-		if (per_cpu(cpufreq_init_done, i))
 		queue_work_on(i, input_wq, &per_cpu(dbs_refresh_work, i));
-		else
-			pr_err("%s: cpu %d initialization not done! Skip queue work...\n",
-				__func__, i);
 	}
 }
 
@@ -1192,7 +1187,6 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 			rc = input_register_handler(&dbs_input_handler);
 		mutex_unlock(&dbs_mutex);
 
-		mutex_init(&this_dbs_info->timer_mutex);
 
 		if (!ondemand_powersave_bias_setspeed(
 					this_dbs_info->cur_policy,
@@ -1269,6 +1263,9 @@ static int __init cpufreq_gov_dbs_init(void)
 		return -EFAULT;
 	}
 	for_each_possible_cpu(i) {
+		struct cpu_dbs_info_s *this_dbs_info =
+			&per_cpu(od_cpu_dbs_info, i);
+		mutex_init(&this_dbs_info->timer_mutex);
 		INIT_WORK(&per_cpu(dbs_refresh_work, i), dbs_refresh_callback);
 	}
 
