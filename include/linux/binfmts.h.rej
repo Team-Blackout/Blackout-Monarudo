@@ -1,0 +1,16 @@
+--- include/linux/binfmts.h	2013-01-04 04:01:32.000000000 -0800
++++ include/linux/binfmts.h	2013-03-19 04:00:53.000000000 -0700
+@@ -49,13 +34,11 @@
+ #define BINPRM_FLAGS_ENFORCE_NONDUMP_BIT 0
+ #define BINPRM_FLAGS_ENFORCE_NONDUMP (1 << BINPRM_FLAGS_ENFORCE_NONDUMP_BIT)
+ 
+-/* fd of the binary should be passed to the interpreter */
+ #define BINPRM_FLAGS_EXECFD_BIT 1
+ #define BINPRM_FLAGS_EXECFD (1 << BINPRM_FLAGS_EXECFD_BIT)
+ 
+ #define BINPRM_MAX_RECURSION 4
+ 
+-/* Function parameter for binfmt->coredump */
+ struct coredump_params {
+ 	long signr;
+ 	struct pt_regs *regs;

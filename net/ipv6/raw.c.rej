@@ -1,0 +1,13 @@
+--- net/ipv6/raw.c	2013-01-04 04:01:31.000000000 -0800
++++ net/ipv6/raw.c	2013-03-19 04:00:51.000000000 -0700
+@@ -103,10 +103,6 @@
+ 	return sk;
+ }
+ 
+-/*
+- *	0 - deliver
+- *	1 - block
+- */
+ static __inline__ int icmpv6_filter(struct sock *sk, struct sk_buff *skb)
+ {
+ 	struct icmp6hdr *icmph;

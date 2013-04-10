@@ -1,0 +1,36 @@
+--- kernel/posix-cpu-timers.c	2013-01-04 04:01:32.000000000 -0800
++++ kernel/posix-cpu-timers.c	2013-03-19 04:00:53.000000000 -0700
+@@ -1091,33 +761,21 @@
+ 
+ 		while (!signal_pending(current)) {
+ 			if (timer.it.cpu.expires.sched == 0) {
+-				/*
+-				 * Our timer fired and was reset.
+-				 */
+ 				spin_unlock_irq(&timer.it_lock);
+ 				return 0;
+ 			}
+ 
+-			/*
+-			 * Block until cpu_timer_fire (or a signal) wakes us.
+-			 */
+ 			__set_current_state(TASK_INTERRUPTIBLE);
+ 			spin_unlock_irq(&timer.it_lock);
+ 			schedule();
+ 			spin_lock_irq(&timer.it_lock);
+ 		}
+ 
+-		/*
+-		 * We were interrupted by a signal.
+-		 */
+ 		sample_to_timespec(which_clock, timer.it.cpu.expires, rqtp);
+ 		posix_cpu_timer_set(&timer, 0, &zero_it, it);
+ 		spin_unlock_irq(&timer.it_lock);
+ 
+ 		if ((it->it_value.tv_sec | it->it_value.tv_nsec) == 0) {
+-			/*
+-			 * It actually did fire already.
+-			 */
+ 			return 0;
+ 		}
+ 

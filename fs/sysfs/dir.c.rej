@@ -1,0 +1,19 @@
+--- fs/sysfs/dir.c	2013-01-04 04:01:38.000000000 -0800
++++ fs/sysfs/dir.c	2013-03-19 04:01:01.000000000 -0700
+@@ -344,16 +234,6 @@
+ 	return 0;
+ }
+ 
+-/**
+- *	sysfs_pathname - return full path to sysfs dirent
+- *	@sd: sysfs_dirent whose path we want
+- *	@path: caller allocated buffer
+- *
+- *	Gives the name "/" to the sysfs_root entry; any path returned
+- *	is relative to wherever sysfs is mounted.
+- *
+- *	XXX: does no error checking on @path size
+- */
+ static char *sysfs_pathname(struct sysfs_dirent *sd, char *path)
+ {
+ 	if (sd->s_parent) {

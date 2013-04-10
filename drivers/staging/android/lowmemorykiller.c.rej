@@ -1,0 +1,29 @@
+--- drivers/staging/android/lowmemorykiller.c	2013-01-04 04:01:37.000000000 -0800
++++ drivers/staging/android/lowmemorykiller.c	2013-03-19 04:01:01.000000000 -0700
+@@ -63,14 +63,6 @@
+ 			printk(x);			\
+ 	} while (0)
+ 
+-/**
+- * dump_tasks - dump current memory state of all system tasks
+- *
+- * State information includes task's pid, uid, tgid, vm size, rss, cpu, oom_adj
+- * value, oom_score_adj value, and name.
+- *
+- * Call with tasklist_lock read-locked.
+- */
+ static void dump_tasks(void)
+ {
+        struct task_struct *p;
+@@ -80,11 +72,6 @@
+        for_each_process(p) {
+                task = find_lock_task_mm(p);
+                if (!task) {
+-                       /*
+-                        * This is a kthread or all of p's threads have already
+-                        * detached their mm's.  There's no need to report
+-                        * them; they can't be oom killed anyway.
+-                        */
+                        continue;
+                }
+ 

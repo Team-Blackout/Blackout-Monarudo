@@ -1,0 +1,32 @@
+--- kernel/printk.c	2013-01-04 04:01:32.000000000 -0800
++++ kernel/printk.c	2013-03-19 04:00:53.000000000 -0700
+@@ -584,7 +482,7 @@
+ 	start_print = start;
+ 	while (cur_index != end) {
+ 		if (msg_level < 0 && ((end - cur_index) > 2)) {
+-			/* strip log prefix */
++			
+ 			cur_index += log_prefix(&LOG_BUF(cur_index), &msg_level, NULL);
+ 			start_print = cur_index;
+ 		}
+@@ -1039,20 +822,6 @@
+ 
+ static __cpuinitdata DECLARE_WORK(console_cpu_notify_work, console_flush);
+ 
+-/**
+- * console_cpu_notify - print deferred console messages after CPU hotplug
+- * @self: notifier struct
+- * @action: CPU hotplug event
+- * @hcpu: unused
+- *
+- * If printk() is called from a CPU that is not online yet, the messages
+- * will be spooled but will not show up on the console.  This function is
+- * called when a new CPU comes online (or fails to come up), and ensures
+- * that any such output gets printed.
+- *
+- * Special handling must be done for cases invoked from an atomic context,
+- * as we can't be taking the console semaphore here.
+- */
+ static int __cpuinit console_cpu_notify(struct notifier_block *self,
+ 	unsigned long action, void *hcpu)
+ {

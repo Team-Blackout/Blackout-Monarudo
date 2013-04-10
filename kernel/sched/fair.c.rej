@@ -1,0 +1,26 @@
+--- kernel/sched/fair.c	2013-01-04 04:01:32.000000000 -0800
++++ kernel/sched/fair.c	2013-03-19 04:00:53.000000000 -0700
+@@ -2110,23 +1580,12 @@
+ 	struct sched_group *sg;
+ 	int i;
+ 
+-	/*
+-	 * If the task is going to be woken-up on this cpu and if it is
+-	 * already idle, then it is the right target.
+-	 */
+ 	if (target == cpu && idle_cpu(cpu))
+ 		return cpu;
+ 
+-	/*
+-	 * If the task is going to be woken-up on the cpu where it previously
+-	 * ran and if it is currently idle, then it the right target.
+-	 */
+ 	if (target == prev_cpu && idle_cpu(prev_cpu))
+ 		return prev_cpu;
+ 
+-	/*
+-	 * Otherwise, iterate the domains and find an elegible idle cpu.
+-	 */
+ 	sd = rcu_dereference(per_cpu(sd_llc, target));
+ 	for_each_lower_domain(sd) {
+ 		sg = sd->groups;

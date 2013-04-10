@@ -1,0 +1,42 @@
+--- fs/ext4/resize.c	2013-01-04 04:01:38.000000000 -0800
++++ fs/ext4/resize.c	2013-03-19 04:01:02.000000000 -0700
+@@ -174,16 +157,6 @@
+ 	kfree(flex_gd);
+ }
+ 
+-/*
+- * ext4_alloc_group_tables() allocates block bitmaps, inode bitmaps
+- * and inode tables for a flex group.
+- *
+- * This function is used by 64bit-resize.  Note that this function allocates
+- * group tables from the 1st group of groups contained by @flexgd, which may
+- * be a partial of a flex group.
+- *
+- * @sb: super block of fs to which the groups belongs
+- */
+ static void ext4_alloc_group_tables(struct super_block *sb,
+ 				struct ext4_new_flex_group_data *flex_gd,
+ 				int flexbg_size)
+@@ -219,7 +192,7 @@
+ 	start_blk += overhead;
+ 
+ 	BUG_ON(src_group >= group_data[0].group + flex_gd->count);
+-	/* We collect contiguous blocks as much as possible. */
++	
+ 	src_group++;
+ 	for (; src_group <= last_group; src_group++)
+ 		if (!ext4_bg_has_super(sb, src_group))
+@@ -445,11 +387,11 @@
+ 				goto out;
+ 		}
+ 
+-		/* Initialize group tables of the grop @group */
++		
+ 		if (!(bg_flags[i] & EXT4_BG_INODE_ZEROED))
+ 			goto handle_bb;
+ 
+-		/* Zero out all of the inode table blocks */
++		
+ 		block = group_data[i].inode_table;
+ 		ext4_debug("clear inode table blocks %#04llx -> %#04lx\n",
+ 			   block, sbi->s_itb_per_group);

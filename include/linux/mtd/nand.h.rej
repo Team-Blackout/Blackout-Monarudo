@@ -1,0 +1,83 @@
+--- include/linux/mtd/nand.h	2013-01-04 04:01:34.000000000 -0800
++++ include/linux/mtd/nand.h	2013-03-19 04:00:54.000000000 -0700
+@@ -123,76 +59,53 @@
+  * This happens with the Renesas AG-AND chips, possibly others.
+  */
+ #define BBT_AUTO_REFRESH	0x00000080
+-/*
+- * Chip does not require ready check on read. True
+- * for all large page devices, as they do not support
+- * autoincrement.
+- */
+ #define NAND_NO_READRDY		0x00000100
+-/* Chip does not allow subpage writes */
+ #define NAND_NO_SUBPAGE_WRITE	0x00000200
+ 
+-/* Device is one of 'new' xD cards that expose fake nand command set */
+ #define NAND_BROKEN_XD		0x00000400
+ 
+-/* Device behaves just like nand, but is readonly */
+ #define NAND_ROM		0x00000800
+ 
+-/* Options valid for Samsung large page devices */
+ #define NAND_SAMSUNG_LP_OPTIONS \
+ 	(NAND_NO_PADDING | NAND_CACHEPRG | NAND_COPYBACK)
+ 
+-/* Macros to identify the above */
+ #define NAND_CANAUTOINCR(chip) (!(chip->options & NAND_NO_AUTOINCR))
+ #define NAND_MUST_PAD(chip) (!(chip->options & NAND_NO_PADDING))
+ #define NAND_HAS_CACHEPROG(chip) ((chip->options & NAND_CACHEPRG))
+ #define NAND_HAS_COPYBACK(chip) ((chip->options & NAND_COPYBACK))
+-/* Large page NAND with SOFT_ECC should support subpage reads */
+ #define NAND_SUBPAGE_READ(chip) ((chip->ecc.mode == NAND_ECC_SOFT) \
+ 					&& (chip->page_shift > 9))
+ 
+-/* Mask to zero out the chip options, which come from the id table */
+ #define NAND_CHIPOPTIONS_MSK	(0x0000ffff & ~NAND_NO_AUTOINCR)
+ 
+-/* Non chip related options */
+-/* This option skips the bbt scan during initialization. */
+ #define NAND_SKIP_BBTSCAN	0x00010000
+-/*
+- * This option is defined if the board driver allocates its own buffers
+- * (e.g. because it needs them DMA-coherent).
+- */
+ #define NAND_OWN_BUFFERS	0x00020000
+-/* Chip may not exist, so silence any errors in scan */
+ #define NAND_SCAN_SILENT_NODEV	0x00040000
+ 
+-/* Options set by nand scan */
+-/* Nand scan has allocated controller struct */
+ #define NAND_CONTROLLER_ALLOC	0x80000000
+ 
+-/* Cell info constants */
+ #define NAND_CI_CHIPNR_MSK	0x03
+ #define NAND_CI_CELLTYPE_MSK	0x0C
+ 
+-/* Keep gcc happy */
+ struct nand_chip;
+ 
+ struct nand_onfi_params {
+-	/* rev info and features block */
+-	/* 'O' 'N' 'F' 'I'  */
++	
++	
+ 	u8 sig[4];
+ 	__le16 revision;
+ 	__le16 features;
+ 	__le16 opt_cmd;
+ 	u8 reserved[22];
+ 
+-	/* manufacturer information block */
++	
+ 	char manufacturer[12];
+ 	char model[20];
+ 	u8 jedec_id;
+ 	__le16 date_code;
+ 	u8 reserved2[13];
+ 
+-	/* memory organization block */
++	
+ 	__le32 byte_per_page;
+ 	__le16 spare_bytes_per_page;
+ 	__le32 data_bytes_per_ppage;

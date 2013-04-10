@@ -1,0 +1,20 @@
+--- block/scsi_ioctl.c	2013-01-04 04:01:34.000000000 -0800
++++ block/scsi_ioctl.c	2013-03-19 04:00:54.000000000 -0700
+@@ -645,16 +578,12 @@
+ 	case SG_EMULATED_HOST:
+ 		return 0;
+ 	case CDROM_GET_CAPABILITY:
+-		/* Keep this until we remove the printk below.  udev sends it
+-		 * and we do not want to spam dmesg about it.   CD-ROMs do
+-		 * not have partitions, so we get here only for disks.
+-		 */
+ 		return -ENOIOCTLCMD;
+ 	default:
+ 		break;
+ 	}
+ 
+-	/* In particular, rule out all resets and host-specific ioctls.  */
++	
+ 	printk_ratelimited(KERN_WARNING
+ 			   "%s: sending ioctl %x to a partition!\n", current->comm, cmd);
+ 

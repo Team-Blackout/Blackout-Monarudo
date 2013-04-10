@@ -1,0 +1,67 @@
+--- sound/usb/mixer.c	2013-01-04 04:01:37.000000000 -0800
++++ sound/usb/mixer.c	2013-03-19 04:01:01.000000000 -0700
+@@ -622,10 +555,10 @@
+ 		case UAC_SELECTOR_UNIT:
+ 		case UAC2_CLOCK_SELECTOR: {
+ 			struct uac_selector_unit_descriptor *d = p1;
+-			/* call recursively to retrieve the channel info */
++			
+ 			if (check_input_term(state, d->baSourceID[0], term) < 0)
+ 				return -ENODEV;
+-			term->type = d->bDescriptorSubtype << 16; /* virtual type */
++			term->type = d->bDescriptorSubtype << 16; 
+ 			term->id = id;
+ 			term->name = uac_selector_unit_iSelector(d);
+ 			return 0;
+@@ -1101,21 +972,21 @@
+ 		return -EINVAL;
+ 	}
+ 
+-	/* parse the source unit */
++	
+ 	if ((err = parse_audio_unit(state, hdr->bSourceID)) < 0)
+ 		return err;
+ 
+-	/* determine the input source type and name */
++	
+ 	if (check_input_term(state, hdr->bSourceID, &iterm) < 0)
+ 		return -EINVAL;
+ 
+ 	master_bits = snd_usb_combine_bytes(bmaControls, csize);
+-	/* master configuration quirks */
++	
+ 	switch (state->chip->usb_id) {
+ 	case USB_ID(0x08bb, 0x2702):
+ 		snd_printk(KERN_INFO
+ 			   "usbmixer: master volume quirk for PCM2702 chip\n");
+-		/* disable non-functional volume control */
++		
+ 		master_bits &= ~UAC_CONTROL_BIT(UAC_FU_VOLUME);
+ 		break;
+ 	}
+@@ -1796,20 +1608,20 @@
+ 			struct uac1_output_terminal_descriptor *desc = p;
+ 
+ 			if (desc->bLength < sizeof(*desc))
+-				continue; /* invalid descriptor? */
+-			set_bit(desc->bTerminalID, state.unitbitmap);  /* mark terminal ID as visited */
++				continue; 
++			set_bit(desc->bTerminalID, state.unitbitmap);  
+ 			state.oterm.id = desc->bTerminalID;
+ 			state.oterm.type = le16_to_cpu(desc->wTerminalType);
+ 			state.oterm.name = desc->iTerminal;
+ 			err = parse_audio_unit(&state, desc->bSourceID);
+ 			if (err < 0)
+ 				return err;
+-		} else { /* UAC_VERSION_2 */
++		} else { 
+ 			struct uac2_output_terminal_descriptor *desc = p;
+ 
+ 			if (desc->bLength < sizeof(*desc))
+-				continue; /* invalid descriptor? */
+-			set_bit(desc->bTerminalID, state.unitbitmap);  /* mark terminal ID as visited */
++				continue; 
++			set_bit(desc->bTerminalID, state.unitbitmap);  
+ 			state.oterm.id = desc->bTerminalID;
+ 			state.oterm.type = le16_to_cpu(desc->wTerminalType);
+ 			state.oterm.name = desc->iTerminal;

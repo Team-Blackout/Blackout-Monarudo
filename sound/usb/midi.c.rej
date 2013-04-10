@@ -1,0 +1,23 @@
+--- sound/usb/midi.c	2013-01-04 04:01:37.000000000 -0800
++++ sound/usb/midi.c	2013-03-19 04:01:01.000000000 -0700
+@@ -1272,20 +1159,12 @@
+ 	kfree(umidi);
+ }
+ 
+-/*
+- * Unlinks all URBs (must be done before the usb_device is deleted).
+- */
+ void snd_usbmidi_disconnect(struct list_head* p)
+ {
+ 	struct snd_usb_midi* umidi;
+ 	unsigned int i, j;
+ 
+ 	umidi = list_entry(p, struct snd_usb_midi, list);
+-	/*
+-	 * an URB's completion handler may start the timer and
+-	 * a timer may submit an URB. To reliably break the cycle
+-	 * a flag under lock must be used
+-	 */
+ 	spin_lock_irq(&umidi->disc_lock);
+ 	umidi->disconnected = 1;
+ 	spin_unlock_irq(&umidi->disc_lock);

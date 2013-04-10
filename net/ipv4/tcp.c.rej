@@ -1,0 +1,30 @@
+--- net/ipv4/tcp.c	2013-01-04 04:01:31.000000000 -0800
++++ net/ipv4/tcp.c	2013-03-19 04:00:51.000000000 -0700
+@@ -430,7 +371,7 @@
+ 
+ 			answ = tp->rcv_nxt - tp->copied_seq;
+ 
+-			/* Subtract 1, if FIN is in queue. */
++			
+ 			skb = skb_peek_tail(&sk->sk_receive_queue);
+ 			if (answ && skb)
+ 				answ -= tcp_hdr(skb)->fin;
+@@ -621,17 +543,13 @@
+ {
+ 	struct sk_buff *skb;
+ 
+-	/* The TCP header must be at least 32-bit aligned.  */
++	
+ 	size = ALIGN(size, 4);
+ 
+ 	skb = alloc_skb_fclone(size + sk->sk_prot->max_header, gfp);
+ 	if (skb) {
+ 		if (sk_wmem_schedule(sk, skb->truesize)) {
+ 			skb_reserve(skb, sk->sk_prot->max_header);
+-			/*
+-			 * Make sure that we have exactly size bytes
+-			 * available to the caller, no more, no less.
+-			 */
+ 			skb->avail_size = size;
+ 			return skb;
+ 		}

@@ -1,0 +1,16 @@
+--- fs/ext4/xattr.c	2013-01-04 04:01:38.000000000 -0800
++++ fs/ext4/xattr.c	2013-03-19 04:01:02.000000000 -0700
+@@ -703,12 +628,10 @@
+ 	if (!IS_LAST_ENTRY(s->first)) {
+ 		new_bh = ext4_xattr_cache_find(inode, header(s->base), &ce);
+ 		if (new_bh) {
+-			/* We found an identical block in the cache. */
++			
+ 			if (new_bh == bs->bh)
+ 				ea_bdebug(new_bh, "keeping");
+ 			else {
+-				/* The old block is released after updating
+-				   the inode. */
+ 				error = dquot_alloc_block(inode, 1);
+ 				if (error)
+ 					goto cleanup;

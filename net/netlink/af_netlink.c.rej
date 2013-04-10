@@ -1,0 +1,11 @@
+--- net/netlink/af_netlink.c	2013-01-04 04:01:32.000000000 -0800
++++ net/netlink/af_netlink.c	2013-03-19 04:00:53.000000000 -0700
+@@ -1696,7 +1612,7 @@
+ 		return -ECONNREFUSED;
+ 	}
+ 	nlk = nlk_sk(sk);
+-	/* A dump is in progress... */
++	
+ 	mutex_lock(nlk->cb_mutex);
+ 	if (nlk->cb) {
+ 		mutex_unlock(nlk->cb_mutex);

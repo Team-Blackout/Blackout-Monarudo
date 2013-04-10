@@ -1,0 +1,10 @@
+--- include/linux/init.h	2013-01-04 04:01:30.000000000 -0800
++++ include/linux/init.h	2013-03-19 04:00:51.000000000 -0700
+@@ -35,7 +-20,6 @@
+ #define __devexitdata    __section(.devexit.data)
+ #define __devexitconst   __section(.devexit.rodata)
+ 
+-/* Used for HOTPLUG_CPU */
+ #define __cpuinit        __section(.cpuinit.text) __cold notrace
+ #define __cpuinitdata    __section(.cpuinit.data)
+ #define __cpuinitconst   __section(.cpuinit.rodata)

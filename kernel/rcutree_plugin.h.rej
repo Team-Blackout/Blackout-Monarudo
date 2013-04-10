@@ -1,0 +1,217 @@
+--- kernel/rcutree_plugin.h	2013-01-04 04:01:32.000000000 -0800
++++ kernel/rcutree_plugin.h	2013-03-19 04:00:53.000000000 -0700
+@@ -632,79 +362,53 @@
+ 
+ 	raw_spin_unlock_irqrestore(&rsp->onofflock, flags);
+ 
+-	/* Wait for snapshotted ->blkd_tasks lists to drain. */
++	
+ 	rnp = rcu_get_root(rsp);
+ 	wait_event(sync_rcu_preempt_exp_wq,
+ 		   sync_rcu_preempt_exp_done(rnp));
+ 
+-	/* Clean up and exit. */
+-	smp_mb(); /* ensure expedited GP seen before counter increment. */
++	
++	smp_mb(); 
+ 	ACCESS_ONCE(sync_rcu_preempt_exp_count)++;
+ unlock_mb_ret:
+ 	mutex_unlock(&sync_rcu_preempt_exp_mutex);
+ mb_ret:
+-	smp_mb(); /* ensure subsequent action seen after grace period. */
++	smp_mb(); 
+ }
+ EXPORT_SYMBOL_GPL(synchronize_rcu_expedited);
+ 
+-/*
+- * Check to see if there is any immediate preemptible-RCU-related work
+- * to be done.
+- */
+ static int rcu_preempt_pending(int cpu)
+ {
+ 	return __rcu_pending(&rcu_preempt_state,
+ 			     &per_cpu(rcu_preempt_data, cpu));
+ }
+ 
+-/*
+- * Does preemptible RCU have callbacks on this CPU?
+- */
+ static int rcu_preempt_cpu_has_callbacks(int cpu)
+ {
+ 	return !!per_cpu(rcu_preempt_data, cpu).nxtlist;
+ }
+ 
+-/**
+- * rcu_barrier - Wait until all in-flight call_rcu() callbacks complete.
+- */
+ void rcu_barrier(void)
+ {
+ 	_rcu_barrier(&rcu_preempt_state, call_rcu);
+ }
+ EXPORT_SYMBOL_GPL(rcu_barrier);
+ 
+-/*
+- * Initialize preemptible RCU's per-CPU data.
+- */
+ static void __cpuinit rcu_preempt_init_percpu_data(int cpu)
+ {
+ 	rcu_init_percpu_data(cpu, &rcu_preempt_state, 1);
+ }
+ 
+-/*
+- * Move preemptible RCU's callbacks from dying CPU to other online CPU
+- * and record a quiescent state.
+- */
+ static void rcu_preempt_cleanup_dying_cpu(void)
+ {
+ 	rcu_cleanup_dying_cpu(&rcu_preempt_state);
+ }
+ 
+-/*
+- * Initialize preemptible RCU's state structures.
+- */
+ static void __init __rcu_init_preempt(void)
+ {
+ 	rcu_init_one(&rcu_preempt_state, &rcu_preempt_data);
+ }
+ 
+-/*
+- * Check for a task exiting while in a preemptible-RCU read-side
+- * critical section, clean up if so.  No need to issue warnings,
+- * as debug_check_no_locks_held() already does this if lockdep
+- * is enabled.
+- */
+ void exit_rcu(void)
+ {
+ 	struct task_struct *t = current;
+@@ -811,67 +448,42 @@
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+ 
+-/*
+- * Because preemptible RCU does not exist, there is never any need to
+- * report on tasks preempted in RCU read-side critical sections during
+- * expedited RCU grace periods.
+- */
+ static void rcu_report_exp_rnp(struct rcu_state *rsp, struct rcu_node *rnp,
+ 			       bool wake)
+ {
+ }
+ 
+-#endif /* #ifdef CONFIG_HOTPLUG_CPU */
++#endif 
+ 
+-/*
+- * Because preemptible RCU does not exist, it never has any work to do.
+- */
+ static int rcu_preempt_pending(int cpu)
+ {
+ 	return 0;
+ }
+ 
+-/*
+- * Because preemptible RCU does not exist, it never has callbacks
+- */
+ static int rcu_preempt_cpu_has_callbacks(int cpu)
+ {
+ 	return 0;
+ }
+ 
+-/*
+- * Because preemptible RCU does not exist, rcu_barrier() is just
+- * another name for rcu_barrier_sched().
+- */
+ void rcu_barrier(void)
+ {
+ 	rcu_barrier_sched();
+ }
+ EXPORT_SYMBOL_GPL(rcu_barrier);
+ 
+-/*
+- * Because preemptible RCU does not exist, there is no per-CPU
+- * data to initialize.
+- */
+ static void __cpuinit rcu_preempt_init_percpu_data(int cpu)
+ {
+ }
+ 
+-/*
+- * Because there is no preemptible RCU, there is no cleanup to do.
+- */
+ static void rcu_preempt_cleanup_dying_cpu(void)
+ {
+ }
+ 
+-/*
+- * Because preemptible RCU does not exist, it need not be initialized.
+- */
+ static void __init __rcu_init_preempt(void)
+ {
+ }
+ 
+-#endif /* #else #ifdef CONFIG_TREE_PREEMPT_RCU */
++#endif 
+ 
+ #ifdef CONFIG_RCU_BOOST
+ 
+@@ -1031,19 +577,11 @@
+ 
+ #define RCU_BOOST_DELAY_JIFFIES DIV_ROUND_UP(CONFIG_RCU_BOOST_DELAY * HZ, 1000)
+ 
+-/*
+- * Do priority-boost accounting for the start of a new grace period.
+- */
+ static void rcu_preempt_boost_start_gp(struct rcu_node *rnp)
+ {
+ 	rnp->boost_time = jiffies + RCU_BOOST_DELAY_JIFFIES;
+ }
+ 
+-/*
+- * Create an RCU-boost kthread for the specified node if one does not
+- * already exist.  We only create this kthread for preemptible RCU.
+- * Returns zero if all is well, a negated errno otherwise.
+- */
+ static int __cpuinit rcu_spawn_one_boost_kthread(struct rcu_state *rsp,
+ 						 struct rcu_node *rnp,
+ 						 int rnp_index)
+@@ -1213,27 +709,6 @@
+ 	return 0;
+ }
+ 
+-/*
+- * Spawn a per-CPU kthread, setting up affinity and priority.
+- * Because the CPU hotplug lock is held, no other CPU will be attempting
+- * to manipulate rcu_cpu_kthread_task.  There might be another CPU
+- * attempting to access it during boot, but the locking in kthread_bind()
+- * will enforce sufficient ordering.
+- *
+- * Please note that we cannot simply refuse to wake up the per-CPU
+- * kthread because kthreads are created in TASK_UNINTERRUPTIBLE state,
+- * which can result in softlockup complaints if the task ends up being
+- * idle for more than a couple of minutes.
+- *
+- * However, please note also that we cannot bind the per-CPU kthread to its
+- * CPU until that CPU is fully online.  We also cannot wait until the
+- * CPU is fully online before we create its per-CPU kthread, as this would
+- * deadlock the system when CPU notifiers tried waiting for grace
+- * periods.  So we bind the per-CPU kthread to its CPU only if the CPU
+- * is online.  If its CPU is not yet fully online, then the code in
+- * rcu_cpu_kthread() will wait until it is fully online, and then do
+- * the binding.
+- */
+ static int __cpuinit rcu_spawn_one_cpu_kthread(int cpu)
+ {
+ 	struct sched_param sp;
+@@ -1320,12 +780,6 @@
+ 	free_cpumask_var(cm);
+ }
+ 
+-/*
+- * Spawn a per-rcu_node kthread, setting priority and affinity.
+- * Called during boot before online/offline can happen, or, if
+- * during runtime, with the main CPU-hotplug locks held.  So only
+- * one of these can be executing at a time.
+- */
+ static int __cpuinit rcu_spawn_one_node_kthread(struct rcu_state *rsp,
+ 						struct rcu_node *rnp)
+ {

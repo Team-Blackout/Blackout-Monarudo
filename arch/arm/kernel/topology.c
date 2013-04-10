@@ -37,10 +37,6 @@
 
 #define MPIDR_MT_BITMASK (0x1 << 24)
 
-/*
- * These masks reflect the current use of the affinity levels.
- * The affinity level can be up to 16 bits according to ARM ARM
- */
 
 #define MPIDR_LEVEL0_MASK 0x3
 #define MPIDR_LEVEL0_SHIFT 0
@@ -281,7 +277,7 @@ void store_cpu_topology(unsigned int cpuid)
 			cpuid_topo->socket_id = (mpidr >> MPIDR_LEVEL2_SHIFT)
 				& MPIDR_LEVEL2_MASK;
 		} else {
-			/* largely independent cores */
+			
 			cpuid_topo->thread_id = -1;
 			cpuid_topo->core_id = (mpidr >> MPIDR_LEVEL0_SHIFT)
 				& MPIDR_LEVEL0_MASK;
@@ -337,15 +333,11 @@ int arch_update_cpu_topology(void)
 	return 1;
 }
 
-/*
- * init_cpu_topology is called at boot when only one cpu is running
- * which prevent simultaneous write access to cpu_topology array
- */
 void init_cpu_topology(void)
 {
 	unsigned int cpu;
 
-	/* init core mask */
+	
 	for_each_possible_cpu(cpu) {
 		struct cputopo_arm *cpu_topo = &(cpu_topology[cpu]);
 

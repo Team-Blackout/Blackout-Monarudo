@@ -1,0 +1,19 @@
+--- net/ipv4/netfilter/nf_nat_sip.c	2013-01-04 04:01:31.000000000 -0800
++++ net/ipv4/netfilter/nf_nat_sip.c	2013-03-19 04:00:52.000000000 -0700
+@@ -144,15 +144,13 @@
+ 	else
+ 		hdr = SIP_HDR_VIA_UDP;
+ 
+-	/* Translate topmost Via header and parameters */
++	
+ 	if (ct_sip_parse_header_uri(ct, *dptr, NULL, *datalen,
+ 				    hdr, NULL, &matchoff, &matchlen,
+ 				    &addr, &port) > 0) {
+ 		unsigned int matchend, poff, plen, buflen, n;
+ 		char buffer[sizeof("nnn.nnn.nnn.nnn:nnnnn")];
+ 
+-		/* We're only interested in headers related to this
+-		 * connection */
+ 		if (request) {
+ 			if (addr.ip != ct->tuplehash[dir].tuple.src.u3.ip ||
+ 			    port != ct->tuplehash[dir].tuple.src.u.udp.port)

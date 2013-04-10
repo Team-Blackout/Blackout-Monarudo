@@ -1,0 +1,264 @@
+--- include/net/cfg80211.h	2013-01-04 04:01:32.000000000 -0800
++++ include/net/cfg80211.h	2013-03-19 04:00:53.000000000 -0700
+@@ -1099,258 +-324,54 @@
+ extern const unsigned char rfc1042_header[6];
+ extern const unsigned char bridge_tunnel_header[6];
+ 
+-/**
+- * ieee80211_get_hdrlen_from_skb - get header length from data
+- *
+- * Given an skb with a raw 802.11 header at the data pointer this function
+- * returns the 802.11 header length in bytes (not including encryption
+- * headers). If the data in the sk_buff is too short to contain a valid 802.11
+- * header the function returns 0.
+- *
+- * @skb: the frame
+- */
+ unsigned int ieee80211_get_hdrlen_from_skb(const struct sk_buff *skb);
+ 
+-/**
+- * ieee80211_hdrlen - get header length in bytes from frame control
+- * @fc: frame control field in little-endian format
+- */
+ unsigned int __attribute_const__ ieee80211_hdrlen(__le16 fc);
+ 
+-/**
+- * DOC: Data path helpers
+- *
+- * In addition to generic utilities, cfg80211 also offers
+- * functions that help implement the data path for devices
+- * that do not do the 802.11/802.3 conversion on the device.
+- */
+-
+-/**
+- * ieee80211_data_to_8023 - convert an 802.11 data frame to 802.3
+- * @skb: the 802.11 data frame
+- * @addr: the device MAC address
+- * @iftype: the virtual interface type
+- */
++
+ int ieee80211_data_to_8023(struct sk_buff *skb, const u8 *addr,
+ 			   enum nl80211_iftype iftype);
+ 
+-/**
+- * ieee80211_data_from_8023 - convert an 802.3 frame to 802.11
+- * @skb: the 802.3 frame
+- * @addr: the device MAC address
+- * @iftype: the virtual interface type
+- * @bssid: the network bssid (used only for iftype STATION and ADHOC)
+- * @qos: build 802.11 QoS data frame
+- */
+ int ieee80211_data_from_8023(struct sk_buff *skb, const u8 *addr,
+ 			     enum nl80211_iftype iftype, u8 *bssid, bool qos);
+ 
+-/**
+- * ieee80211_amsdu_to_8023s - decode an IEEE 802.11n A-MSDU frame
+- *
+- * Decode an IEEE 802.11n A-MSDU frame and convert it to a list of
+- * 802.3 frames. The @list will be empty if the decode fails. The
+- * @skb is consumed after the function returns.
+- *
+- * @skb: The input IEEE 802.11n A-MSDU frame.
+- * @list: The output list of 802.3 frames. It must be allocated and
+- *	initialized by by the caller.
+- * @addr: The device MAC address.
+- * @iftype: The device interface type.
+- * @extra_headroom: The hardware extra headroom for SKBs in the @list.
+- * @has_80211_header: Set it true if SKB is with IEEE 802.11 header.
+- */
+ void ieee80211_amsdu_to_8023s(struct sk_buff *skb, struct sk_buff_head *list,
+ 			      const u8 *addr, enum nl80211_iftype iftype,
+ 			      const unsigned int extra_headroom,
+ 			      bool has_80211_header);
+ 
+-/**
+- * cfg80211_classify8021d - determine the 802.1p/1d tag for a data frame
+- * @skb: the data frame
+- */
+ unsigned int cfg80211_classify8021d(struct sk_buff *skb);
+ 
+-/**
+- * cfg80211_find_ie - find information element in data
+- *
+- * @eid: element ID
+- * @ies: data consisting of IEs
+- * @len: length of data
+- *
+- * This function will return %NULL if the element ID could
+- * not be found or if the element is invalid (claims to be
+- * longer than the given data), or a pointer to the first byte
+- * of the requested element, that is the byte containing the
+- * element ID. There are no checks on the element length
+- * other than having to fit into the given data.
+- */
+ const u8 *cfg80211_find_ie(u8 eid, const u8 *ies, int len);
+ 
+-/**
+- * cfg80211_find_vendor_ie - find vendor specific information element in data
+- *
+- * @oui: vendor OUI
+- * @oui_type: vendor-specific OUI type
+- * @ies: data consisting of IEs
+- * @len: length of data
+- *
+- * This function will return %NULL if the vendor specific element ID
+- * could not be found or if the element is invalid (claims to be
+- * longer than the given data), or a pointer to the first byte
+- * of the requested element, that is the byte containing the
+- * element ID. There are no checks on the element length
+- * other than having to fit into the given data.
+- */
+ const u8 *cfg80211_find_vendor_ie(unsigned int oui, u8 oui_type,
+ 				  const u8 *ies, int len);
+ 
+-/**
+- * DOC: Regulatory enforcement infrastructure
+- *
+- * TODO
+- */
+-
+-/**
+- * regulatory_hint - driver hint to the wireless core a regulatory domain
+- * @wiphy: the wireless device giving the hint (used only for reporting
+- *	conflicts)
+- * @alpha2: the ISO/IEC 3166 alpha2 the driver claims its regulatory domain
+- * 	should be in. If @rd is set this should be NULL. Note that if you
+- * 	set this to NULL you should still set rd->alpha2 to some accepted
+- * 	alpha2.
+- *
+- * Wireless drivers can use this function to hint to the wireless core
+- * what it believes should be the current regulatory domain by
+- * giving it an ISO/IEC 3166 alpha2 country code it knows its regulatory
+- * domain should be in or by providing a completely build regulatory domain.
+- * If the driver provides an ISO/IEC 3166 alpha2 userspace will be queried
+- * for a regulatory domain structure for the respective country.
+- *
+- * The wiphy must have been registered to cfg80211 prior to this call.
+- * For cfg80211 drivers this means you must first use wiphy_register(),
+- * for mac80211 drivers you must first use ieee80211_register_hw().
+- *
+- * Drivers should check the return value, its possible you can get
+- * an -ENOMEM.
+- */
++
+ extern int regulatory_hint(struct wiphy *wiphy, const char *alpha2);
+ 
+-/**
+- * wiphy_apply_custom_regulatory - apply a custom driver regulatory domain
+- * @wiphy: the wireless device we want to process the regulatory domain on
+- * @regd: the custom regulatory domain to use for this wiphy
+- *
+- * Drivers can sometimes have custom regulatory domains which do not apply
+- * to a specific country. Drivers can use this to apply such custom regulatory
+- * domains. This routine must be called prior to wiphy registration. The
+- * custom regulatory domain will be trusted completely and as such previous
+- * default channel settings will be disregarded. If no rule is found for a
+- * channel on the regulatory domain the channel will be disabled.
+- */
+ extern void wiphy_apply_custom_regulatory(
+ 	struct wiphy *wiphy,
+ 	const struct ieee80211_regdomain *regd);
+ 
+-/**
+- * freq_reg_info - get regulatory information for the given frequency
+- * @wiphy: the wiphy for which we want to process this rule for
+- * @center_freq: Frequency in KHz for which we want regulatory information for
+- * @desired_bw_khz: the desired max bandwidth you want to use per
+- *	channel. Note that this is still 20 MHz if you want to use HT40
+- *	as HT40 makes use of two channels for its 40 MHz width bandwidth.
+- *	If set to 0 we'll assume you want the standard 20 MHz.
+- * @reg_rule: the regulatory rule which we have for this frequency
+- *
+- * Use this function to get the regulatory rule for a specific frequency on
+- * a given wireless device. If the device has a specific regulatory domain
+- * it wants to follow we respect that unless a country IE has been received
+- * and processed already.
+- *
+- * Returns 0 if it was able to find a valid regulatory rule which does
+- * apply to the given center_freq otherwise it returns non-zero. It will
+- * also return -ERANGE if we determine the given center_freq does not even have
+- * a regulatory rule for a frequency range in the center_freq's band. See
+- * freq_in_rule_band() for our current definition of a band -- this is purely
+- * subjective and right now its 802.11 specific.
+- */
+ extern int freq_reg_info(struct wiphy *wiphy,
+ 			 u32 center_freq,
+ 			 u32 desired_bw_khz,
+ 			 const struct ieee80211_reg_rule **reg_rule);
+ 
+-/*
+- * callbacks for asynchronous cfg80211 methods, notification
+- * functions and BSS handling helpers
+- */
+-
+-/**
+- * cfg80211_scan_done - notify that scan finished
+- *
+- * @request: the corresponding scan request
+- * @aborted: set to true if the scan was aborted for any reason,
+- *	userspace will be notified of that
+- */
++
+ void cfg80211_scan_done(struct cfg80211_scan_request *request, bool aborted);
+ 
+-/**
+- * cfg80211_sched_scan_results - notify that new scan results are available
+- *
+- * @wiphy: the wiphy which got scheduled scan results
+- */
+ void cfg80211_sched_scan_results(struct wiphy *wiphy);
+ 
+-/**
+- * cfg80211_sched_scan_stopped - notify that the scheduled scan has stopped
+- *
+- * @wiphy: the wiphy on which the scheduled scan stopped
+- *
+- * The driver can call this function to inform cfg80211 that the
+- * scheduled scan had to be stopped, for whatever reason.  The driver
+- * is then called back via the sched_scan_stop operation when done.
+- */
+ void cfg80211_sched_scan_stopped(struct wiphy *wiphy);
+ 
+-/**
+- * cfg80211_inform_bss_frame - inform cfg80211 of a received BSS frame
+- *
+- * @wiphy: the wiphy reporting the BSS
+- * @channel: The channel the frame was received on
+- * @mgmt: the management frame (probe response or beacon)
+- * @len: length of the management frame
+- * @signal: the signal strength, type depends on the wiphy's signal_type
+- * @gfp: context flags
+- *
+- * This informs cfg80211 that BSS information was found and
+- * the BSS should be updated/added.
+- *
+- * NOTE: Returns a referenced struct, must be released with cfg80211_put_bss()!
+- */
+ struct cfg80211_bss * __must_check
+ cfg80211_inform_bss_frame(struct wiphy *wiphy,
+ 			  struct ieee80211_channel *channel,
+ 			  struct ieee80211_mgmt *mgmt, size_t len,
+ 			  s32 signal, gfp_t gfp);
+ 
+-/**
+- * cfg80211_inform_bss - inform cfg80211 of a new BSS
+- *
+- * @wiphy: the wiphy reporting the BSS
+- * @channel: The channel the frame was received on
+- * @bssid: the BSSID of the BSS
+- * @tsf: the TSF sent by the peer in the beacon/probe response (or 0)
+- * @capability: the capability field sent by the peer
+- * @beacon_interval: the beacon interval announced by the peer
+- * @ie: additional IEs sent by the peer
+- * @ielen: length of the additional IEs
+- * @signal: the signal strength, type depends on the wiphy's signal_type
+- * @gfp: context flags
+- *
+- * This informs cfg80211 that BSS information was found and
+- * the BSS should be updated/added.
+- *
+- * NOTE: Returns a referenced struct, must be released with cfg80211_put_bss()!
+- */
+ struct cfg80211_bss * __must_check
+ cfg80211_inform_bss(struct wiphy *wiphy,
+ 		    struct ieee80211_channel *channel,

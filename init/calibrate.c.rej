@@ -1,0 +1,52 @@
+--- init/calibrate.c	2013-01-04 04:01:32.000000000 -0800
++++ init/calibrate.c	2013-03-19 04:00:53.000000000 -0700
+@@ -138,30 +107,21 @@
+ static unsigned long __cpuinit calibrate_delay_direct(void) {return 0;}
+ #endif
+ 
+-/*
+- * This is the number of bits of precision for the loops_per_jiffy.  Each
+- * time we refine our estimate after the first takes 1.5/HZ seconds, so try
+- * to start with a good estimate.
+- * For the boot cpu we can skip the delay calibration and assign it a value
+- * calculated based on the timer frequency.
+- * For the rest of the CPUs we cannot assume that the timer frequency is same as
+- * the cpu frequency, hence do the calibration for those.
+- */
+ #define LPS_PREC 8
+ 
+ static unsigned long __cpuinit calibrate_delay_converge(void)
+ {
+-	/* First stage - slowly accelerate to find initial bounds */
++	
+ 	unsigned long lpj, lpj_base, ticks, loopadd, loopadd_base, chop_limit;
+ 	int trials = 0, band = 0, trial_in_band = 0;
+ 
+ 	lpj = (1<<12);
+ 
+-	/* wait for "start of" clock tick */
++	
+ 	ticks = jiffies;
+ 	while (ticks == jiffies)
+-		; /* nothing */
+-	/* Go .. */
++		; 
++	
+ 	ticks = jiffies;
+ 	do {
+ 		if (++trial_in_band == (1<<band)) {
+@@ -202,14 +149,6 @@
+ 
+ static DEFINE_PER_CPU(unsigned long, cpu_loops_per_jiffy) = { 0 };
+ 
+-/*
+- * Check if cpu calibration delay is already known. For example,
+- * some processors with multi-core sockets may have all cores
+- * with the same calibration delay.
+- *
+- * Architectures should override this function if a faster calibration
+- * method is available.
+- */
+ unsigned long __attribute__((weak)) __cpuinit calibrate_delay_is_known(void)
+ {
+ 	return 0;

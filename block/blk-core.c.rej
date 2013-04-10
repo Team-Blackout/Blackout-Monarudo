@@ -1,0 +1,17 @@
+--- block/blk-core.c	2013-01-04 04:01:34.000000000 -0800
++++ block/blk-core.c	2013-03-19 04:00:54.000000000 -0700
+@@ -217,14 +137,6 @@
+ }
+ EXPORT_SYMBOL(blk_sync_queue);
+ 
+-/**
+- * __blk_run_queue - run a single device queue
+- * @q:	The queue to run
+- *
+- * Description:
+- *    See @blk_run_queue. This variant must be called with the queue lock
+- *    held and interrupts disabled.
+- */
+ void __blk_run_queue(struct request_queue *q)
+ {
+ 	if (unlikely(blk_queue_stopped(q)))

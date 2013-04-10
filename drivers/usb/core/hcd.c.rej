@@ -1,0 +1,40 @@
+--- drivers/usb/core/hcd.c	2013-01-04 04:01:35.000000000 -0800
++++ drivers/usb/core/hcd.c	2013-03-19 04:00:55.000000000 -0700
+@@ -815,34 +612,22 @@
+ 		hcd->rh_registered = 1;
+ 		spin_unlock_irq (&hcd_root_hub_lock);
+ 
+-		/* Did the HC die before the root hub was registered? */
++		
+ 		if (HCD_DEAD(hcd))
+-			usb_hc_died (hcd);	/* This time clean up */
++			usb_hc_died (hcd);	
+ 	}
+ 
+ 	return retval;
+ }
+ 
+ 
+-/*-------------------------------------------------------------------------*/
+ 
+-/**
+- * usb_calc_bus_time - approximate periodic transaction time in nanoseconds
+- * @speed: from dev->speed; USB_SPEED_{LOW,FULL,HIGH}
+- * @is_input: true iff the transaction sends data to the host
+- * @isoc: true for isochronous transactions, false for interrupt ones
+- * @bytecount: how many bytes in the transaction.
+- *
+- * Returns approximate bus time in nanoseconds for a periodic transaction.
+- * See USB 2.0 spec section 5.11.3; only periodic transfers need to be
+- * scheduled in software, this function is only used for such scheduling.
+- */
+ long usb_calc_bus_time (int speed, int is_input, int isoc, int bytecount)
+ {
+ 	unsigned long	tmp;
+ 
+ 	switch (speed) {
+-	case USB_SPEED_LOW: 	/* INTR only */
++	case USB_SPEED_LOW: 	
+ 		if (is_input) {
+ 			tmp = (67667L * (31L + 10L * BitTime (bytecount))) / 1000L;
+ 			return (64060L + (2 * BW_HUB_LS_SETUP) + BW_HOST_DELAY + tmp);

@@ -1,0 +1,12 @@
+--- sound/core/pcm_native.c	2013-01-04 04:01:37.000000000 -0800
++++ sound/core/pcm_native.c	2013-03-19 04:01:01.000000000 -0700
+@@ -455,9 +449,6 @@
+ 				   PM_QOS_CPU_DMA_LATENCY, usecs);
+ 	return 0;
+  _error:
+-	/* hardware might be unusable from this time,
+-	   so we force application to retry to set
+-	   the correct hardware parameter settings */
+ 	runtime->status->state = SNDRV_PCM_STATE_OPEN;
+ 	if (substream->ops->hw_free != NULL)
+ 		substream->ops->hw_free(substream);

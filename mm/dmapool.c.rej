@@ -1,0 +1,30 @@
+--- mm/dmapool.c	2013-01-04 04:01:34.000000000 -0800
++++ mm/dmapool.c	2013-03-19 04:00:54.000000000 -0700
+@@ -62,7 +62,7 @@
+ 	unsigned int offset;
+ };
+ 
+-#define	POOL_TIMEOUT_JIFFIES	((100 /* msec */ * HZ) / 1000)
++#define	POOL_TIMEOUT_JIFFIES	((100  * HZ) / 1000)
+ 
+ static DEFINE_MUTEX(pools_lock);
+ 
+@@ -389,18 +341,10 @@
+ 	page->offset = offset;
+ 	if (waitqueue_active(&pool->waitq))
+ 		wake_up_locked(&pool->waitq);
+-	/*
+-	 * Resist a temptation to do
+-	 *    if (!is_page_busy(page)) pool_free_page(pool, page);
+-	 * Better have a few empty pages hang around.
+-	 */
+ 	spin_unlock_irqrestore(&pool->lock, flags);
+ }
+ EXPORT_SYMBOL(dma_pool_free);
+ 
+-/*
+- * Managed DMA pool
+- */
+ static void dmam_pool_release(struct device *dev, void *res)
+ {
+ 	struct dma_pool *pool = *(struct dma_pool **)res;

@@ -1,0 +1,71 @@
+--- kernel/workqueue.c	2013-01-04 04:01:33.000000000 -0800
++++ kernel/workqueue.c	2013-03-19 04:00:53.000000000 -0700
+@@ -2299,27 +1110,15 @@
+ 							struct worker, entry));
+ 	} while (gcwq->nr_workers && rc >= 0);
+ 
+-	/*
+-	 * At this point, either draining has completed and no worker
+-	 * is left, or cpu down has been canceled or the cpu is being
+-	 * brought back up.  There shouldn't be any idle one left.
+-	 * Tell the remaining busy ones to rebind once it finishes the
+-	 * currently scheduled works by scheduling the rebind_work.
+-	 */
+ 	WARN_ON(!list_empty(&gcwq->idle_list));
+ 
+ 	for_each_busy_worker(worker, i, pos, gcwq) {
+ 		struct work_struct *rebind_work = &worker->rebind_work;
+ 
+-		/*
+-		 * Rebind_work may race with future cpu hotplug
+-		 * operations.  Use a separate flag to mark that
+-		 * rebinding is scheduled.
+-		 */
+ 		worker->flags |= WORKER_REBIND;
+ 		worker->flags &= ~WORKER_ROGUE;
+ 
+-		/* queue rebind_work, wq doesn't matter, use the default one */
++		
+ 		if (test_and_set_bit(WORK_STRUCT_PENDING_BIT,
+ 				     work_data_bits(rebind_work)))
+ 			continue;
+@@ -2341,17 +1140,6 @@
+ 	return 0;
+ }
+ 
+-/**
+- * wait_trustee_state - wait for trustee to enter the specified state
+- * @gcwq: gcwq the trustee of interest belongs to
+- * @state: target state to wait for
+- *
+- * Wait for the trustee to reach @state.  DONE is already matched.
+- *
+- * CONTEXT:
+- * spin_lock_irq(gcwq->lock) which may be released and regrabbed
+- * multiple times.  To be used by cpu_callback.
+- */
+ static void __cpuinit wait_trustee_state(struct global_cwq *gcwq, int state)
+ __releases(&gcwq->lock)
+ __acquires(&gcwq->lock)
+@@ -2448,10 +1225,6 @@
+ 	return notifier_from_errno(0);
+ }
+ 
+-/*
+- * Workqueues should be brought up before normal priority CPU notifiers.
+- * This will be registered high priority CPU notifier.
+- */
+ static int __devinit workqueue_cpu_up_callback(struct notifier_block *nfb,
+ 					       unsigned long action,
+ 					       void *hcpu)
+@@ -2466,10 +1239,6 @@
+ 	return NOTIFY_OK;
+ }
+ 
+-/*
+- * Workqueues should be brought down after normal priority CPU notifiers.
+- * This will be registered as low priority CPU notifier.
+- */
+ static int __devinit workqueue_cpu_down_callback(struct notifier_block *nfb,
+ 						 unsigned long action,
+ 						 void *hcpu)

@@ -1,0 +1,22 @@
+--- include/linux/ktime.h	2013-01-04 04:01:30.000000000 -0800
++++ include/linux/ktime.h	2013-03-19 04:00:51.000000000 -0700
+@@ -46,19 +27,9 @@
+ # define KTIME_SEC_MAX			LONG_MAX
+ #endif
+ 
+-/*
+- * ktime_t definitions when using the 64-bit scalar representation:
+- */
+ 
+ #if (BITS_PER_LONG == 64) || defined(CONFIG_KTIME_SCALAR)
+ 
+-/**
+- * ktime_set - Set a ktime_t variable from a seconds/nanoseconds value
+- * @secs:	seconds to set
+- * @nsecs:	nanoseconds to set
+- *
+- * Return the ktime_t representation of the value
+- */
+ static inline ktime_t ktime_set(const long secs, const unsigned long nsecs)
+ {
+ #if (BITS_PER_LONG == 64)

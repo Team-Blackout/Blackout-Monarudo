@@ -1,0 +1,42 @@
+--- kernel/power/suspend.c	2013-01-04 04:01:32.000000000 -0800
++++ kernel/power/suspend.c	2013-03-19 04:00:53.000000000 -0700
+@@ -50,20 +46,9 @@
+ 
+ bool valid_state(suspend_state_t state)
+ {
+-	/*
+-	 * All states need lowlevel support and need to be valid to the lowlevel
+-	 * implementation, no valid callback implies that none are valid.
+-	 */
+ 	return suspend_ops && suspend_ops->valid && suspend_ops->valid(state);
+ }
+ 
+-/**
+- * suspend_valid_only_mem - Generic memory-only valid callback.
+- *
+- * Platform drivers that implement mem suspend only and only need to check for
+- * that in their .valid() callback can use this instead of rolling their own
+- * .valid() callback.
+- */
+ int suspend_valid_only_mem(suspend_state_t state)
+ {
+ 	return state == PM_SUSPEND_MEM;
+@@ -78,17 +63,10 @@
+ 		mdelay(5000);
+ 		return 1;
+ 	}
+-#endif /* !CONFIG_PM_DEBUG */
++#endif 
+ 	return 0;
+ }
+ 
+-/**
+- * suspend_prepare - Prepare for entering system sleep state.
+- *
+- * Common code run for every system sleep state that can be entered (except for
+- * hibernation).  Run suspend notifiers, allocate the "suspend" console and
+- * freeze processes.
+- */
+ static int suspend_prepare(void)
+ {
+ 	int error;

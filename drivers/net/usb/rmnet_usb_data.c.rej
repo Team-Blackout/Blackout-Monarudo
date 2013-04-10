@@ -1,0 +1,16 @@
+--- drivers/net/usb/rmnet_usb_data.c	2013-01-04 04:01:34.000000000 -0800
++++ drivers/net/usb/rmnet_usb_data.c	2013-03-19 04:00:55.000000000 -0700
+@@ -561,11 +560,11 @@
+ 	udev = unet->udev;
+ 
+ 	if (udev->parent && !udev->parent->parent) {
+-		/* allow modem and roothub to wake up suspended system */
++		
+ 		device_set_wakeup_enable(&udev->dev, 1);
+ 		device_set_wakeup_enable(&udev->parent->dev, 1);
+ 
+-		/* set default autosuspend timeout for modem and roothub */
++		
+ 		pm_runtime_set_autosuspend_delay(&udev->dev, 1000);
+ 		pm_runtime_set_autosuspend_delay(&udev->parent->dev, 200);
+ 	}

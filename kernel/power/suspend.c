@@ -66,10 +66,6 @@ void freeze_wake(void)
 }
 EXPORT_SYMBOL_GPL(freeze_wake);
 
-/**
- * suspend_set_ops - Set the global suspend method table.
- * @ops: Suspend operations to use.
- */
 void suspend_set_ops(const struct platform_suspend_ops *ops)
 {
 	lock_system_sleep();
@@ -147,25 +143,16 @@ static int suspend_prepare(suspend_state_t state)
 	return error;
 }
 
-/* default implementation */
 void __attribute__ ((weak)) arch_suspend_disable_irqs(void)
 {
 	local_irq_disable();
 }
 
-/* default implementation */
 void __attribute__ ((weak)) arch_suspend_enable_irqs(void)
 {
 	local_irq_enable();
 }
 
-/**
- * suspend_enter - Make the system enter the given sleep state.
- * @state: System sleep state to enter.
- * @wakeup: Returns information that the sleep state should not be re-entered.
- *
- * This function should be called after devices have been suspended.
- */
 static int suspend_enter(suspend_state_t state, bool *wakeup)
 {
 	int error;
@@ -238,10 +225,6 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 	return error;
 }
 
-/**
- * suspend_devices_and_enter - Suspend devices and enter system sleep state.
- * @state: System sleep state to enter.
- */
 int suspend_devices_and_enter(suspend_state_t state)
 {
 	int error;
@@ -293,12 +276,6 @@ int suspend_devices_and_enter(suspend_state_t state)
 	goto Resume_devices;
 }
 
-/**
- * suspend_finish - Clean up before finishing the suspend sequence.
- *
- * Call platform code to clean up, restart processes, and free the console that
- * we've allocated. This routine is not called for hibernation.
- */
 static void suspend_finish(void)
 {
 	suspend_thaw_processes();
@@ -306,14 +283,6 @@ static void suspend_finish(void)
 	pm_restore_console();
 }
 
-/**
- * enter_state - Do common work needed to enter system sleep state.
- * @state: System sleep state to enter.
- *
- * Make sure that no one else is trying to put the system into a sleep state.
- * Fail if that's not the case.  Otherwise, prepare for system suspend, make the
- * system enter the given sleep state and clean up after wakeup.
- */
 static int enter_state(suspend_state_t state)
 {
 	int error;
@@ -361,13 +330,6 @@ static void pm_suspend_marker(char *annotation)
 		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
 }
 
-/**
- * pm_suspend - Externally visible function for suspending the system.
- * @state: System sleep state to enter.
- *
- * Check if the value of @state represents one of the supported states,
- * execute enter_state() and update system suspend statistics.
- */
 int pm_suspend(suspend_state_t state)
 {
 	int error;

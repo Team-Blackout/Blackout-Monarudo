@@ -1,0 +1,18 @@
+--- net/netfilter/xt_hashlimit.c	2013-01-04 04:01:32.000000000 -0800
++++ net/netfilter/xt_hashlimit.c	2013-03-19 04:00:52.000000000 -0700
+@@ -352,13 +316,12 @@
+ 
+ #define CREDITS_PER_JIFFY POW2_BELOW32(MAX_CPJ)
+ 
+-/* Precision saver. */
+ static inline u_int32_t
+ user2credits(u_int32_t user)
+ {
+-	/* If multiplying would overflow... */
++	
+ 	if (user > 0xFFFFFFFF / (HZ*CREDITS_PER_JIFFY))
+-		/* Divide first. */
++		
+ 		return (user / XT_HASHLIMIT_SCALE) * HZ * CREDITS_PER_JIFFY;
+ 
+ 	return (user * HZ * CREDITS_PER_JIFFY) / XT_HASHLIMIT_SCALE;

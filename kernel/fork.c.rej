@@ -1,0 +1,12 @@
+--- kernel/fork.c	2013-01-04 04:01:32.000000000 -0800
++++ kernel/fork.c	2013-03-19 04:00:53.000000000 -0700
+@@ -528,9 +477,6 @@
+ }
+ EXPORT_SYMBOL_GPL(__mmdrop);
+ 
+-/*
+- * Decrement the use count and release all resources for an mm.
+- */
+ void mmput(struct mm_struct *mm)
+ {
+ 	might_sleep();

@@ -1,0 +1,11 @@
+--- net/core/dev.c	2013-01-04 04:01:31.000000000 -0800
++++ net/core/dev.c	2013-03-19 04:00:51.000000000 -0700
+@@ -2018,7 +1414,7 @@
+ 		skb->l4_rxhash = 1;
+ 	}
+ 
+-	/* get a consistent hash (same value on both flow directions) */
++	
+ 	if ((__force u32)keys.dst < (__force u32)keys.src)
+ 		swap(keys.dst, keys.src);
+ 

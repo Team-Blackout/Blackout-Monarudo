@@ -1,0 +1,17 @@
+--- drivers/scsi/scsi_lib.c	2013-01-04 04:01:37.000000000 -0800
++++ drivers/scsi/scsi_lib.c	2013-03-19 04:01:00.000000000 -0700
+@@ -507,13 +255,10 @@
+ 			sense_deferred = scsi_sense_is_deferred(&sshdr);
+ 	}
+ 
+-	if (req->cmd_type == REQ_TYPE_BLOCK_PC) { /* SG_IO ioctl from block level */
++	if (req->cmd_type == REQ_TYPE_BLOCK_PC) { 
+ 		req->errors = result;
+ 		if (result) {
+ 			if (sense_valid && req->sense) {
+-				/*
+-				 * SG_IO wants current and deferred errors
+-				 */
+ 				int len = 8 + cmd->sense_buffer[7];
+ 
+ 				if (len > SCSI_SENSE_BUFFERSIZE)

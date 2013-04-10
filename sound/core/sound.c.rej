@@ -1,0 +1,20 @@
+--- sound/core/sound.c	2013-01-04 04:01:37.000000000 -0800
++++ sound/core/sound.c	2013-03-19 04:01:01.000000000 -0700
+@@ -79,16 +68,8 @@
+ 	request_module(str);
+ }
+ 
+-#endif	/* modular kernel */
++#endif	
+ 
+-/**
+- * snd_lookup_minor_data - get user data of a registered device
+- * @minor: the minor number
+- * @type: device type (SNDRV_DEVICE_TYPE_XXX)
+- *
+- * Checks that a minor device with the specified type is registered, and returns
+- * its user data pointer.
+- */
+ void *snd_lookup_minor_data(unsigned int minor, int type)
+ {
+ 	struct snd_minor *mreg;

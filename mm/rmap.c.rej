@@ -1,0 +1,31 @@
+--- mm/rmap.c	2013-01-04 04:01:34.000000000 -0800
++++ mm/rmap.c	2013-03-19 04:00:54.000000000 -0700
+@@ -790,27 +421,16 @@
+ 	mem_cgroup_end_update_page_stat(page, &locked, &flags);
+ }
+ 
+-/**
+- * page_remove_rmap - take down pte mapping from a page
+- * @page: page to remove mapping from
+- *
+- * The caller needs to hold the pte lock.
+- */
+ void page_remove_rmap(struct page *page)
+ {
+ 	bool anon = PageAnon(page);
+ 	bool locked;
+ 	unsigned long flags;
+ 
+-	/*
+-	 * The anon case has no mem_cgroup page_stat to update; but may
+-	 * uncharge_page() below, where the lock ordering can deadlock if
+-	 * we hold the lock against page_stat move: so avoid it on anon.
+-	 */
+ 	if (!anon)
+ 		mem_cgroup_begin_update_page_stat(page, &locked, &flags);
+ 
+-	/* page still mapped by someone else? */
++	
+ 	if (!atomic_add_negative(-1, &page->_mapcount))
+ 		goto out;
+ 

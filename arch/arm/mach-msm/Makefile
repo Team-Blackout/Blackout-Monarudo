@@ -221,8 +221,6 @@ endif
 
 ifdef CONFIG_BT
 	obj-$(CONFIG_MACH_MONARUDO) += board-monarudo-rfkill.o  htc_bdaddress.o
-	obj-$(CONFIG_MACH_DELUXE_J) += board-deluxe_j-rfkill.o  htc_bdaddress.o
-	obj-$(CONFIG_MACH_DELUXE_U) += board-deluxe_u-rfkill.o  htc_bdaddress.o
 endif
 
 ifdef CONFIG_MSM_CAMERA_V4L2
@@ -283,19 +281,12 @@ board-8960-all-objs += board-8960.o board-8960-camera.o board-8960-display.o boa
 board-8930-all-objs += board-8930.o board-8930-camera.o board-8930-display.o board-8930-pmic.o board-8930-storage.o board-8930-gpiomux.o devices-8930.o board-8930-gpu.o
 board-8064-all-objs += board-8064.o board-8064-pmic.o board-8064-storage.o board-8064-gpiomux.o board-8064-camera.o board-8064-display.o board-8064-gpu.o
 board-elite-all-objs += board-elite.o board-elite-gpiomux.o devices-8960.o board-8960-storage.o
-board-tc2-all-objs +=  board-tc2-pmic.o board-tc2-storage.o board-tc2-gpiomux.o devices-8930.o
-board-operaul-all-objs +=  board-operaul-pmic.o board-operaul-storage.o board-operaul-gpiomux.o devices-8930.o
 # board-monarudo-all-objs += board-monarudo.o board-monarudo-pmic.o board-monarudo-storage.o board-monarudo-gpiomux.o board-monarudo-display.o board-monarudo-gpu.o board-monarudo-keypad.o board-monarudo-wifi.o
 board-monarudo-all-objs += board-monarudo.o board-monarudo-pmic.o board-monarudo-storage.o board-monarudo-gpiomux.o board-monarudo-display.o board-monarudo-gpu.o board-monarudo-keypad.o board-monarudo-wifi.o  board-monarudo-audio.o
-board-deluxe_j-all-objs += board-deluxe_j.o board-deluxe_j-pmic.o board-deluxe_j-storage.o board-deluxe_j-gpiomux.o board-deluxe_j-keypad.o board-deluxe_j-wifi.o board-deluxe_j-audio.o
-board-deluxe_u-all-objs += board-deluxe_u.o board-deluxe_u-pmic.o board-deluxe_u-storage.o board-deluxe_u-gpiomux.o board-deluxe_u-display.o board-deluxe_u-gpu.o board-deluxe_u-keypad.o board-deluxe_u-wifi.o board-deluxe_u-audio.o
 ifdef CONFIG_FB_MSM
-board-deluxe_j-all-objs += board-deluxe_j-display.o board-deluxe_j-gpu.o
 endif
 ifdef CONFIG_MSM_CAMERA
 board-monarudo-all-objs += board-monarudo-camera.o
-board-deluxe_j-all-objs += board-deluxe_j-camera.o
-board-deluxe_u-all-objs += board-deluxe_u-camera.o
 endif
 obj-$(CONFIG_MACH_MSM8960_SIM) += board-8960-all.o board-8960-regulator.o
 obj-$(CONFIG_MACH_MSM8960_RUMI3) += board-8960-all.o board-8960-regulator.o

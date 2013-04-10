@@ -1,0 +1,26 @@
+--- net/unix/af_unix.c	2013-01-04 04:01:32.000000000 -0800
++++ net/unix/af_unix.c	2013-03-19 04:00:53.000000000 -0700
+@@ -402,21 +376,11 @@
+ 
+ 	sock_put(sk);
+ 
+-	/* ---- Socket is dead now and most probably destroyed ---- */
++	
+ 
+-	/*
+-	 * Fixme: BSD difference: In BSD all sockets connected to use get
+-	 *	  ECONNRESET and we die on the spot. In Linux we behave
+-	 *	  like files and pipes do and wait for the last
+-	 *	  dereference.
+-	 *
+-	 * Can't we simply set sock->err?
+-	 *
+-	 *	  What the above comment does talk about? --ANK(980817)
+-	 */
+ 
+ 	if (unix_tot_inflight)
+-		unix_gc();		/* Garbage collect fds */
++		unix_gc();		
+ 
+ 	return 0;
+ }

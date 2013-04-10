@@ -3,40 +3,40 @@
 
 #define MAX_NR_RATES	1024
 #define MAX_PACKS	20
-#define MAX_PACKS_HS	(MAX_PACKS * 8)	/* in high speed mode */
+#define MAX_PACKS_HS	(MAX_PACKS * 8)	
 #define MAX_URBS	8
-#define SYNC_URBS	4	/* always four urbs for sync */
-#define MAX_QUEUE	24	/* try not to exceed this queue length, in ms */
+#define SYNC_URBS	4	
+#define MAX_QUEUE	24	
 
 struct audioformat {
 	struct list_head list;
-	u64 formats;			/* ALSA format bits */
-	unsigned int channels;		/* # channels */
-	unsigned int fmt_type;		/* USB audio format type (1-3) */
-	unsigned int frame_size;	/* samples per frame for non-audio */
-	int iface;			/* interface number */
-	unsigned char altsetting;	/* corresponding alternate setting */
-	unsigned char altset_idx;	/* array index of altenate setting */
-	unsigned char attributes;	/* corresponding attributes of cs endpoint */
-	unsigned char endpoint;		/* endpoint */
-	unsigned char ep_attr;		/* endpoint attributes */
-	unsigned char datainterval;	/* log_2 of data packet interval */
-	unsigned int maxpacksize;	/* max. packet size */
-	unsigned int rates;		/* rate bitmasks */
-	unsigned int rate_min, rate_max;	/* min/max rates */
-	unsigned int nr_rates;		/* number of rate table entries */
-	unsigned int *rate_table;	/* rate table */
-	unsigned char clock;		/* associated clock */
+	u64 formats;			
+	unsigned int channels;		
+	unsigned int fmt_type;		
+	unsigned int frame_size;	
+	int iface;			
+	unsigned char altsetting;	
+	unsigned char altset_idx;	
+	unsigned char attributes;	
+	unsigned char endpoint;		
+	unsigned char ep_attr;		
+	unsigned char datainterval;	
+	unsigned int maxpacksize;	
+	unsigned int rates;		
+	unsigned int rate_min, rate_max;	
+	unsigned int nr_rates;		
+	unsigned int *rate_table;	
+	unsigned char clock;		
 };
 
 struct snd_usb_substream;
 
 struct snd_urb_ctx {
 	struct urb *urb;
-	unsigned int buffer_size;	/* size of data buffer, if data URB */
+	unsigned int buffer_size;	
 	struct snd_usb_substream *subs;
-	int index;	/* index for urb array */
-	int packets;	/* number of packets per urb */
+	int index;	
+	int packets;	
 };
 
 struct snd_urb_ops {

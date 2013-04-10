@@ -1,0 +1,25 @@
+--- kernel/module.c	2013-01-04 04:01:32.000000000 -0800
++++ kernel/module.c	2013-03-19 04:00:53.000000000 -0700
+@@ -2126,19 +1979,19 @@
+ 	src = (void *)info->hdr + symsect->sh_offset;
+ 	nsrc = symsect->sh_size / sizeof(*src);
+ 
+-	/* Compute total space required for the core symbols' strtab. */
++	
+ 	for (ndst = i = strtab_size = 1; i < nsrc; ++i, ++src)
+ 		if (is_core_symbol(src, info->sechdrs, info->hdr->e_shnum)) {
+ 			strtab_size += strlen(&info->strtab[src->st_name]) + 1;
+ 			ndst++;
+ 		}
+ 
+-	/* Append room for core symbols at end of core part. */
++	
+ 	info->symoffs = ALIGN(mod->core_size, symsect->sh_addralign ?: 1);
+ 	info->stroffs = mod->core_size = info->symoffs + ndst * sizeof(Elf_Sym);
+ 	mod->core_size += strtab_size;
+ 
+-	/* Put string table section at end of init part of module. */
++	
+ 	strsect->sh_flags |= SHF_ALLOC;
+ 	strsect->sh_entsize = get_offset(mod, &mod->init_size, strsect,
+ 					 info->index.str) | INIT_OFFSET_MASK;

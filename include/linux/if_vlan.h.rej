@@ -1,0 +1,29 @@
+--- include/linux/if_vlan.h	2013-01-04 04:01:31.000000000 -0800
++++ include/linux/if_vlan.h	2013-03-19 04:00:51.000000000 -0700
+@@ -252,25 +162,13 @@
+ 
+ 	rawp = skb->data;
+ 	if (*(unsigned short *) rawp == 0xFFFF)
+-		/*
+-		 * This is a magic hack to spot IPX packets. Older Novell
+-		 * breaks the protocol design and runs IPX over 802.3 without
+-		 * an 802.2 LLC layer. We look for FFFF which isn't a used
+-		 * 802.2 SSAP/DSAP. This won't work for fault tolerant netware
+-		 * but does for the rest.
+-		 */
+ 		skb->protocol = htons(ETH_P_802_3);
+ 	else
+-		/*
+-		 * Real 802.2 LLC
+-		 */
+ 		skb->protocol = htons(ETH_P_802_2);
+ }
+-#endif /* __KERNEL__ */
++#endif 
+ 
+-/* VLAN IOCTLs are found in sockios.h */
+ 
+-/* Passed in vlan_ioctl_args structure to determine behaviour. */
+ enum vlan_ioctl_cmds {
+ 	ADD_VLAN_CMD,
+ 	DEL_VLAN_CMD,

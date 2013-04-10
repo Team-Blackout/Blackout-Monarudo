@@ -1,0 +1,28 @@
+--- mm/vmscan.c	2013-01-04 04:01:34.000000000 -0800
++++ mm/vmscan.c	2013-03-19 04:00:55.000000000 -0700
+@@ -1436,11 +894,6 @@
+ 		reclaim_stat->recent_rotated[1] /= 2;
+ 	}
+ 
+-	/*
+-	 * The amount of pressure on anon vs file pages is inversely
+-	 * proportional to the fraction of recently scanned pages on
+-	 * each list that were recently referenced and in active use.
+-	 */
+ 	ap = (anon_prio + 1) * (reclaim_stat->recent_scanned[0] + 1);
+ 	ap /= reclaim_stat->recent_rotated[0] + 1;
+ 
+@@ -2334,12 +1430,8 @@
+ 
+ 	return nr_reclaimed;
+ }
+-#endif /* CONFIG_HIBERNATION */
++#endif 
+ 
+-/* It's optimal to keep kswapds on the same CPUs as their memory, but
+-   not required for correctness.  So if the last cpu in a node goes
+-   away, we get changed to run anywhere: as the first one comes back,
+-   restore their cpu bindings. */
+ static int __devinit cpu_callback(struct notifier_block *nfb,
+ 				  unsigned long action, void *hcpu)
+ {

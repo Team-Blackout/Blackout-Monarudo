@@ -1,0 +1,11 @@
+--- net/netfilter/nf_conntrack_expect.c	2013-01-04 04:01:32.000000000 -0800
++++ net/netfilter/nf_conntrack_expect.c	2013-03-19 04:00:53.000000000 -0700
+@@ -388,7 +369,7 @@
+ 	h = nf_ct_expect_dst_hash(&expect->tuple);
+ 	hlist_for_each_entry(i, n, &net->ct.expect_hash[h], hnode) {
+ 		if (expect_matches(i, expect)) {
+-			/* Refresh timer: if it's dying, ignore.. */
++			
+ 			if (refresh_timer(i)) {
+ 				ret = 0;
+ 				goto out;

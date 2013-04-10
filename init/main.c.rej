@@ -1,0 +1,21 @@
+--- init/main.c	2013-01-04 04:01:32.000000000 -0800
++++ init/main.c	2013-03-19 04:00:53.000000000 -0700
+@@ -513,16 +397,15 @@
+ 
+ 	check_bugs();
+ 
+-	acpi_early_init(); /* before LAPIC and SMP init */
++	acpi_early_init(); 
+ 	sfi_init_late();
+ 
+ 	ftrace_init();
+ 
+-	/* Do the rest non-__init'ed, we're now alive */
++	
+ 	rest_init();
+ }
+ 
+-/* Call all constructor functions linked into the kernel. */
+ static void __init do_ctors(void)
+ {
+ #ifdef CONFIG_CONSTRUCTORS

@@ -10,10 +10,6 @@
  * GNU General Public License for more details.
  *
  */
-/*
- * Qualcomm MSM8960 TSENS driver
- *
- */
 
 #include <linux/module.h>
 #include <linux/platform_device.h>
@@ -29,7 +25,6 @@
 #include <mach/msm_iomap.h>
 #include <mach/socinfo.h>
 
-/* Trips: from very hot to very cold */
 enum tsens_trip_type {
 	TSENS_TRIP_STAGE3 = 0,
 	TSENS_TRIP_STAGE2,
@@ -38,7 +33,6 @@ enum tsens_trip_type {
 	TSENS_TRIP_NUM,
 };
 
-/* MSM8960 TSENS register info */
 #define TSENS_CAL_DEGC					30
 #define TSENS_MAIN_SENSOR				0
 
@@ -64,7 +58,7 @@ enum tsens_trip_type {
 #define TSENS_UPPER_STATUS_CLR		BIT((tsens_status_cntl_start + 2))
 #define TSENS_MAX_STATUS_MASK		BIT((tsens_status_cntl_start + 3))
 
-#define TSENS_MEASURE_PERIOD				4 /* 1 sec. default */
+#define TSENS_MEASURE_PERIOD				4 
 #define TSENS_8960_SLP_CLK_ENA				BIT(26)
 
 #define TSENS_THRESHOLD_ADDR		(MSM_CLK_CTL_BASE + 0x00003624)
@@ -165,7 +159,6 @@ struct tsens_tm_device {
 
 struct tsens_tm_device *tmdev;
 
-/* Temperature on y axis and ADC-code on x-axis */
 static int tsens_tz_code_to_degC(int adc_code, int sensor_num)
 {
 	int degcbeforefactor, degc;
@@ -256,12 +249,6 @@ static int tsens_tz_get_mode(struct thermal_zone_device *thermal,
 	return 0;
 }
 
-/* Function to enable the mode.
- * If the main sensor is disabled all the sensors are disable and
- * the clock is disabled.
- * If the main sensor is not enabled and sub sensor is enabled
- * returns with an error stating the main sensor is not enabled.
- */
 static int tsens_tz_set_mode(struct thermal_zone_device *thermal,
 			      enum thermal_device_mode mode)
 {
@@ -495,9 +482,6 @@ static int tsens_tz_get_crit_temp(struct thermal_zone_device *thermal,
 static int tsens_tz_notify(struct thermal_zone_device *thermal,
 				int count, enum thermal_trip_type type)
 {
-	/* TSENS driver does not shutdown the device.
-	   All Thermal notification are sent to the
-	   thermal daemon to take appropriate action */
 	return 1;
 }
 
@@ -658,7 +642,7 @@ static void tsens_scheduler_fn(struct work_struct *work)
 			if (lower_th_x)
 				mask |= TSENS_LOWER_STATUS_CLR;
 			if (upper_th_x || lower_th_x) {
-				/* Notify user space */
+				
 				schedule_work(&tm->sensor[i].work);
 				adc_code = readl_relaxed(sensor_addr);
 				pr_debug("Trigger (%d degrees) for sensor %d\n",
@@ -848,8 +832,6 @@ static void tsens_hw_init(void)
 			(((1 << tmdev->tsens_num_sensor) - 1) <<
 			TSENS_SENSOR0_SHIFT);
 
-		/* set TSENS_CONFIG bits (bits 29:28 of TSENS_CNTL) to '01';
-			this setting found to be optimal. */
 		reg_cntl = (reg_cntl & ~TSENS_8660_CONFIG_MASK) |
 				(TSENS_8660_CONFIG << TSENS_8660_CONFIG_SHIFT);
 

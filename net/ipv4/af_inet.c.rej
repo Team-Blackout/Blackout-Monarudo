@@ -1,0 +1,12 @@
+--- net/ipv4/af_inet.c	2013-01-04 04:01:31.000000000 -0800
++++ net/ipv4/af_inet.c	2013-03-19 04:00:51.000000000 -0700
+@@ -226,9 +206,6 @@
+ u32 inet_ehash_secret __read_mostly;
+ EXPORT_SYMBOL(inet_ehash_secret);
+ 
+-/*
+- * inet_ehash_secret must be set exactly once
+- */
+ void build_ehash_secret(void)
+ {
+ 	u32 rnd;

@@ -1,0 +1,13 @@
+--- mm/vmstat.c	2013-01-04 04:01:34.000000000 -0800
++++ mm/vmstat.c	2013-03-19 04:00:55.000000000 -0700
+@@ -968,10 +776,6 @@
+ 	schedule_delayed_work_on(cpu, work, __round_jiffies_relative(HZ, cpu));
+ }
+ 
+-/*
+- * Use the cpu notifier to insure that the thresholds are recalculated
+- * when necessary.
+- */
+ static int __cpuinit vmstat_cpuup_callback(struct notifier_block *nfb,
+ 		unsigned long action,
+ 		void *hcpu)

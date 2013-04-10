@@ -27,34 +27,11 @@ MODULE_DESCRIPTION("Xtables: rate-limit match");
 MODULE_ALIAS("ipt_limit");
 MODULE_ALIAS("ip6t_limit");
 
-/* The algorithm used is the Simple Token Bucket Filter (TBF)
- * see net/sched/sch_tbf.c in the linux source tree
- */
 
 static DEFINE_SPINLOCK(limit_lock);
 
-/* Rusty: This is my (non-mathematically-inclined) understanding of
-   this algorithm.  The `average rate' in jiffies becomes your initial
-   amount of credit `credit' and the most credit you can ever have
-   `credit_cap'.  The `peak rate' becomes the cost of passing the
-   test, `cost'.
-
-   `prev' tracks the last packet hit: you gain one credit per jiffy.
-   If you get credit balance more than this, the extra credit is
-   discarded.  Every time the match passes, you lose `cost' credits;
-   if you don't have that many, the test fails.
-
-   See Alexey's formal explanation in net/sched/sch_tbf.c.
-
-   To get the maxmum range, we multiply by this factor (ie. you get N
-   credits per jiffy).  We want to allow a rate as low as 1 per day
-   (slowest userspace tool allows), which means
-   CREDITS_PER_JIFFY*HZ*60*60*24 < 2^32. ie. */
 #define MAX_CPJ (0xFFFFFFFF / (HZ*60*60*24))
 
-/* Repeated shift and or gives us all 1s, final shift and add 1 gives
- * us the power of 2 below the theoretical max, so GCC simply does a
- * shift. */
 #define _POW2_BELOW2(x) ((x)|((x)>>1))
 #define _POW2_BELOW4(x) (_POW2_BELOW2(x)|_POW2_BELOW2((x)>>2))
 #define _POW2_BELOW8(x) (_POW2_BELOW4(x)|_POW2_BELOW4((x)>>4))
@@ -77,7 +54,7 @@ limit_mt(const struct sk_buff *skb, struct xt_action_param *par)
 		priv->credit = r->credit_cap;
 
 	if (priv->credit >= r->cost) {
-		/* We're not limited. */
+		
 		priv->credit -= r->cost;
 		spin_unlock_bh(&limit_lock);
 		return true;
@@ -103,7 +80,7 @@ static int limit_mt_check(const struct xt_mtchk_param *par)
 	struct xt_rateinfo *r = par->matchinfo;
 	struct xt_limit_priv *priv;
 
-	/* Check for overflow. */
+	
 	if (r->burst == 0
 	    || user2credits(r->avg * r->burst) < user2credits(r->avg)) {
 		pr_info("Overflow, try lower: %u/%u\n",
@@ -147,8 +124,6 @@ struct compat_xt_rateinfo {
 	u_int32_t master;
 };
 
-/* To keep the full "prev" timestamp, the upper 32 bits are stored in the
- * master pointer, which does not need to be preserved. */
 static void limit_mt_compat_from_user(void *dst, const void *src)
 {
 	const struct compat_xt_rateinfo *cm = src;
@@ -177,7 +152,7 @@ static int limit_mt_compat_to_user(void __user *dst, const void *src)
 	};
 	return copy_to_user(dst, &cm, sizeof(cm)) ? -EFAULT : 0;
 }
-#endif /* CONFIG_COMPAT */
+#endif 
 
 static struct xt_match limit_mt_reg __read_mostly = {
 	.name             = "limit",

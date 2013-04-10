@@ -1,0 +1,17 @@
+--- sound/usb/quirks-table.h	2013-01-04 04:01:37.000000000 -0800
++++ sound/usb/quirks-table.h	2013-03-19 04:01:01.000000000 -0700
+@@ -1576,11 +1499,11 @@
+ 	}
+ },
+ {
+-	/* has ID 0x0110 when not in Advanced Driver mode */
++	
+ 	USB_DEVICE_VENDOR_SPEC(0x0582, 0x010f),
+ 	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
+-		/* .vendor_name = "Roland", */
+-		/* .product_name = "A-PRO", */
++		
++		
+ 		.ifnum = 1,
+ 		.type = QUIRK_MIDI_FIXED_ENDPOINT,
+ 		.data = & (const struct snd_usb_midi_endpoint_info) {

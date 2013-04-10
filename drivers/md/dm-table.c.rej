@@ -1,0 +1,11 @@
+--- drivers/md/dm-table.c	2013-01-04 04:01:37.000000000 -0800
++++ drivers/md/dm-table.c	2013-03-19 04:01:01.000000000 -0700
+@@ -1161,7 +966,7 @@
+ 	struct dm_target *ti;
+ 	unsigned i = 0;
+ 
+-	/* Ensure that all underlying device are non-rotational. */
++	
+ 	while (i < dm_table_get_num_targets(t)) {
+ 		ti = dm_table_get_target(t, i++);
+ 

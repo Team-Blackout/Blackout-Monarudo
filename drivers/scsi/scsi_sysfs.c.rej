@@ -1,0 +1,14 @@
+--- drivers/scsi/scsi_sysfs.c	2013-01-04 04:01:37.000000000 -0800
++++ drivers/scsi/scsi_sysfs.c	2013-03-19 04:01:00.000000000 -0700
+@@ -963,11 +883,6 @@
+ 	if (found) {
+ 		__scsi_remove_target(found);
+ 		scsi_target_reap(found);
+-		/* in the case where @dev has multiple starget children,
+-		 * continue removing.
+-		 *
+-		 * FIXME: does such a case exist?
+-		 */
+ 		goto restart;
+ 	}
+ }

@@ -1,0 +1,63 @@
+--- drivers/base/power/wakeup.c	2013-01-04 04:01:37.000000000 -0800
++++ drivers/base/power/wakeup.c	2013-03-19 04:01:00.000000000 -0700
+@@ -232,58 +128,17 @@
+ }
+ EXPORT_SYMBOL_GPL(device_set_wakeup_enable);
+ 
+-/*
+- * The functions below use the observation that each wakeup event starts a
+- * period in which the system should not be suspended.  The moment this period
+- * will end depends on how the wakeup event is going to be processed after being
+- * detected and all of the possible cases can be divided into two distinct
+- * groups.
+- *
+- * First, a wakeup event may be detected by the same functional unit that will
+- * carry out the entire processing of it and possibly will pass it to user space
+- * for further processing.  In that case the functional unit that has detected
+- * the event may later "close" the "no suspend" period associated with it
+- * directly as soon as it has been dealt with.  The pair of pm_stay_awake() and
+- * pm_relax(), balanced with each other, is supposed to be used in such
+- * situations.
+- *
+- * Second, a wakeup event may be detected by one functional unit and processed
+- * by another one.  In that case the unit that has detected it cannot really
+- * "close" the "no suspend" period associated with it, unless it knows in
+- * advance what's going to happen to the event during processing.  This
+- * knowledge, however, may not be available to it, so it can simply specify time
+- * to wait before the system can be suspended and pass it as the second
+- * argument of pm_wakeup_event().
+- *
+- * It is valid to call pm_relax() after pm_wakeup_event(), in which case the
+- * "no suspend" period will be ended either by the pm_relax(), or by the timer
+- * function executed when the timer expires, whichever comes first.
+- */
+-
+-/**
+- * wakup_source_activate - Mark given wakeup source as active.
+- * @ws: Wakeup source to handle.
+- *
+- * Update the @ws' statistics and, if @ws has just been activated, notify the PM
+- * core of the event by incrementing the counter of of wakeup events being
+- * processed.
+- */
++
+ static void wakeup_source_activate(struct wakeup_source *ws)
+ {
+ 	ws->active = true;
+ 	ws->active_count++;
+ 	ws->last_time = ktime_get();
+ 
+-	/* Increment the counter of events in progress. */
++	
+ 	atomic_inc(&combined_event_count);
+ }
+ 
+-/**
+- * __pm_stay_awake - Notify the PM core of a wakeup event.
+- * @ws: Wakeup source object associated with the source of the event.
+- *
+- * It is safe to call this function from interrupt context.
+- */
+ void __pm_stay_awake(struct wakeup_source *ws)
+ {
+ 	unsigned long flags;

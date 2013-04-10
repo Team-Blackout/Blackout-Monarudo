@@ -1,0 +1,21 @@
+--- net/ipv4/raw.c	2013-01-04 04:01:31.000000000 -0800
++++ net/ipv4/raw.c	2013-03-19 04:00:52.000000000 -0700
+@@ -120,17 +120,13 @@
+ 		    !(inet->inet_daddr && inet->inet_daddr != raddr) 	&&
+ 		    !(inet->inet_rcv_saddr && inet->inet_rcv_saddr != laddr) &&
+ 		    !(sk->sk_bound_dev_if && sk->sk_bound_dev_if != dif))
+-			goto found; /* gotcha */
++			goto found; 
+ 	}
+ 	sk = NULL;
+ found:
+ 	return sk;
+ }
+ 
+-/*
+- *	0 - deliver
+- *	1 - block
+- */
+ static __inline__ int icmp_filter(struct sock *sk, struct sk_buff *skb)
+ {
+ 	int type;

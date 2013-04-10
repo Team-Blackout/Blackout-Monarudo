@@ -109,11 +109,6 @@ static inline bool css_is_removed(struct cgroup_subsys_state *css)
 	return test_bit(CSS_REMOVED, &css->flags);
 }
 
-/*
- * Call css_tryget() to take a reference on a css if your existing
- * (known-valid) reference isn't already ref-counted. Returns false if
- * the css has been destroyed.
- */
 
 static inline bool css_tryget(struct cgroup_subsys_state *css)
 {
@@ -127,10 +122,6 @@ static inline bool css_tryget(struct cgroup_subsys_state *css)
 	return true;
 }
 
-/*
- * css_put() should be called to release a reference taken by
- * css_get() or css_tryget()
- */
 
 extern void __css_put(struct cgroup_subsys_state *css, int count);
 static inline void css_put(struct cgroup_subsys_state *css)
@@ -327,22 +318,9 @@ struct cftype {
 			 struct file *file,
 			 const char __user *buf, size_t nbytes, loff_t *ppos);
 
-	/*
-	 * write_u64() is a shortcut for the common case of accepting
-	 * a single integer (as parsed by simple_strtoull) from
-	 * userspace. Use in place of write(); return 0 or error.
-	 */
 	int (*write_u64)(struct cgroup *cgrp, struct cftype *cft, u64 val);
-	/*
-	 * write_s64() is a signed version of write_u64()
-	 */
 	int (*write_s64)(struct cgroup *cgrp, struct cftype *cft, s64 val);
 
-	/*
-	 * write_string() is passed a nul-terminated kernelspace
-	 * buffer of maximum length determined by max_write_len.
-	 * Returns 0 or -ve error code.
-	 */
 	int (*write_string)(struct cgroup *cgrp, struct cftype *cft,
 			    const char *buffer);
 	/*
@@ -355,20 +333,8 @@ struct cftype {
 
 	int (*release)(struct inode *inode, struct file *file);
 
-	/*
-	 * register_event() callback will be used to add new userspace
-	 * waiter for changes related to the cftype. Implement it if
-	 * you want to provide this functionality. Use eventfd_signal()
-	 * on eventfd to send notification to userspace.
-	 */
 	int (*register_event)(struct cgroup *cgrp, struct cftype *cft,
 			struct eventfd_ctx *eventfd, const char *args);
-	/*
-	 * unregister_event() callback will be called when userspace
-	 * closes the eventfd or on cgroup removing.
-	 * This callback must be implemented, if you want provide
-	 * notification functionality.
-	 */
 	void (*unregister_event)(struct cgroup *cgrp, struct cftype *cft,
 			struct eventfd_ctx *eventfd);
 };
@@ -382,17 +348,9 @@ struct cgroup_scanner {
 	void *data;
 };
 
-/*
- * Add a new file to the given cgroup directory. Should only be
- * called by subsystems from within a populate() method
- */
 int cgroup_add_file(struct cgroup *cgrp, struct cgroup_subsys *subsys,
 		       const struct cftype *cft);
 
-/*
- * Add a set of new files to the given cgroup directory. Should
- * only be called by subsystems from within a populate() method
- */
 int cgroup_add_files(struct cgroup *cgrp,
 			struct cgroup_subsys *subsys,
 			const struct cftype cft[],
@@ -404,52 +362,24 @@ int cgroup_path(const struct cgroup *cgrp, char *buf, int buflen);
 
 int cgroup_task_count(const struct cgroup *cgrp);
 
-/* Return true if cgrp is a descendant of the task's cgroup */
 int cgroup_is_descendant(const struct cgroup *cgrp, struct task_struct *task);
 
-/*
- * When the subsys has to access css and may add permanent refcnt to css,
- * it should take care of racy conditions with rmdir(). Following set of
- * functions, is for stop/restart rmdir if necessary.
- * Because these will call css_get/put, "css" should be alive css.
- *
- *  cgroup_exclude_rmdir();
- *  ...do some jobs which may access arbitrary empty cgroup
- *  cgroup_release_and_wakeup_rmdir();
- *
- *  When someone removes a cgroup while cgroup_exclude_rmdir() holds it,
- *  it sleeps and cgroup_release_and_wakeup_rmdir() will wake him up.
- */
 
 void cgroup_exclude_rmdir(struct cgroup_subsys_state *css);
 void cgroup_release_and_wakeup_rmdir(struct cgroup_subsys_state *css);
 
-/*
- * Control Group taskset, used to pass around set of tasks to cgroup_subsys
- * methods.
- */
 struct cgroup_taskset;
 struct task_struct *cgroup_taskset_first(struct cgroup_taskset *tset);
 struct task_struct *cgroup_taskset_next(struct cgroup_taskset *tset);
 struct cgroup *cgroup_taskset_cur_cgroup(struct cgroup_taskset *tset);
 int cgroup_taskset_size(struct cgroup_taskset *tset);
 
-/**
- * cgroup_taskset_for_each - iterate cgroup_taskset
- * @task: the loop cursor
- * @skip_cgrp: skip if task's cgroup matches this, %NULL to iterate through all
- * @tset: taskset to iterate
- */
 #define cgroup_taskset_for_each(task, skip_cgrp, tset)			\
 	for ((task) = cgroup_taskset_first((tset)); (task);		\
 	     (task) = cgroup_taskset_next((tset)))			\
 		if (!(skip_cgrp) ||					\
 		    cgroup_taskset_cur_cgroup((tset)) != (skip_cgrp))
 
-/*
- * Control Group subsystem type.
- * See Documentation/cgroups/cgroups.txt for details
- */
 
 struct cgroup_subsys {
 	struct cgroup_subsys_state *(*create)(struct cgroup *cgrp);
@@ -470,38 +400,20 @@ struct cgroup_subsys {
 	int active;
 	int disabled;
 	int early_init;
-	/*
-	 * True if this subsys uses ID. ID is not available before cgroup_init()
-	 * (not available in early_init time.)
-	 */
 	bool use_id;
 #define MAX_CGROUP_TYPE_NAMELEN 32
 	const char *name;
 
-	/*
-	 * Protects sibling/children links of cgroups in this
-	 * hierarchy, plus protects which hierarchy (or none) the
-	 * subsystem is a part of (i.e. root/sibling).  To avoid
-	 * potential deadlocks, the following operations should not be
-	 * undertaken while holding any hierarchy_mutex:
-	 *
-	 * - allocating memory
-	 * - initiating hotplug events
-	 */
 	struct mutex hierarchy_mutex;
 	struct lock_class_key subsys_key;
 
-	/*
-	 * Link to parent, and list entry in parent's children.
-	 * Protected by this->hierarchy_mutex and cgroup_lock()
-	 */
 	struct cgroupfs_root *root;
 	struct list_head sibling;
-	/* used when use_id == true */
+	
 	struct idr idr;
 	spinlock_t id_lock;
 
-	/* should be defined only by modular subsystems */
+	
 	struct module *module;
 };
 
@@ -515,11 +427,6 @@ static inline struct cgroup_subsys_state *cgroup_subsys_state(
 	return cgrp->subsys[subsys_id];
 }
 
-/*
- * function to get the cgroup_subsys_state which allows for extra
- * rcu_dereference_check() conditions, such as locks used during the
- * cgroup_subsys::attach() methods.
- */
 #define task_subsys_state_check(task, subsys_id, __c)			\
 	rcu_dereference_check(task->cgroups->subsys[subsys_id],		\
 			      lockdep_is_held(&task->alloc_lock) ||	\
@@ -537,27 +444,11 @@ static inline struct cgroup* task_cgroup(struct task_struct *task,
 	return task_subsys_state(task, subsys_id)->cgroup;
 }
 
-/* A cgroup_iter should be treated as an opaque object */
 struct cgroup_iter {
 	struct list_head *cg_link;
 	struct list_head *task;
 };
 
-/*
- * To iterate across the tasks in a cgroup:
- *
- * 1) call cgroup_iter_start to initialize an iterator
- *
- * 2) call cgroup_iter_next() to retrieve member tasks until it
- *    returns NULL or until you want to end the iteration
- *
- * 3) call cgroup_iter_end() to destroy the iterator.
- *
- * Or, call cgroup_scan_tasks() to iterate through every task in a
- * cgroup - cgroup_scan_tasks() holds the css_set_lock when calling
- * the test_task() callback, but not while calling the process_task()
- * callback.
- */
 void cgroup_iter_start(struct cgroup *cgrp, struct cgroup_iter *it);
 struct task_struct *cgroup_iter_next(struct cgroup *cgrp,
 					struct cgroup_iter *it);
@@ -566,46 +457,23 @@ int cgroup_scan_tasks(struct cgroup_scanner *scan);
 int cgroup_attach_task(struct cgroup *, struct task_struct *);
 int cgroup_attach_task_all(struct task_struct *from, struct task_struct *);
 
-/*
- * CSS ID is ID for cgroup_subsys_state structs under subsys. This only works
- * if cgroup_subsys.use_id == true. It can be used for looking up and scanning.
- * CSS ID is assigned at cgroup allocation (create) automatically
- * and removed when subsys calls free_css_id() function. This is because
- * the lifetime of cgroup_subsys_state is subsys's matter.
- *
- * Looking up and scanning function should be called under rcu_read_lock().
- * Taking cgroup_mutex()/hierarchy_mutex() is not necessary for following calls.
- * But the css returned by this routine can be "not populated yet" or "being
- * destroyed". The caller should check css and cgroup's status.
- */
 
-/*
- * Typically Called at ->destroy(), or somewhere the subsys frees
- * cgroup_subsys_state.
- */
 void free_css_id(struct cgroup_subsys *ss, struct cgroup_subsys_state *css);
 
-/* Find a cgroup_subsys_state which has given ID */
 
 struct cgroup_subsys_state *css_lookup(struct cgroup_subsys *ss, int id);
 
-/*
- * Get a cgroup whose id is greater than or equal to id under tree of root.
- * Returning a cgroup_subsys_state or NULL.
- */
 struct cgroup_subsys_state *css_get_next(struct cgroup_subsys *ss, int id,
 		struct cgroup_subsys_state *root, int *foundid);
 
-/* Returns true if root is ancestor of cg */
 bool css_is_ancestor(struct cgroup_subsys_state *cg,
 		     const struct cgroup_subsys_state *root);
 
-/* Get id and depth of css */
 unsigned short css_id(struct cgroup_subsys_state *css);
 unsigned short css_depth(struct cgroup_subsys_state *css);
 struct cgroup_subsys_state *cgroup_css_from_dir(struct file *f, int id);
 
-#else /* !CONFIG_CGROUPS */
+#else 
 
 static inline int cgroup_init_early(void) { return 0; }
 static inline int cgroup_init(void) { return 0; }
@@ -622,13 +490,12 @@ static inline int cgroupstats_build(struct cgroupstats *stats,
 	return -EINVAL;
 }
 
-/* No cgroups - nothing to do */
 static inline int cgroup_attach_task_all(struct task_struct *from,
 					 struct task_struct *t)
 {
 	return 0;
 }
 
-#endif /* !CONFIG_CGROUPS */
+#endif 
 
-#endif /* _LINUX_CGROUP_H */
+#endif 

@@ -1,0 +1,14 @@
+--- fs/exec.c	2013-01-04 04:01:38.000000000 -0800
++++ fs/exec.c	2013-03-19 04:01:01.000000000 -0700
+@@ -1167,11 +936,6 @@
+ 				continue;
+ 			read_unlock(&binfmt_lock);
+ 			retval = fn(bprm, regs);
+-			/*
+-			 * Restore the depth counter to its starting value
+-			 * in this call, so we don't have to rely on every
+-			 * load_binary function to restore it on return.
+-			 */
+ 			bprm->recursion_depth = depth;
+ 			if (retval >= 0) {
+ 				if (depth == 0) {

@@ -1,0 +1,43 @@
+--- fs/ext4/extents.c	2013-01-04 04:01:38.000000000 -0800
++++ fs/ext4/extents.c	2013-03-19 04:01:01.000000000 -0700
+@@ -1846,17 +1586,13 @@
+ }
+ 
+ 
+-/*
+- * ext4_ext_rm_idx:
+- * removes index from the index block.
+- */
+ static int ext4_ext_rm_idx(handle_t *handle, struct inode *inode,
+ 			struct ext4_ext_path *path)
+ {
+ 	int err;
+ 	ext4_fsblk_t leaf;
+ 
+-	/* free index block */
++	
+ 	path--;
+ 	leaf = ext4_idx_pblock(path->p_idx);
+ 	if (unlikely(path->p_hdr->eh_entries == 0)) {
+@@ -2294,19 +1918,14 @@
+ 			}
+ 			path[i + 1].p_bh = bh;
+ 
+-			/* save actual number of indexes since this
+-			 * number is changed at the next iteration */
+ 			path[i].p_block = le16_to_cpu(path[i].p_hdr->eh_entries);
+ 			i++;
+ 		} else {
+-			/* we finished processing this index, go up */
++			
+ 			if (path[i].p_hdr->eh_entries == 0 && i > 0) {
+-				/* index is empty, remove it;
+-				 * handle must be already prepared by the
+-				 * truncatei_leaf() */
+ 				err = ext4_ext_rm_idx(handle, inode, path + i);
+ 			}
+-			/* root level has p_bh == NULL, brelse() eats this */
++			
+ 			brelse(path[i].p_bh);
+ 			path[i].p_bh = NULL;
+ 			i--;

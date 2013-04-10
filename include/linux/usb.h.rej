@@ -1,0 +1,108 @@
+--- include/linux/usb.h	2013-01-04 04:01:33.000000000 -0800
++++ include/linux/usb.h	2013-03-19 04:00:53.000000000 -0700
+@@ -153,78 +-15,48 @@
+ 				(ifpoint)->extralen, \
+ 				type, (void **)ptr)
+ 
+-/* ----------------------------------------------------------------------- */
+ 
+-/* USB device number allocation bitmap */
+ struct usb_devmap {
+ 	unsigned long devicemap[128 / (8*sizeof(unsigned long))];
+ };
+ 
+-/*
+- * Allocated per bus (tree of devices) we have:
+- */
+ struct usb_bus {
+-	struct device *controller;	/* host/master side hardware */
+-	int busnum;			/* Bus number (in order of reg) */
+-	const char *bus_name;		/* stable id (PCI slot_name etc) */
+-	u8 uses_dma;			/* Does the host controller use DMA? */
+-	u8 uses_pio_for_control;	/*
+-					 * Does the host controller use PIO
+-					 * for control transfers?
+-					 */
+-	u8 otg_port;			/* 0, or number of OTG/HNP port */
+-	unsigned is_b_host:1;		/* true during some HNP roleswitches */
+-	unsigned b_hnp_enable:1;	/* OTG: did A-Host enable HNP? */
+-	unsigned hnp_support:1;		/* OTG: HNP is supported on OTG port */
+-	unsigned quick_hnp:1;		/* OTG: Indiacates if hnp is required
+-					   irrespective of host_request flag
+-					 */
+-	unsigned otg_vbus_off:1;	/* OTG: OTG test device feature bit that
+-					 * tells A-device to turn off VBUS after
+-					 * B-device is disconnected.
+-					 */
+-	struct delayed_work hnp_polling;/* OTG: HNP polling work */
+-	unsigned sg_tablesize;		/* 0 or largest number of sg list entries */
+-
+-	int devnum_next;		/* Next open device number in
+-					 * round-robin allocation */
+-
+-	struct usb_devmap devmap;	/* device address allocation map */
+-	struct usb_device *root_hub;	/* Root hub */
+-	struct usb_bus *hs_companion;	/* Companion EHCI bus, if any */
+-	struct list_head bus_list;	/* list of busses */
+-
+-	int bandwidth_allocated;	/* on this bus: how much of the time
+-					 * reserved for periodic (intr/iso)
+-					 * requests is used, on average?
+-					 * Units: microseconds/frame.
+-					 * Limits: Full/low speed reserve 90%,
+-					 * while high speed reserves 80%.
+-					 */
+-	int bandwidth_int_reqs;		/* number of Interrupt requests */
+-	int bandwidth_isoc_reqs;	/* number of Isoc. requests */
++	struct device *controller;	
++	int busnum;			
++	const char *bus_name;		
++	u8 uses_dma;			
++	u8 uses_pio_for_control;	
++	u8 otg_port;			
++	unsigned is_b_host:1;		
++	unsigned b_hnp_enable:1;	
++	unsigned hnp_support:1;		
++	unsigned quick_hnp:1;		
++	unsigned otg_vbus_off:1;	
++	struct delayed_work hnp_polling;
++	unsigned sg_tablesize;		
++
++	int devnum_next;		
++
++	struct usb_devmap devmap;	
++	struct usb_device *root_hub;	
++	struct usb_bus *hs_companion;	
++	struct list_head bus_list;	
++
++	int bandwidth_allocated;	
++	int bandwidth_int_reqs;		
++	int bandwidth_isoc_reqs;	
+ 
+ #ifdef CONFIG_USB_DEVICEFS
+-	struct dentry *usbfs_dentry;	/* usbfs dentry entry for the bus */
++	struct dentry *usbfs_dentry;	
+ #endif
+ 
+ #if defined(CONFIG_USB_MON) || defined(CONFIG_USB_MON_MODULE)
+-	struct mon_bus *mon_bus;	/* non-null when associated */
+-	int monitored;			/* non-zero when monitored */
++	struct mon_bus *mon_bus;	
++	int monitored;			
+ #endif
+ };
+ 
+-/* ----------------------------------------------------------------------- */
+ 
+-/* This is arbitrary.
+- * From USB 2.0 spec Table 11-13, offset 7, a hub can
+- * have up to 255 ports. The most yet reported is 10.
+- *
+- * Current Wireless USB host hardware (Intel i1480 for example) allows
+- * up to 22 devices to connect. Upcoming hardware might raise that
+- * limit. Because the arrays need to add a bit for hub status data, we
+- * do 31, so plus one evens out to four bytes.
+- */
+ 
+ #if defined(CONFIG_USB_PEHCI_HCD) || defined(CONFIG_USB_PEHCI_HCD_MODULE)
+ #define USB_OTG_SUSPEND		0x1

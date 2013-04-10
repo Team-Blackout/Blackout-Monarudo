@@ -1,16 +1,31 @@
-/*
- * arch/arm/include/asm/mutex.h
- *
- * ARM optimized mutex locking primitives
- *
- * Please look into asm-generic/mutex-xchg.h for a formal definition.
- */
-#ifndef _ASM_MUTEX_H
-#define _ASM_MUTEX_H
-/*
- * On pre-ARMv6 hardware this results in a swp-based implementation,
- * which is the most efficient. For ARMv6+, we emit a pair of exclusive
- * accesses instead.
- */
-#include <asm-generic/mutex-xchg.h>
-#endif
+
+ #ifndef _ASM_MUTEX_H
+ #define _ASM_MUTEX_H
+ 
+ #if __LINUX_ARM_ARCH__ < 6
+ # include <asm-generic/mutex-xchg.h>
+ #else
+ 
+
+ static inline void
+ __mutex_fastpath_lock(atomic_t *count, void (*fail_fn)(atomic_t *))
+ {
+@@ -69,11 +51,6 @@
+ 	return __res;
+ }
+ 
+
+ static inline void
+ __mutex_fastpath_unlock(atomic_t *count, void (*fail_fn)(atomic_t *))
+ {
+@@ -95,19 +72,8 @@
+ 		fail_fn(count);
+ }
+ 
+
+ #define __mutex_slowpath_needs_to_unlock()	1
+ 
+
+ static inline int
+ __mutex_fastpath_trylock(atomic_t *count, int (*fail_fn)(atomic_t *))
+ {

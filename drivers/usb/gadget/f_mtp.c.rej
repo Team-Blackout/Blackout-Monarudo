@@ -1,0 +1,42 @@
+--- drivers/usb/gadget/f_mtp.c	2013-01-04 04:01:34.000000000 -0800
++++ drivers/usb/gadget/f_mtp.c	2013-03-19 04:00:55.000000000 -0700
+@@ -278,7 +262,7 @@
+ 	struct mtp_dev *dev = _mtp_dev;
+ 	dev->mtp_perf_lock_on = mtp_perf_lock_on;
+ 
+-	/* reset the timer */
++	
+ 	del_timer(&dev->perf_timer);
+ 	if (mtp_perf_lock_on) {
+ 		if (!is_perf_lock_active(&dev->perf_lock)) {
+@@ -298,7 +282,6 @@
+ 	mtp_setup_perflock(false);
+ }
+ 
+-/* 50 ms per file */
+ #define MTP_QOS_N_RATIO		15
+ #define MTP_TRANSFER_EXPIRED	(jiffies + msecs_to_jiffies(5000))
+ static void mtp_qos_enable(int qos_n)
+@@ -781,12 +755,11 @@
+ #ifdef CONFIG_PERFLOCK
+ 	mod_timer(&dev->perf_timer, MTP_TRANSFER_EXPIRED);
+ #endif
+-	/* write the result */
++	
+ 	dev->xfer_result = r;
+ 	smp_wmb();
+ }
+ 
+-/* read from USB and write to a local file */
+ static void receive_file_work(struct work_struct *data)
+ {
+ 	struct mtp_dev *dev = container_of(data, struct mtp_dev,
+@@ -875,7 +841,7 @@
+ #ifdef CONFIG_PERFLOCK
+ 	mod_timer(&dev->perf_timer, MTP_TRANSFER_EXPIRED);
+ #endif
+-	/* write the result */
++	
+ 	dev->xfer_result = r;
+ 	smp_wmb();
+ }

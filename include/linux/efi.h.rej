@@ -1,0 +1,22 @@
+--- include/linux/efi.h	2013-01-04 04:01:32.000000000 -0800
++++ include/linux/efi.h	2013-03-19 04:00:53.000000000 -0700
+@@ -466,7 +437,7 @@
+ extern void efi_map_pal_code (void);
+ extern void efi_memmap_walk (efi_freemem_callback_t callback, void *arg);
+ extern void efi_gettimeofday (struct timespec *ts);
+-extern void efi_enter_virtual_mode (void);	/* switch EFI to virtual mode, if possible */
++extern void efi_enter_virtual_mode (void);	
+ extern u64 efi_get_iobase (void);
+ extern u32 efi_mem_type (unsigned long phys_addr);
+ extern u64 efi_mem_attributes (unsigned long phys_addr);
+@@ -496,10 +459,6 @@
+ extern int __init efi_setup_pcdp_console(char *);
+ #endif
+ 
+-/*
+- * We play games with efi_enabled so that the compiler will, if possible, remove
+- * EFI-related code altogether.
+- */
+ #ifdef CONFIG_EFI
+ # ifdef CONFIG_X86
+    extern int efi_enabled;

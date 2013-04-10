@@ -1,0 +1,39 @@
+--- kernel/cpu.c	2013-01-04 04:01:32.000000000 -0800
++++ kernel/cpu.c	2013-03-19 04:00:53.000000000 -0700
+@@ -246,16 +202,15 @@
+ out:
+ 	cpu_maps_update_done();
+ 
+-	/* make cpu frequency seenable ASAP in systrace */
++	
+ 	if (!err)
+ 		trace_cpu_down_frequency (cpu);
+ 
+ 	return err;
+ }
+ EXPORT_SYMBOL(cpu_down);
+-#endif /*CONFIG_HOTPLUG_CPU*/
++#endif 
+ 
+-/* Requires cpu_add_remove_lock to be held */
+ static int __cpuinit _cpu_up(unsigned int cpu, int tasks_frozen)
+ {
+ 	int ret, nr_calls = 0;
+@@ -490,16 +415,8 @@
+ }
+ core_initcall(cpu_hotplug_pm_sync_init);
+ 
+-#endif /* CONFIG_PM_SLEEP_SMP */
++#endif 
+ 
+-/**
+- * notify_cpu_starting(cpu) - call the CPU_STARTING notifiers
+- * @cpu: cpu that just started
+- *
+- * This function calls the cpu_chain notifiers with CPU_STARTING.
+- * It must be called by the arch code on the new cpu, before the new cpu
+- * enables interrupts and before the "boot" cpu returns from __cpu_up().
+- */
+ void __cpuinit notify_cpu_starting(unsigned int cpu)
+ {
+ 	unsigned long val = CPU_STARTING;

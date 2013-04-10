@@ -1,0 +1,31 @@
+--- kernel/async.c	2013-01-04 04:01:32.000000000 -0800
++++ kernel/async.c	2013-03-19 04:00:53.000000000 -0700
+@@ -171,28 +100,12 @@
+ }
+ EXPORT_SYMBOL_GPL(async_synchronize_full);
+ 
+-/**
+- * async_synchronize_full_domain - synchronize all asynchronous function within a certain domain
+- * @list: running list to synchronize on
+- *
+- * This function waits until all asynchronous function calls for the
+- * synchronization domain specified by the running list @list have been done.
+- */
+ void async_synchronize_full_domain(struct list_head *list)
+ {
+ 	async_synchronize_cookie_domain(next_cookie, list);
+ }
+ EXPORT_SYMBOL_GPL(async_synchronize_full_domain);
+ 
+-/**
+- * async_synchronize_cookie_domain - synchronize asynchronous function calls within a certain domain with cookie checkpointing
+- * @cookie: async_cookie_t to use as checkpoint
+- * @running: running list to synchronize on
+- *
+- * This function waits until all asynchronous function calls for the
+- * synchronization domain specified by the running list @list submitted
+- * prior to @cookie have been done.
+- */
+ void async_synchronize_cookie_domain(async_cookie_t cookie,
+ 				     struct list_head *running)
+ {

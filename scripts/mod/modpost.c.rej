@@ -1,0 +1,83 @@
+--- scripts/mod/modpost.c	2013-01-04 04:01:39.000000000 -0800
++++ scripts/mod/modpost.c	2013-03-19 04:01:03.000000000 -0700
+@@ -902,63 +834,54 @@
+ 	.mismatch = DATA_TO_ANY_EXIT,
+ 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
+ },
+-/* Do not reference init code/data from devinit/cpuinit/meminit code/data */
+ {
+ 	.fromsec = { ALL_XXXINIT_SECTIONS, NULL },
+ 	.tosec   = { INIT_SECTIONS, NULL },
+ 	.mismatch = XXXINIT_TO_SOME_INIT,
+ 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
+ },
+-/* Do not reference cpuinit code/data from meminit code/data */
+ {
+ 	.fromsec = { MEM_INIT_SECTIONS, NULL },
+ 	.tosec   = { CPU_INIT_SECTIONS, NULL },
+ 	.mismatch = XXXINIT_TO_SOME_INIT,
+ 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
+ },
+-/* Do not reference meminit code/data from cpuinit code/data */
+ {
+ 	.fromsec = { CPU_INIT_SECTIONS, NULL },
+ 	.tosec   = { MEM_INIT_SECTIONS, NULL },
+ 	.mismatch = XXXINIT_TO_SOME_INIT,
+ 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
+ },
+-/* Do not reference exit code/data from devexit/cpuexit/memexit code/data */
+ {
+ 	.fromsec = { ALL_XXXEXIT_SECTIONS, NULL },
+ 	.tosec   = { EXIT_SECTIONS, NULL },
+ 	.mismatch = XXXEXIT_TO_SOME_EXIT,
+ 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
+ },
+-/* Do not reference cpuexit code/data from memexit code/data */
+ {
+ 	.fromsec = { MEM_EXIT_SECTIONS, NULL },
+ 	.tosec   = { CPU_EXIT_SECTIONS, NULL },
+ 	.mismatch = XXXEXIT_TO_SOME_EXIT,
+ 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
+ },
+-/* Do not reference memexit code/data from cpuexit code/data */
+ {
+ 	.fromsec = { CPU_EXIT_SECTIONS, NULL },
+ 	.tosec   = { MEM_EXIT_SECTIONS, NULL },
+ 	.mismatch = XXXEXIT_TO_SOME_EXIT,
+ 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
+ },
+-/* Do not use exit code/data from init code */
+ {
+ 	.fromsec = { ALL_INIT_SECTIONS, NULL },
+ 	.tosec   = { ALL_EXIT_SECTIONS, NULL },
+ 	.mismatch = ANY_INIT_TO_ANY_EXIT,
+ 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
+ },
+-/* Do not use init code/data from exit code */
+ {
+ 	.fromsec = { ALL_EXIT_SECTIONS, NULL },
+ 	.tosec   = { ALL_INIT_SECTIONS, NULL },
+ 	.mismatch = ANY_EXIT_TO_ANY_INIT,
+ 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
+ },
+-/* Do not export init/exit functions or data */
+ {
+ 	.fromsec = { "__ksymtab*", NULL },
+ 	.tosec   = { INIT_SECTIONS, EXIT_SECTIONS, NULL },
+@@ -1097,16 +954,6 @@
+ 	return near;
+ }
+ 
+-/*
+- * Convert a section name to the function/data attribute
+- * .init.text => __init
+- * .cpuinit.data => __cpudata
+- * .memexitconst => __memconst
+- * etc.
+- *
+- * The memory of returned value has been allocated on a heap. The user of this
+- * method should free it after usage.
+-*/
+ static char *sec2annotation(const char *s)
+ {
+ 	if (match(s, init_exit_sections)) {

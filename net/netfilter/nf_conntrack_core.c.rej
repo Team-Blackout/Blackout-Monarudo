@@ -1,0 +1,33 @@
+--- net/netfilter/nf_conntrack_core.c	2013-01-04 04:01:32.000000000 -0800
++++ net/netfilter/nf_conntrack_core.c	2013-03-19 04:00:53.000000000 -0700
+@@ -235,13 +219,13 @@
+ 	struct net *net = nf_ct_net(ct);
+ 
+ 	if (nf_conntrack_event(IPCT_DESTROY, ct) < 0) {
+-		/* bad luck, let's retry again */
++		
+ 		ct->timeout.expires = jiffies +
+ 			(random32() % net->ct.sysctl_events_retry_timeout);
+ 		add_timer(&ct->timeout);
+ 		return;
+ 	}
+-	/* we've got the event delivered, now it's dying */
++	
+ 	set_bit(IPS_DYING_BIT, &ct->status);
+ 	spin_lock(&nf_conntrack_lock);
+ 	hlist_nulls_del(&ct->tuplehash[IP_CT_DIR_ORIGINAL].hnnode);
+@@ -253,12 +237,12 @@
+ {
+ 	struct net *net = nf_ct_net(ct);
+ 
+-	/* add this conntrack to the dying list */
++	
+ 	spin_lock_bh(&nf_conntrack_lock);
+ 	hlist_nulls_add_head(&ct->tuplehash[IP_CT_DIR_ORIGINAL].hnnode,
+ 			     &net->ct.dying);
+ 	spin_unlock_bh(&nf_conntrack_lock);
+-	/* set a new timer to retry event delivery */
++	
+ 	setup_timer(&ct->timeout, death_by_event, (unsigned long)ct);
+ 	ct->timeout.expires = jiffies +
+ 		(random32() % net->ct.sysctl_events_retry_timeout);

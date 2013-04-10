@@ -1,0 +1,8 @@
+--- include/linux/msm_thermal.h	2013-01-04 04:01:33.000000000 -0800
++++ include/linux/msm_thermal.h	2013-03-19 04:00:54.000000000 -0700
+@@ -31,4 +31,4 @@
+ }
+ #endif
+ 
+-#endif /*__MSM_THERMAL_H*/
++#endif 

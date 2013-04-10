@@ -1,0 +1,36 @@
+--- net/netfilter/xt_limit.c	2013-01-04 04:01:32.000000000 -0800
++++ net/netfilter/xt_limit.c	2013-03-19 04:00:53.000000000 -0700
+@@ -64,13 +41,12 @@
+ 	return false;
+ }
+ 
+-/* Precision saver. */
+ static u_int32_t
+ user2credits(u_int32_t user)
+ {
+-	/* If multiplying would overflow... */
++	
+ 	if (user > 0xFFFFFFFF / (HZ*CREDITS_PER_JIFFY))
+-		/* Divide first. */
++		
+ 		return (user / XT_LIMIT_SCALE) * HZ * CREDITS_PER_JIFFY;
+ 
+ 	return (user * HZ * CREDITS_PER_JIFFY) / XT_LIMIT_SCALE;
+@@ -93,14 +69,12 @@
+ 	if (priv == NULL)
+ 		return -ENOMEM;
+ 
+-	/* For SMP, we only want to use one set of state. */
++	
+ 	r->master = priv;
+ 	if (r->cost == 0) {
+-		/* User avg in seconds * XT_LIMIT_SCALE: convert to jiffies *
+-		   128. */
+ 		priv->prev = jiffies;
+-		priv->credit = user2credits(r->avg * r->burst); /* Credits full. */
+-		r->credit_cap = user2credits(r->avg * r->burst); /* Credits full. */
++		priv->credit = user2credits(r->avg * r->burst); 
++		r->credit_cap = user2credits(r->avg * r->burst); 
+ 		r->cost = user2credits(r->avg);
+ 	}
+ 	return 0;

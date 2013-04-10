@@ -1,0 +1,14 @@
+--- fs/ext4/mballoc.c	2013-01-04 04:01:38.000000000 -0800
++++ fs/ext4/mballoc.c	2013-03-19 04:01:01.000000000 -0700
+@@ -3301,9 +2479,9 @@
+ 
+ 	order = fls(pa->pa_free) - 1;
+ 	if (order > PREALLOC_TB_SIZE - 1)
+-		/* The max size of hash table is PREALLOC_TB_SIZE */
++		
+ 		order = PREALLOC_TB_SIZE - 1;
+-	/* Add the prealloc space to lg */
++	
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(tmp_pa, &lg->lg_prealloc_list[order],
+ 						pa_inode_list) {

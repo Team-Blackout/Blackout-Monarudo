@@ -1,0 +1,30 @@
+--- net/xfrm/xfrm_user.c	2013-01-04 04:01:31.000000000 -0800
++++ net/xfrm/xfrm_user.c	2013-03-19 04:00:51.000000000 -0700
+@@ -437,11 +437,6 @@
+ 		x->sel.family = p->family;
+ }
+ 
+-/*
+- * someday when pfkey also has support, we could have the code
+- * somehow made shareable and move it to xfrm_state.c - JHS
+- *
+-*/
+ static void xfrm_update_ae_params(struct xfrm_state *x, struct nlattr **attrs)
+ {
+ 	struct nlattr *rp = attrs[XFRMA_REPLAY_VAL];
+@@ -548,13 +543,13 @@
+ 
+ 	x->km.seq = p->seq;
+ 	x->replay_maxdiff = net->xfrm.sysctl_aevent_rseqth;
+-	/* sysctl_xfrm_aevent_etime is in 100ms units */
++	
+ 	x->replay_maxage = (net->xfrm.sysctl_aevent_etime*HZ)/XFRM_AE_ETH_M;
+ 
+ 	if ((err = xfrm_init_replay(x)))
+ 		goto error;
+ 
+-	/* override default values from above */
++	
+ 	xfrm_update_ae_params(x, attrs);
+ 
+ 	return x;

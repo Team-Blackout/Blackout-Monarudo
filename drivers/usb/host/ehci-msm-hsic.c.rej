@@ -1,0 +1,190 @@
+--- drivers/usb/host/ehci-msm-hsic.c	2013-01-04 04:01:35.000000000 -0800
++++ drivers/usb/host/ehci-msm-hsic.c	2013-03-19 04:00:56.000000000 -0700
+@@ -463,25 +408,24 @@
+ 	usb_register_notify(&mdm_hsic_usb_nb);
+ }
+ 
+-/* ++SSD_RIL */
+ 
+ 
+ 
+ #define ULPI_IO_TIMEOUT_USEC	(10 * 1000)
+ 
+-#define USB_PHY_VDD_DIG_VOL_NONE	0 /*uV */
+-#define USB_PHY_VDD_DIG_VOL_MIN		1000000 /* uV */
+-#define USB_PHY_VDD_DIG_VOL_MAX		1320000 /* uV */
++#define USB_PHY_VDD_DIG_VOL_NONE	0 
++#define USB_PHY_VDD_DIG_VOL_MIN		1000000 
++#define USB_PHY_VDD_DIG_VOL_MAX		1320000 
+ 
+ #define HSIC_DBG1_REG		0x38
+ 
+ static const int vdd_val[VDD_TYPE_MAX][VDD_VAL_MAX] = {
+-		{   /* VDD_CX CORNER Voting */
++		{   
+ 			[VDD_NONE]	= RPM_VREG_CORNER_NONE,
+ 			[VDD_MIN]	= RPM_VREG_CORNER_NOMINAL,
+ 			[VDD_MAX]	= RPM_VREG_CORNER_HIGH,
+ 		},
+-		{   /* VDD_CX Voltage Voting */
++		{   
+ 			[VDD_NONE]	= USB_PHY_VDD_DIG_VOL_NONE,
+ 			[VDD_MIN]	= USB_PHY_VDD_DIG_VOL_MIN,
+ 			[VDD_MAX]	= USB_PHY_VDD_DIG_VOL_MAX,
+@@ -542,30 +486,20 @@
+ static int ulpi_read(struct msm_hsic_hcd *mehci, u32 reg)
+ {
+ 	struct usb_hcd *hcd = hsic_to_hcd(mehci);
+-	/* ++SSD_RIL */
+-	//unsigned long timeout;
++	
++	
+ 	int cnt = 0;
+-	/* --SSD_RIL */
++	
+ 
+-	/* initiate read operation */
++	
+ 	writel_relaxed(ULPI_RUN | ULPI_READ | ULPI_ADDR(reg),
+ 	       USB_ULPI_VIEWPORT);
+ 
+-	/* wait for completion */
+-	/* ++SSD_RIL */
+-	/*
+-	timeout = jiffies + usecs_to_jiffies(ULPI_IO_TIMEOUT_USEC);
+-	while (readl_relaxed(USB_ULPI_VIEWPORT) & ULPI_RUN) {
+-		if (time_after(jiffies, timeout)) {
+-			dev_err(mehci->dev, "ulpi_read: timeout %08x\n",
+-				readl_relaxed(USB_ULPI_VIEWPORT));
+-			return -ETIMEDOUT;
+-		}
+-		udelay(1);
+-	}*/
+-	/* --SSD_RIL */
+-	/* wait for completion */
+-	/* ++SSD_RIL */
++	
++	
++	
++	
++	
+ 	while (cnt < ULPI_IO_TIMEOUT_USEC) {
+ 		if (!(readl_relaxed(USB_ULPI_VIEWPORT) & ULPI_RUN))
+ 			break;
+@@ -577,7 +511,7 @@
+ 		dev_err(mehci->dev, "ulpi_read timeout\n");
+ 		return -ETIMEDOUT;
+ 	}
+-	/* --SSD_RIL */
++	
+ 
+ 	return ULPI_DATA_READ(readl_relaxed(USB_ULPI_VIEWPORT));
+ }
+@@ -726,61 +658,53 @@
+ 
+ 	msm_hsic_clk_reset(mehci);
+ 
+-	/* select ulpi phy */
++	
+ 	writel_relaxed(0x80000000, USB_PORTSC);
+ 
+ 	mb();
+ 
+-	/* HSIC init sequence when HSIC signals (Strobe/Data) are
+-	routed via GPIOs */
+ 	if (pdata && pdata->strobe && pdata->data) {
+ 
+-		/* Enable LV_MODE in HSIC_CAL_PAD_CTL register */
++		
+ 		writel_relaxed(HSIC_LV_MODE, HSIC_CAL_PAD_CTL);
+ 
+ 		mb();
+ 
+-		/*set periodic calibration interval to ~2.048sec in
+-		  HSIC_IO_CAL_REG */
+ 		ulpi_write(mehci, 0xFF, 0x33);
+ 
+-		/* Enable periodic IO calibration in HSIC_CFG register */
++		
+ 		ulpi_write(mehci, HSIC_PAD_CALIBRATION, 0x30);
+ 
+-		/* Configure GPIO pins for HSIC functionality mode */
++		
+ 		ret = msm_hsic_config_gpios(mehci, 1);
+ 		if (ret) {
+ 			dev_err(mehci->dev, " gpio configuarion failed\n");
+ 			return ret;
+ 		}
+-		/* Set LV_MODE=0x1 and DCC=0x2 in HSIC_GPIO PAD_CTL register */
++		
+ 		writel_relaxed(HSIC_GPIO_PAD_VAL, HSIC_STROBE_GPIO_PAD_CTL);
+ 		writel_relaxed(HSIC_GPIO_PAD_VAL, HSIC_DATA_GPIO_PAD_CTL);
+ 
+ 		mb();
+ 
+-		/* Enable HSIC mode in HSIC_CFG register */
++		
+ 		ulpi_write(mehci, 0x01, 0x31);
+ 	} else {
+-		/* HSIC init sequence when HSIC signals (Strobe/Data) are routed
+-		via dedicated I/O */
+ 
+-		/* programmable length of connect signaling (33.2ns) */
++		
+ 		ret = ulpi_write(mehci, 3, HSIC_DBG1_REG);
+ 		if (ret) {
+ 			pr_err("%s: Unable to program length of connect "
+ 			      "signaling\n", __func__);
+ 		}
+ 
+-		/*set periodic calibration interval to ~2.048sec in
+-		  HSIC_IO_CAL_REG */
+ 		ulpi_write(mehci, 0xFF, 0x33);
+ 
+-		/* Enable HSIC mode in HSIC_CFG register */
++		
+ 		ulpi_write(mehci, 0xA9, 0x30);
+ 	}
+ 
+-	/*disable auto resume*/
++	
+ 	ulpi_write(mehci, ULPI_IFC_CTRL_AUTORESUME, ULPI_CLR(ULPI_IFC_CTRL));
+ 
+ 	return 0;
+@@ -884,7 +792,7 @@
+ #endif
+ 	if (usb_device_recongnized)
+ 		cancel_delayed_work(&mdm_hsic_pm_monitor_delayed_work);
+-	/* --SSD_RIL */
++	
+ 	wake_unlock(&mehci->wlock);
+ 
+ 	dev_info(mehci->dev, "HSIC-USB in low power mode\n");
+@@ -1136,8 +1033,6 @@
+ 		return ret;
+ 	}
+ 
+-	/* alt_core_clk is for LINK to be used during PHY RESET
+-	 * clock rate appropriately set by target specific clock driver */
+ 	mehci->alt_core_clk = clk_get(mehci->dev, "alt_core_clk");
+ 	if (IS_ERR(mehci->alt_core_clk)) {
+ 		dev_err(mehci->dev, "failed to core_clk\n");
+@@ -1467,16 +1369,11 @@
+ 
+ 	dev_dbg(&pdev->dev, "ehci_msm-hsic probe\n");
+ 
+-	/* ++SSD_RIL: USB PM DBG*/
++	
+ 	if (get_radio_flag() & 0x0008)
+ 		usb_pm_debug_enabled = true;
+-	/* --SSD_RIL */
++	
+ 
+-	/* After parent device's probe is executed, it will be put in suspend
+-	 * mode. When child device's probe is called, driver core is not
+-	 * resuming parent device due to which parent will be in suspend even
+-	 * though child is active. Hence resume the parent device explicitly.
+-	 */
+ 	if (pdev->dev.parent)
+ 		pm_runtime_get_sync(pdev->dev.parent);
+ 

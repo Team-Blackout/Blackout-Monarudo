@@ -1,0 +1,18 @@
+--- net/ipv4/tcp_ipv4.c	2013-01-04 04:01:31.000000000 -0800
++++ net/ipv4/tcp_ipv4.c	2013-03-19 04:00:51.000000000 -0700
+@@ -534,14 +390,10 @@
+ 	}
+ #endif
+ 	arg.csum = csum_tcpudp_nofold(ip_hdr(skb)->daddr,
+-				      ip_hdr(skb)->saddr, /* XXX */
++				      ip_hdr(skb)->saddr, 
+ 				      arg.iov[0].iov_len, IPPROTO_TCP, 0);
+ 	arg.csumoffset = offsetof(struct tcphdr, check) / 2;
+ 	arg.flags = (sk && inet_sk(sk)->transparent) ? IP_REPLY_ARG_NOSRCCHECK : 0;
+-	/* When socket is gone, all binding information is lost.
+-	 * routing might fail in this case. using iif for oif to
+-	 * make sure we can deliver it
+-	 */
+ 	arg.bound_dev_if = sk ? sk->sk_bound_dev_if : inet_iif(skb);
+ 
+ 	net = dev_net(skb_dst(skb)->dev);

@@ -1,0 +1,22 @@
+--- drivers/hid/hid-microsoft.c	2013-01-04 04:01:36.000000000 -0800
++++ drivers/hid/hid-microsoft.c	2013-03-19 04:01:00.000000000 -0700
+@@ -30,10 +30,6 @@
+ #define MS_NOGET		0x10
+ #define MS_DUPLICATE_USAGES	0x20
+ 
+-/*
+- * Microsoft Wireless Desktop Receiver (Model 1028) has
+- * 'Usage Min/Max' where it ought to have 'Physical Min/Max'
+- */
+ static __u8 *ms_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+ {
+@@ -131,7 +127,7 @@
+ 			!usage->type)
+ 		return 0;
+ 
+-	/* Handling MS keyboards special buttons */
++	
+ 	if (quirks & MS_ERGONOMY && usage->hid == (HID_UP_MSVENDOR | 0xff05)) {
+ 		struct input_dev *input = field->hidinput->input;
+ 		static unsigned int last_key = 0;

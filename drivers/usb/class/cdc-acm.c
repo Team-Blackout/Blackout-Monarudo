@@ -61,14 +61,7 @@ static struct acm *acm_table[ACM_TTY_MINORS];
 
 static DEFINE_MUTEX(acm_table_lock);
 
-/*
- * acm_table accessors
- */
 
-/*
- * Look up an ACM structure by index. If found and not disconnected, increment
- * its refcount and return it with its mutex held.
- */
 static struct acm *acm_get_by_index(unsigned index)
 {
 	struct acm *acm;
@@ -89,9 +82,6 @@ static struct acm *acm_get_by_index(unsigned index)
 	return acm;
 }
 
-/*
- * Try to find an available minor number and if found, associate it with 'acm'.
- */
 static int acm_alloc_minor(struct acm *acm)
 {
 	int minor;
@@ -108,7 +98,6 @@ static int acm_alloc_minor(struct acm *acm)
 	return minor;
 }
 
-/* Release the minor number associated with 'acm'.  */
 static void acm_release_minor(struct acm *acm)
 {
 	mutex_lock(&acm_table_lock);
@@ -116,9 +105,6 @@ static void acm_release_minor(struct acm *acm)
 	mutex_unlock(&acm_table_lock);
 }
 
-/*
- * Functions for ACM control messages.
- */
 
 static int acm_ctrl_msg(struct acm *acm, int request, int value,
 							void *buf, int len)
@@ -133,9 +119,6 @@ static int acm_ctrl_msg(struct acm *acm, int request, int value,
 	return retval < 0 ? retval : 0;
 }
 
-/* devices aren't required to support these requests.
- * the cdc acm descriptor tells whether they do...
- */
 #define acm_set_control(acm, control) \
 	acm_ctrl_msg(acm, USB_CDC_REQ_SET_CONTROL_LINE_STATE, control, NULL, 0)
 #define acm_set_line(acm, line) \
@@ -143,10 +126,6 @@ static int acm_ctrl_msg(struct acm *acm, int request, int value,
 #define acm_send_break(acm, ms) \
 	acm_ctrl_msg(acm, USB_CDC_REQ_SEND_BREAK, ms, NULL, 0)
 
-/*
- * Write buffer management.
- * All of these assume proper locks taken by the caller.
- */
 
 static int acm_wb_alloc(struct acm *acm)
 {
@@ -180,9 +159,6 @@ static int acm_wb_is_avail(struct acm *acm)
 	return n;
 }
 
-/*
- * Finish write. Caller must hold acm->write_lock
- */
 static void acm_write_done(struct acm *acm, struct acm_wb *wb)
 {
 	wb->use = 0;
@@ -190,11 +166,6 @@ static void acm_write_done(struct acm *acm, struct acm_wb *wb)
 	usb_autopm_put_interface_async(acm->control);
 }
 
-/*
- * Poke write.
- *
- * the caller is responsible for locking
- */
 
 static int acm_start_wb(struct acm *acm, struct acm_wb *wb)
 {
@@ -239,7 +210,7 @@ static int acm_write_start(struct acm *acm, int wbn)
 		else
 			usb_autopm_put_interface_async(acm->control);
 		spin_unlock_irqrestore(&acm->write_lock, flags);
-		return 0;	/* A white lie */
+		return 0;	
 	}
 	usb_mark_last_busy(acm->dev);
 
@@ -249,9 +220,6 @@ static int acm_write_start(struct acm *acm, int wbn)
 	return rc;
 
 }
-/*
- * attributes exported through sysfs
- */
 static ssize_t show_caps
 (struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -284,11 +252,7 @@ static ssize_t show_country_rel_date
 }
 
 static DEVICE_ATTR(iCountryCodeRelDate, S_IRUGO, show_country_rel_date, NULL);
-/*
- * Interrupt handlers for various ACM device responses
- */
 
-/* control interface reports status changes with "interrupt" transfers */
 static void acm_ctrl_irq(struct urb *urb)
 {
 	struct acm *acm = urb->context;
@@ -301,12 +265,12 @@ static void acm_ctrl_irq(struct urb *urb)
 
 	switch (status) {
 	case 0:
-		/* success */
+		
 		break;
 	case -ECONNRESET:
 	case -ENOENT:
 	case -ESHUTDOWN:
-		/* this urb is terminated, clean up */
+		
 		dev_dbg(&acm->control->dev,
 				"%s - urb shutting down with status: %d\n",
 				__func__, status);
@@ -449,7 +413,7 @@ static void acm_read_bulk_callback(struct urb *urb)
 	}
 	acm_process_read_urb(acm, urb);
 
-	/* throttle device if requested by tty */
+	
 	spin_lock_irqsave(&acm->read_lock, flags);
 	acm->throttled = acm->throttle_req;
 	if (!acm->throttled && !acm->susp_count) {
@@ -460,7 +424,6 @@ static void acm_read_bulk_callback(struct urb *urb)
 	}
 }
 
-/* data interface wrote those outgoing bytes */
 static void acm_write_bulk(struct urb *urb)
 {
 	struct acm_wb *wb = urb->context;
@@ -494,9 +457,6 @@ static void acm_softint(struct work_struct *work)
 	tty_kref_put(tty);
 }
 
-/*
- * TTY handlers
- */
 
 static int acm_tty_install(struct tty_driver *driver, struct tty_struct *tty)
 {
@@ -546,10 +506,6 @@ static int acm_port_activate(struct tty_port *port, struct tty_struct *tty)
 	if (retval)
 		goto error_get_interface;
 
-	/*
-	 * FIXME: Why do we need this? Allocating 64K of physically contiguous
-	 * memory is really nasty...
-	 */
 	set_bit(TTY_NO_WRITE_SPLIT, &tty->flags);
 	acm->control->needs_remote_wakeup = 1;
 
@@ -567,9 +523,6 @@ static int acm_port_activate(struct tty_port *port, struct tty_struct *tty)
 
 	usb_autopm_put_interface(acm->control);
 
-	/*
-	 * Unthrottle device in case the TTY was closed while throttled.
-	 */
 	spin_lock_irq(&acm->read_lock);
 	acm->throttled = 0;
 	acm->throttle_req = 0;
@@ -687,25 +640,14 @@ static int acm_tty_write(struct tty_struct *tty,
 static int acm_tty_write_room(struct tty_struct *tty)
 {
 	struct acm *acm = tty->driver_data;
-	/*
-	 * Do not let the line discipline to know that we have a reserve,
-	 * or it might get too enthusiastic.
-	 */
 	return acm_wb_is_avail(acm) ? acm->writesize : 0;
 }
 
 static int acm_tty_chars_in_buffer(struct tty_struct *tty)
 {
 	struct acm *acm = tty->driver_data;
-	/*
-	 * if the device was unplugged then any remaining characters fell out
-	 * of the connector ;)
-	 */
 	if (acm->disconnected)
 		return 0;
-	/*
-	 * This is inaccurate (overcounts), but it works.
-	 */
 	return (ACM_NW - acm_wb_is_avail(acm)) * acm->writesize;
 }
 
@@ -836,7 +778,7 @@ static int acm_tty_ioctl(struct tty_struct *tty,
 	int rv = -ENOIOCTLCMD;
 
 	switch (cmd) {
-	case TIOCGSERIAL: /* gets serial port data */
+	case TIOCGSERIAL: 
 		rv = get_serial_info(acm, (struct serial_struct __user *) arg);
 		break;
 	case TIOCSSERIAL:
@@ -912,11 +854,7 @@ static const struct tty_port_operations acm_port_ops = {
 	.destruct = acm_port_destruct,
 };
 
-/*
- * USB probe and disconnect routines.
- */
 
-/* Little helpers: write/read buffers free */
 static void acm_write_buffers_free(struct acm *acm)
 {
 	int i;
@@ -937,7 +875,6 @@ static void acm_read_buffers_free(struct acm *acm)
 			  acm->read_buffers[i].base, acm->read_buffers[i].dma);
 }
 
-/* Little helper: write buffers allocate */
 static int acm_write_buffers_alloc(struct acm *acm)
 {
 	int i;
@@ -985,18 +922,18 @@ static int acm_probe(struct usb_interface *intf,
 	int i;
 	int combined_interfaces = 0;
 
-	/* normal quirks */
+	
 	quirks = (unsigned long)id->driver_info;
 	num_rx_buf = (quirks == SINGLE_RX_URB) ? 1 : ACM_NR;
 
-	/* handle quirks deadly to normal probing*/
+	
 	if (quirks == NO_UNION_NORMAL) {
 		data_interface = usb_ifnum_to_if(usb_dev, 1);
 		control_interface = usb_ifnum_to_if(usb_dev, 0);
 		goto skip_normal_probe;
 	}
 
-	/* normal probing*/
+	
 	if (!buffer) {
 		dev_err(&intf->dev, "Weird descriptor references\n");
 		return -EINVAL;
@@ -1024,7 +961,7 @@ static int acm_probe(struct usb_interface *intf,
 		}
 
 		switch (buffer[2]) {
-		case USB_CDC_UNION_TYPE: /* we've found it */
+		case USB_CDC_UNION_TYPE: 
 			if (union_header) {
 				dev_err(&intf->dev, "More than one "
 					"union descriptor, skipping ...\n");
@@ -1032,11 +969,11 @@ static int acm_probe(struct usb_interface *intf,
 			}
 			union_header = (struct usb_cdc_union_desc *)buffer;
 			break;
-		case USB_CDC_COUNTRY_TYPE: /* export through sysfs*/
+		case USB_CDC_COUNTRY_TYPE: 
 			cfd = (struct usb_cdc_country_functional_desc *)buffer;
 			break;
-		case USB_CDC_HEADER_TYPE: /* maybe check version */
-			break; /* for now we ignore it */
+		case USB_CDC_HEADER_TYPE: 
+			break; 
 		case USB_CDC_ACM_TYPE:
 			ac_management_function = buffer[3];
 			break;
@@ -1047,9 +984,6 @@ static int acm_probe(struct usb_interface *intf,
 				dev_err(&intf->dev, "This device cannot do calls on its own. It is not a modem.\n");
 			break;
 		default:
-			/* there are LOTS more CDC descriptors that
-			 * could legitimately be found here.
-			 */
 			dev_dbg(&intf->dev, "Ignoring descriptor: "
 					"type %02x, length %d\n",
 					buffer[2], buffer[0]);
@@ -1063,7 +997,7 @@ next_desc:
 	if (!union_header) {
 		if (call_interface_num > 0) {
 			dev_dbg(&intf->dev, "No union descriptor, using call management descriptor\n");
-			/* quirks for Droids MuIn LCD */
+			
 			if (quirks & NO_DATA_INTERFACE)
 				data_interface = usb_ifnum_to_if(usb_dev, 0);
 			else
@@ -1093,10 +1027,10 @@ next_desc:
 		dev_dbg(&intf->dev, "Separate call control interface. That is not fully supported.\n");
 
 	if (control_interface == data_interface) {
-		/* some broken devices designed for windows work this way */
+		
 		dev_warn(&intf->dev,"Control and data interfaces are not separated!\n");
 		combined_interfaces = 1;
-		/* a popular other OS doesn't use it */
+		
 		quirks |= NO_CAP_LINE;
 		if (data_interface->cur_altsetting->desc.bNumEndpoints != 3) {
 			dev_err(&intf->dev, "This needs exactly 3 endpoints\n");
@@ -1124,7 +1058,7 @@ look_for_collapsed_interface:
 
 skip_normal_probe:
 
-	/*workaround for switched interfaces */
+	
 	if (data_interface->cur_altsetting->desc.bInterfaceClass
 						!= CDC_DATA_INTERFACE_TYPE) {
 		if (control_interface->cur_altsetting->desc.bInterfaceClass
@@ -1140,12 +1074,12 @@ skip_normal_probe:
 		}
 	}
 
-	/* Accept probe requests only for the control interface */
+	
 	if (!combined_interfaces && intf != control_interface)
 		return -ENODEV;
 
 	if (!combined_interfaces && usb_interface_claimed(data_interface)) {
-		/* valid in this context */
+		
 		dev_dbg(&intf->dev, "The data interface isn't available\n");
 		return -EBUSY;
 	}
@@ -1160,9 +1094,9 @@ skip_normal_probe:
 	epwrite = &data_interface->cur_altsetting->endpoint[1].desc;
 
 
-	/* workaround for switched endpoints */
+	
 	if (!usb_endpoint_dir_in(epread)) {
-		/* descriptors are swapped */
+		
 		struct usb_endpoint_descriptor *t;
 		dev_dbg(&intf->dev,
 			"The data interface has switched endpoints\n");
@@ -1297,7 +1231,7 @@ made_compressed_probe:
 	if (i < 0)
 		goto alloc_fail7;
 
-	if (cfd) { /* export the country data */
+	if (cfd) { 
 		acm->country_codes = kmalloc(cfd->bLength - 4, GFP_KERNEL);
 		if (!acm->country_codes)
 			goto skip_countries;
@@ -1329,7 +1263,7 @@ skip_countries:
 	usb_fill_int_urb(acm->ctrlurb, usb_dev,
 			 usb_rcvintpipe(usb_dev, epctrl->bEndpointAddress),
 			 acm->ctrl_buffer, ctrlsize, acm_ctrl_irq, acm,
-			 /* works around buggy devices */
+			 
 			 epctrl->bInterval ? epctrl->bInterval : 0xff);
 	acm->ctrlurb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
 	acm->ctrlurb->transfer_dma = acm->ctrl_dma;
@@ -1392,7 +1326,7 @@ static void acm_disconnect(struct usb_interface *intf)
 
 	dev_dbg(&intf->dev, "%s\n", __func__);
 
-	/* sibling interface is already cleaning up */
+	
 	if (!acm)
 		return;
 
@@ -1494,10 +1428,6 @@ static int acm_resume(struct usb_interface *intf)
 			spin_unlock_irq(&acm->write_lock);
 		}
 
-		/*
-		 * delayed error checking because we must
-		 * do the write path at all cost
-		 */
 		if (rv < 0)
 			goto err_out;
 
@@ -1524,7 +1454,7 @@ static int acm_reset_resume(struct usb_interface *intf)
 	return acm_resume(intf);
 }
 
-#endif /* CONFIG_PM */
+#endif 
 
 #define NOKIA_PCSUITE_ACM_INFO(x) \
 		USB_DEVICE_AND_INTERFACE_INFO(0x0421, x, \
@@ -1730,9 +1660,6 @@ static struct usb_driver acm_driver = {
 #endif
 };
 
-/*
- * TTY driver structures.
- */
 
 static const struct tty_operations acm_ops = {
 	.install =		acm_tty_install,
@@ -1752,9 +1679,6 @@ static const struct tty_operations acm_ops = {
 	.tiocmset =		acm_tty_tiocmset,
 };
 
-/*
- * Init / exit.
- */
 
 static int __init acm_init(void)
 {

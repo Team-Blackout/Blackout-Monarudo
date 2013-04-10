@@ -1,0 +1,140 @@
+--- kernel/rcutree.c	2013-01-04 04:01:32.000000000 -0800
++++ kernel/rcutree.c	2013-03-19 04:00:53.000000000 -0700
+@@ -151,15 +100,15 @@
+ 	.dynticks = ATOMIC_INIT(1),
+ };
+ 
+-static int blimit = 10;		/* Maximum callbacks per rcu_do_batch. */
+-static int qhimark = 10000;	/* If this many pending, ignore blimit. */
+-static int qlowmark = 100;	/* Once only this many pending, use blimit. */
++static int blimit = 10;		
++static int qhimark = 10000;	
++static int qlowmark = 100;	
+ 
+ module_param(blimit, int, 0);
+ module_param(qhimark, int, 0);
+ module_param(qlowmark, int, 0);
+ 
+-int rcu_cpu_stall_suppress __read_mostly; /* 1 = suppress stall warnings. */
++int rcu_cpu_stall_suppress __read_mostly; 
+ int rcu_cpu_stall_timeout __read_mostly = CONFIG_RCU_CPU_STALL_TIMEOUT;
+ 
+ module_param(rcu_cpu_stall_suppress, int, 0644);
+@@ -193,72 +126,37 @@
+ }
+ EXPORT_SYMBOL_GPL(rcutorture_record_test_transition);
+ 
+-/*
+- * Record the number of writer passes through the current rcutorture test.
+- * This is also used to correlate debugfs tracing stats with the rcutorture
+- * messages.
+- */
+ void rcutorture_record_progress(unsigned long vernum)
+ {
+ 	rcutorture_vernum++;
+ }
+ EXPORT_SYMBOL_GPL(rcutorture_record_progress);
+ 
+-/*
+- * Force a quiescent state for RCU-sched.
+- */
+ void rcu_sched_force_quiescent_state(void)
+ {
+ 	force_quiescent_state(&rcu_sched_state, 0);
+ }
+ EXPORT_SYMBOL_GPL(rcu_sched_force_quiescent_state);
+ 
+-/*
+- * Does the CPU have callbacks ready to be invoked?
+- */
+ static int
+ cpu_has_callbacks_ready_to_invoke(struct rcu_data *rdp)
+ {
+ 	return &rdp->nxtlist != rdp->nxttail[RCU_DONE_TAIL];
+ }
+ 
+-/*
+- * Does the current CPU require a yet-as-unscheduled grace period?
+- */
+ static int
+ cpu_needs_another_gp(struct rcu_state *rsp, struct rcu_data *rdp)
+ {
+ 	return *rdp->nxttail[RCU_DONE_TAIL] && !rcu_gp_in_progress(rsp);
+ }
+ 
+-/*
+- * Return the root node of the specified rcu_state structure.
+- */
+ static struct rcu_node *rcu_get_root(struct rcu_state *rsp)
+ {
+ 	return &rsp->node[0];
+ }
+ 
+-/*
+- * If the specified CPU is offline, tell the caller that it is in
+- * a quiescent state.  Otherwise, whack it with a reschedule IPI.
+- * Grace periods can end up waiting on an offline CPU when that
+- * CPU is in the process of coming online -- it will be added to the
+- * rcu_node bitmasks before it actually makes it online.  The same thing
+- * can happen while a CPU is in the process of coming online.  Because this
+- * race is quite rare, we check for it after detecting that the grace
+- * period has been delayed rather than checking each and every CPU
+- * each and every time we start a new grace period.
+- */
+ static int rcu_implicit_offline_qs(struct rcu_data *rdp)
+ {
+-	/*
+-	 * If the CPU is offline for more than a jiffy, it is in a quiescent
+-	 * state.  We can trust its state not to change because interrupts
+-	 * are disabled.  The reason for the jiffy's worth of slack is to
+-	 * handle CPUs initializing on the way up and finding their way
+-	 * to the idle loop on the way down.
+-	 */
+ 	if (cpu_is_offline(rdp->cpu) &&
+ 	    ULONG_CMP_LT(rdp->rsp->gp_start + 2, jiffies)) {
+ 		trace_rcu_fqs(rdp->rsp->name, rdp->gpnum, rdp->cpu, "ofl");
+@@ -1011,19 +523,15 @@
+ {
+ }
+ 
+-#endif /* #else #ifdef CONFIG_HOTPLUG_CPU */
++#endif 
+ 
+-/*
+- * Invoke any RCU callbacks that have made it to the end of their grace
+- * period.  Thottle as specified by rdp->blimit.
+- */
+ static void rcu_do_batch(struct rcu_state *rsp, struct rcu_data *rdp)
+ {
+ 	unsigned long flags;
+ 	struct rcu_head *next, *list, **tail;
+ 	int bl, count, count_lazy;
+ 
+-	/* If no callbacks are ready, just return.*/
++	
+ 	if (!cpu_has_callbacks_ready_to_invoke(rdp)) {
+ 		trace_rcu_batch_start(rsp->name, rdp->qlen_lazy, rdp->qlen, 0);
+ 		trace_rcu_batch_end(rsp->name, 0, !!ACCESS_ONCE(rdp->nxtlist),
+@@ -1585,12 +863,6 @@
+ 	raw_spin_unlock_irqrestore(&rnp->lock, flags);
+ }
+ 
+-/*
+- * Initialize a CPU's per-CPU RCU data.  Note that only one online or
+- * offline event can be happening at a given time.  Note also that we
+- * can accept some slop in the rsp->completed access due to the fact
+- * that this CPU cannot possibly have any RCU callbacks in flight yet.
+- */
+ static void __cpuinit
+ rcu_init_percpu_data(int cpu, struct rcu_state *rsp, int preemptible)
+ {
+@@ -1646,9 +909,6 @@
+ 	rcu_preempt_init_percpu_data(cpu);
+ }
+ 
+-/*
+- * Handle CPU online/offline notification events.
+- */
+ static int __cpuinit rcu_cpu_notify(struct notifier_block *self,
+ 				    unsigned long action, void *hcpu)
+ {

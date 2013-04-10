@@ -1,0 +1,25 @@
+--- kernel/irq/spurious.c	2013-01-04 04:01:33.000000000 -0800
++++ kernel/irq/spurious.c	2013-03-19 04:00:53.000000000 -0700
+@@ -53,21 +39,13 @@
+ 
+ 	raw_spin_lock(&desc->lock);
+ 
+-	/* PER_CPU and nested thread interrupts are never polled */
++	
+ 	if (irq_settings_is_per_cpu(desc) || irq_settings_is_nested_thread(desc))
+ 		goto out;
+ 
+-	/*
+-	 * Do not poll disabled interrupts unless the spurious
+-	 * disabled poller asks explicitely.
+-	 */
+ 	if (irqd_irq_disabled(&desc->irq_data) && !force)
+ 		goto out;
+ 
+-	/*
+-	 * All handlers must agree on IRQF_SHARED, so we test just the
+-	 * first. Check for action->next as well.
+-	 */
+ 	action = desc->action;
+ 	if (!action || !(action->flags & IRQF_SHARED) ||
+ 	    (action->flags & __IRQF_TIMER) ||

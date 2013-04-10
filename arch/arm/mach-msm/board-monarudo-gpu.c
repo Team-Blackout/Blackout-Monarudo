@@ -191,7 +191,7 @@ static struct msm_dcvs_core_info grp2d_core_info = {
 		.em_max_util_pct = 95,
 	},
 };
-#endif /* CONFIG_MSM_DCVS */
+#endif 
 
 #ifdef CONFIG_MSM_BUS_SCALING
 static struct msm_bus_vectors grp3d_init_vectors[] = {
@@ -399,7 +399,7 @@ struct msm_bus_scale_pdata grp2d1_bus_scale_pdata = {
 static struct resource kgsl_3d0_resources[] = {
 	{
 		.name = KGSL_3D0_REG_MEMORY,
-		.start = 0x04300000, /* GFX3D address */
+		.start = 0x04300000, 
 		.end = 0x0431ffff,
 		.flags = IORESOURCE_MEM,
 	},

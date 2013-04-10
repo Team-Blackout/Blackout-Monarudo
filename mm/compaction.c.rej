@@ -1,0 +1,16 @@
+--- mm/compaction.c	2013-01-04 04:01:34.000000000 -0800
++++ mm/compaction.c	2013-03-19 04:00:55.000000000 -0700
+@@ -659,12 +479,11 @@
+ 	return __compact_pgdat(NODE_DATA(nid), &cc);
+ }
+ 
+-/* Compact all nodes in the system */
+ static int compact_nodes(void)
+ {
+ 	int nid;
+ 
+-	/* Flush pending updates to the LRU lists */
++	
+ 	lru_add_drain_all();
+ 
+ 	for_each_online_node(nid)

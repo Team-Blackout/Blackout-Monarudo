@@ -1,0 +1,10 @@
+--- drivers/base/topology.c	2013-01-04 04:01:37.000000000 -0800
++++ drivers/base/topology.c	2013-03-19 04:01:00.000000000 -0700
+@@ -142,7 +142,6 @@
+ 	.name = "topology"
+ };
+ 
+-/* Add/Remove cpu_topology interface for CPU device */
+ static int __cpuinit topology_add_dev(unsigned int cpu)
+ {
+ 	struct device *dev = get_cpu_device(cpu);

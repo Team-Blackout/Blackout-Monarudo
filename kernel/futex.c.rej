@@ -1,0 +1,152 @@
+--- kernel/futex.c	2013-01-04 04:01:33.000000000 -0800
++++ kernel/futex.c	2013-03-19 04:00:53.000000000 -0700
+@@ -499,36 +264,18 @@
+ 	if (unlikely(cmpxchg_futex_value_locked(&curval, uaddr, 0, newval)))
+ 		return -EFAULT;
+ 
+-	/*
+-	 * Detect deadlocks.
+-	 */
+ 	if ((unlikely((curval & FUTEX_TID_MASK) == vpid)))
+ 		return -EDEADLK;
+ 
+-	/*
+-	 * Surprise - we got the lock. Just return to userspace:
+-	 */
+ 	if (unlikely(!curval))
+ 		return 1;
+ 
+ 	uval = curval;
+ 
+-	/*
+-	 * Set the FUTEX_WAITERS flag, so the owner will know it has someone
+-	 * to wake at the next unlock.
+-	 */
+ 	newval = curval | FUTEX_WAITERS;
+ 
+-	/*
+-	 * There are two cases, where a futex might have no owner (the
+-	 * owner TID is 0): OWNER_DIED. We take over the futex in this
+-	 * case. We also do an unconditional take over, when the owner
+-	 * of the futex died.
+-	 *
+-	 * This is safe as we are protected by the hash bucket lock !
+-	 */
+ 	if (unlikely(ownerdied || !(curval & FUTEX_TID_MASK))) {
+-		/* Keep the OWNER_DIED bit */
++		
+ 		newval = (curval & ~FUTEX_TID_MASK) | vpid;
+ 		ownerdied = 0;
+ 		lock_taken = 1;
+@@ -539,34 +286,17 @@
+ 	if (unlikely(curval != uval))
+ 		goto retry;
+ 
+-	/*
+-	 * We took the lock due to owner died take over.
+-	 */
+ 	if (unlikely(lock_taken))
+ 		return 1;
+ 
+-	/*
+-	 * We dont have the lock. Look up the PI state (or create it if
+-	 * we are the first waiter):
+-	 */
+ 	ret = lookup_pi_state(uval, hb, key, ps);
+ 
+ 	if (unlikely(ret)) {
+ 		switch (ret) {
+ 		case -ESRCH:
+-			/*
+-			 * No owner found for this futex. Check if the
+-			 * OWNER_DIED bit is set to figure out whether
+-			 * this is a robust futex or not.
+-			 */
+ 			if (get_futex_value_locked(&curval, uaddr))
+ 				return -EFAULT;
+ 
+-			/*
+-			 * We simply start over in case of a robust
+-			 * futex. The code above will take the futex
+-			 * and return happy.
+-			 */
+ 			if (curval & FUTEX_OWNER_DIED) {
+ 				ownerdied = 1;
+ 				goto retry;
+@@ -591,21 +315,10 @@
+ 	plist_del(&q->list, &hb->chain);
+ }
+ 
+-/*
+- * The hash bucket lock must be held when this is called.
+- * Afterwards, the futex_q must not be accessed.
+- */
+ static void wake_futex(struct futex_q *q)
+ {
+ 	struct task_struct *p = q->task;
+ 
+-	/*
+-	 * We set q->lock_ptr = NULL _before_ we wake up the task. If
+-	 * a non-futex wake up happens on another CPU then the task
+-	 * might exit and p would dereference a non-existing task
+-	 * struct. Prevent this by holding a reference on p across the
+-	 * wake up.
+-	 */
+ 	get_task_struct(p);
+ 
+ 	__unqueue_futex(q);
+@@ -1002,50 +577,37 @@
+ 		if (!match_futex(&this->key, &key1))
+ 			continue;
+ 
+-		/*
+-		 * FUTEX_WAIT_REQEUE_PI and FUTEX_CMP_REQUEUE_PI should always
+-		 * be paired with each other and no other futex ops.
+-		 */
+ 		if ((requeue_pi && !this->rt_waiter) ||
+ 		    (!requeue_pi && this->rt_waiter)) {
+ 			ret = -EINVAL;
+ 			break;
+ 		}
+ 
+-		/*
+-		 * Wake nr_wake waiters.  For requeue_pi, if we acquired the
+-		 * lock, we already woke the top_waiter.  If not, it will be
+-		 * woken by futex_unlock_pi().
+-		 */
+ 		if (++task_count <= nr_wake && !requeue_pi) {
+ 			wake_futex(this);
+ 			continue;
+ 		}
+ 
+-		/* Ensure we requeue to the expected futex for requeue_pi. */
++		
+ 		if (requeue_pi && !match_futex(this->requeue_pi_key, &key2)) {
+ 			ret = -EINVAL;
+ 			break;
+ 		}
+ 
+-		/*
+-		 * Requeue nr_requeue waiters and possibly one more in the case
+-		 * of requeue_pi if we couldn't acquire the lock atomically.
+-		 */
+ 		if (requeue_pi) {
+-			/* Prepare the waiter to take the rt_mutex. */
++			
+ 			atomic_inc(&pi_state->refcount);
+ 			this->pi_state = pi_state;
+ 			ret = rt_mutex_start_proxy_lock(&pi_state->pi_mutex,
+ 							this->rt_waiter,
+ 							this->task, 1);
+ 			if (ret == 1) {
+-				/* We got the lock. */
++				
+ 				requeue_pi_wake_futex(this, &key2, hb2);
+ 				drop_count++;
+ 				continue;
+ 			} else if (ret) {
+-				/* -EDEADLK */
++				
+ 				this->pi_state = NULL;
+ 				free_pi_state(pi_state);
+ 				goto out_unlock;

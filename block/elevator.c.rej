@@ -1,0 +1,23 @@
+--- block/elevator.c	2013-01-04 04:01:34.000000000 -0800
++++ block/elevator.c	2013-03-19 04:00:54.000000000 -0700
+@@ -49,10 +46,6 @@
+ #define ELV_HASH_ENTRIES	(1 << elv_hash_shift)
+ #define rq_hash_key(rq)		(blk_rq_pos(rq) + blk_rq_sectors(rq))
+ 
+-/*
+- * Query io scheduler to see if the current process issuing bio may be
+- * merged with rq.
+- */
+ static int elv_iosched_allow_merge(struct request *rq, struct bio *bio)
+ {
+ 	struct request_queue *q = rq->q;
+@@ -684,9 +585,6 @@
+ {
+ 	struct elevator_queue *e = q->elevator;
+ 
+-	/*
+-	 * request is released from the driver, io must be done
+-	 */
+ 	if (blk_account_rq(rq)) {
+ 		q->in_flight[rq_is_sync(rq)]--;
+ 		if ((rq->cmd_flags & REQ_SORTED) &&

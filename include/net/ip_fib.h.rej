@@ -1,0 +1,18 @@
+--- include/net/ip_fib.h	2013-01-04 04:01:31.000000000 -0800
++++ include/net/ip_fib.h	2013-03-19 04:00:51.000000000 -0700
+@@ -131,13 +128,13 @@
+ 
+ #define FIB_TABLE_HASHSZ 2
+ 
+-#else /* CONFIG_IP_ROUTE_MULTIPATH */
++#else 
+ 
+ #define FIB_RES_NH(res)		((res).fi->fib_nh[0])
+ 
+ #define FIB_TABLE_HASHSZ 256
+ 
+-#endif /* CONFIG_IP_ROUTE_MULTIPATH */
++#endif 
+ 
+ extern __be32 fib_info_update_nh_saddr(struct net *net, struct fib_nh *nh);
+ 

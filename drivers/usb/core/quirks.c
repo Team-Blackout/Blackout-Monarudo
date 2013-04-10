@@ -175,9 +175,6 @@ static const struct usb_device_id *find_id(struct usb_device *udev)
 	return NULL;
 }
 
-/*
- * Detect any quirks the device has, and do any housekeeping for it if needed.
- */
 void usb_detect_quirks(struct usb_device *udev)
 {
 	const struct usb_device_id *id = usb_quirk_list;
@@ -189,18 +186,14 @@ void usb_detect_quirks(struct usb_device *udev)
 		dev_dbg(&udev->dev, "USB quirks for this device: %x\n",
 				udev->quirks);
 
-	/* For the present, all devices default to USB-PERSIST enabled */
-#if 0		/* was: #ifdef CONFIG_PM */
-	/* Hubs are automatically enabled for USB-PERSIST */
+	
+#if 0		
+	
 	if (udev->descriptor.bDeviceClass == USB_CLASS_HUB)
 		udev->persist_enabled = 1;
 
 #else
-	/* In the absence of PM, we can safely enable USB-PERSIST
-	 * for all devices.  It will affect things like hub resets
-	 * and EMF-related port disables.
-	 */
 	if (!(udev->quirks & USB_QUIRK_RESET_MORPHS))
 		udev->persist_enabled = 1;
-#endif	/* CONFIG_PM */
+#endif	
 }

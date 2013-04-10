@@ -1,0 +1,11 @@
+--- sound/core/init.c	2013-01-04 04:01:37.000000000 -0800
++++ sound/core/init.c	2013-03-19 04:01:01.000000000 -0700
+@@ -426,7 +380,7 @@
+ 	if (ret)
+ 		return ret;
+ 
+-	/* wait, until all devices are ready for the free operation */
++	
+ 	wait_event(card->shutdown_sleep, list_empty(&card->files_list));
+ 	snd_card_do_free(card);
+ 	return 0;

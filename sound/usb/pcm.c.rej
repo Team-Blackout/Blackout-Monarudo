@@ -1,0 +1,50 @@
+--- sound/usb/pcm.c	2013-01-04 04:01:37.000000000 -0800
++++ sound/usb/pcm.c	2013-03-19 04:01:01.000000000 -0700
+@@ -347,9 +305,9 @@
+ 
+ 	if (changed) {
+ 		mutex_lock(&subs->stream->chip->shutdown_mutex);
+-		/* format changed */
++		
+ 		snd_usb_release_substream_urbs(subs, 0);
+-		/* influenced: period_bytes, channels, rate, format, */
++		
+ 		ret = snd_usb_init_substream_urbs(subs, params_period_bytes(hw_params),
+ 						  params_rate(hw_params),
+ 						  snd_pcm_format_physical_width(params_format(hw_params)) *
+@@ -383,11 +331,11 @@
+ 		return -ENXIO;
+ 	}
+ 
+-	/* some unit conversions in runtime */
++	
+ 	subs->maxframesize = bytes_to_frames(runtime, subs->maxpacksize);
+ 	subs->curframesize = bytes_to_frames(runtime, subs->curpacksize);
+ 
+-	/* reset the pointer */
++	
+ 	subs->hwptr_done = 0;
+ 	subs->transfer_done = 0;
+ 	subs->phase = 0;
+@@ -447,7 +395,7 @@
+ 		hwc_debug("   > check: rate_max %d < min %d\n", fp->rate_max, it->min);
+ 		return 0;
+ 	}
+-	/* check whether the period time is >= the data packet interval */
++	
+ 	if (snd_usb_get_speed(subs->dev) != USB_SPEED_FULL) {
+ 		ptime = 125 * (1 << fp->datainterval);
+ 		if (ptime > pt->max || (ptime == pt->max && pt->openmax)) {
+@@ -721,10 +663,10 @@
+ 
+ 	param_period_time_if_needed = SNDRV_PCM_HW_PARAM_PERIOD_TIME;
+ 	if (snd_usb_get_speed(subs->dev) == USB_SPEED_FULL)
+-		/* full speed devices have fixed data packet interval */
++		
+ 		ptmin = 1000;
+ 	if (ptmin == 1000)
+-		/* if period time doesn't go below 1 ms, no rules needed */
++		
+ 		param_period_time_if_needed = -1;
+ 	snd_pcm_hw_constraint_minmax(runtime, SNDRV_PCM_HW_PARAM_PERIOD_TIME,
+ 				     ptmin, UINT_MAX);

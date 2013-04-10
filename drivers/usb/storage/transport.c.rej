@@ -1,0 +1,52 @@
+--- drivers/usb/storage/transport.c	2013-01-04 04:01:35.000000000 -0800
++++ drivers/usb/storage/transport.c	2013-03-19 04:00:55.000000000 -0700
+@@ -366,45 +255,33 @@
+ }
+ EXPORT_SYMBOL_GPL(usb_stor_bulk_srb);
+ 
+-/*
+- * Transfer an entire SCSI command's worth of data payload over the bulk
+- * pipe.
+- *
+- * Note that this uses usb_stor_bulk_transfer_buf() and
+- * usb_stor_bulk_transfer_sglist() to achieve its goals --
+- * this function simply determines whether we're going to use
+- * scatter-gather or not, and acts appropriately.
+- */
+ int usb_stor_bulk_transfer_sg(struct us_data* us, unsigned int pipe,
+ 		void *buf, unsigned int length_left, int use_sg, int *residual)
+ {
+ 	int result;
+ 	unsigned int partial;
+ 
+-	/* are we scatter-gathering? */
++	
+ 	if (use_sg) {
+-		/* use the usb core scatter-gather primitives */
++		
+ 		result = usb_stor_bulk_transfer_sglist(us, pipe,
+ 				(struct scatterlist *) buf, use_sg,
+ 				length_left, &partial);
+ 		length_left -= partial;
+ 	} else {
+-		/* no scatter-gather, just make the request */
++		
+ 		result = usb_stor_bulk_transfer_buf(us, pipe, buf, 
+ 				length_left, &partial);
+ 		length_left -= partial;
+ 	}
+ 
+-	/* store the residual and return the error code */
++	
+ 	if (residual)
+ 		*residual = length_left;
+ 	return result;
+ }
+ EXPORT_SYMBOL_GPL(usb_stor_bulk_transfer_sg);
+ 
+-/***********************************************************************
+- * Transport routines
+- ***********************************************************************/
+ 
+ /* There are so many devices that report the capacity incorrectly,
+  * this routine was written to counteract some of the resulting

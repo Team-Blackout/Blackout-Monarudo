@@ -1,0 +1,19 @@
+--- fs/ext4/balloc.c	2013-01-04 04:01:38.000000000 -0800
++++ fs/ext4/balloc.c	2013-03-19 04:01:02.000000000 -0700
+@@ -260,16 +195,6 @@
+ 			block_group, bitmap_blk);
+ 	return 0;
+ }
+-/**
+- * ext4_read_block_bitmap()
+- * @sb:			super block
+- * @block_group:	given block group
+- *
+- * Read the bitmap for a given block_group,and validate the
+- * bits for block/inode/inode tables are set in the bitmaps
+- *
+- * Return buffer_head on success or NULL in case of failure.
+- */
+ struct buffer_head *
+ ext4_read_block_bitmap_nowait(struct super_block *sb, ext4_group_t block_group)
+ {

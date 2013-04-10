@@ -1,0 +1,14 @@
+--- drivers/usb/core/devices.c	2013-01-04 04:01:35.000000000 -0800
++++ drivers/usb/core/devices.c	2013-03-19 04:00:55.000000000 -0700
+@@ -560,9 +499,9 @@
+ 		return -EFAULT;
+ 
+ 	mutex_lock(&usb_bus_list_lock);
+-	/* print devices for all busses */
++	
+ 	list_for_each_entry(bus, &usb_bus_list, bus_list) {
+-		/* recurse through all children of the root hub */
++		
+ 		if (!bus->root_hub)
+ 			continue;
+ 		usb_lock_device(bus->root_hub);

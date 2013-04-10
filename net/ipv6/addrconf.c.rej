@@ -1,0 +1,20 @@
+--- net/ipv6/addrconf.c	2013-01-04 04:01:31.000000000 -0800
++++ net/ipv6/addrconf.c	2013-03-19 04:00:51.000000000 -0700
+@@ -2800,7 +2498,7 @@
+ 		struct hlist_node *n;
+ 		hlist_for_each_entry_rcu_bh(ifa, n, &inet6_addr_lst[state->bucket],
+ 					 addr_lst) {
+-			/* sync with offset */
++			
+ 			if (p < state->offset) {
+ 				p++;
+ 				continue;
+@@ -4376,7 +4046,7 @@
+ 		if (dflt == NULL)
+ 			goto err_alloc_dflt;
+ 	} else {
+-		/* these will be inherited by all namespaces */
++		
+ 		dflt->autoconf = ipv6_defaults.autoconf;
+ 		dflt->disable_ipv6 = ipv6_defaults.disable_ipv6;
+ 	}

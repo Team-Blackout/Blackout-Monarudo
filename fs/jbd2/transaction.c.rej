@@ -1,0 +1,11 @@
+--- fs/jbd2/transaction.c	2013-01-04 04:01:38.000000000 -0800
++++ fs/jbd2/transaction.c	2013-03-19 04:01:02.000000000 -0700
+@@ -161,7 +113,7 @@
+ 		if (!new_transaction)
+ 			goto alloc_transaction;
+ 		write_lock(&journal->j_state_lock);
+-		/* Wait on the journal's transaction barrier if necessary */
++		
+ 		if (journal->j_barrier_count) {
+ 			printk(KERN_WARNING "JBD: %s: wait for transaction barrier\n", __func__);
+ 			write_unlock(&journal->j_state_lock);

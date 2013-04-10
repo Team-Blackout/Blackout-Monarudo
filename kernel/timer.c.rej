@@ -1,0 +1,19 @@
+--- kernel/timer.c	2013-01-04 04:01:32.000000000 -0800
++++ kernel/timer.c	2013-03-19 04:00:53.000000000 -0700
+@@ -209,16 +69,9 @@
+ 		int i = (expires >> (TVR_BITS + 2 * TVN_BITS)) & TVN_MASK;
+ 		vec = base->tv4.vec + i;
+ 	} else if ((signed long) idx < 0) {
+-		/*
+-		 * Can happen if you add a timer with expires == jiffies,
+-		 * or you set a timer to go off in the past
+-		 */
+ 		vec = base->tv1.vec + (base->timer_jiffies & TVR_MASK);
+ 	} else {
+ 		int i;
+-		/* If the timeout is larger than 0xffffffff on 64-bit
+-		 * architectures then we use the maximum timeout:
+-		 */
+ 		if (idx > 0xffffffffUL) {
+ 			idx = 0xffffffffUL;
+ 			expires = idx + base->timer_jiffies;

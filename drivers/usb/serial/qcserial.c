@@ -18,9 +18,7 @@
 #include <linux/usb/serial.h>
 #include <linux/slab.h>
 #include "usb-wwan.h"
-/* ++SSD_RIL */
 #include <mach/board_htc.h>
-/* --SSD_RIL */
 
 #define DRIVER_AUTHOR "Qualcomm Inc"
 #define DRIVER_DESC "Qualcomm USB Serial driver"
@@ -158,15 +156,15 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 
 	spin_lock_init(&data->susp_lock);
 
-	/* ++SSD_RIL */
+	
 	if (!(board_mfg_mode() == 8 || board_mfg_mode() == 6 || board_mfg_mode() == 2))
-	/* --SSD_RIL */
+	
 		usb_enable_autosuspend(serial->dev);
 
 	switch (nintf) {
 	case 1:
-		/* QDL mode */
-		/* Gobi 2000 has a single altsetting, older ones have two */
+		
+		
 		if (serial->interface->num_altsetting == 2)
 			intf = &serial->interface->altsetting[1];
 		else if (serial->interface->num_altsetting > 2)
@@ -178,7 +176,7 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 			dbg("QDL port found");
 
 			if (serial->interface->num_altsetting == 1) {
-				retval = 0; /* Success */
+				retval = 0; 
 				break;
 			}
 
@@ -195,22 +193,7 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 
 	case 3:
 	case 4:
-		/* Composite mode; don't bind to the QMI/net interface as that
-		 * gets handled by other drivers.
-		 */
 
-		/* Gobi 1K USB layout:
-		 * 0: serial port (doesn't respond)
-		 * 1: serial port (doesn't respond)
-		 * 2: AT-capable modem port
-		 * 3: QMI/net
-		 *
-		 * Gobi 2K+ USB layout:
-		 * 0: QMI/net
-		 * 1: DM/DIAG (use libqcdm from ModemManager for communication)
-		 * 2: AT-capable modem port
-		 * 3: NMEA
-		 */
 
 		if (ifnum == 1 && !is_gobi1k) {
 			dbg("Gobi 2K+ DM/DIAG interface found");
@@ -233,11 +216,6 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 				kfree(data);
 			}
 		} else if (ifnum==3 && !is_gobi1k) {
-			/*
-			 * NMEA (serial line 9600 8N1)
-			 * # echo "\$GPS_START" > /dev/ttyUSBx
-			 * # echo "\$GPS_STOP"  > /dev/ttyUSBx
-			 */
 			dbg("Gobi 2K+ NMEA GPS interface found");
 			retval = usb_set_interface(serial->dev, ifnum, 0);
 			if (retval < 0) {
@@ -251,11 +229,11 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 		break;
 
 	case 9:
-		/* ++SSD_RIL */
+		
 		if (get_radio_flag() & 0x20000)
 		usb_diag_enable = true;
-		/* --SSD_RIL */
-		if (ifnum != EFS_SYNC_IFC_NUM && !(!usb_diag_enable && ifnum == DUN_IFC_NUM && (board_mfg_mode() == 8 || board_mfg_mode() == 6 || board_mfg_mode() == 2))) { /* SSD_RIL: Add DUN interface for serial USB*/
+		
+		if (ifnum != EFS_SYNC_IFC_NUM && !(!usb_diag_enable && ifnum == DUN_IFC_NUM && (board_mfg_mode() == 8 || board_mfg_mode() == 6 || board_mfg_mode() == 2))) { 
 			kfree(data);
 			break;
 		}
@@ -269,7 +247,7 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 		retval = -ENODEV;
 	}
 
-	/* Set serial->private if not returning -ENODEV */
+	
 	if (retval != -ENODEV)
 		usb_set_serial_data(serial, data);
 	return retval;
@@ -281,7 +259,7 @@ static void qc_release(struct usb_serial *serial)
 
 	dbg("%s", __func__);
 
-	/* Call usb_wwan release & free the private data allocated in qcprobe */
+	
 	usb_wwan_release(serial);
 	usb_set_serial_data(serial, NULL);
 	kfree(priv);

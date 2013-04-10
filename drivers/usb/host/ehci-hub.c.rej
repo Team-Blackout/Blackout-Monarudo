@@ -1,0 +1,16 @@
+--- drivers/usb/host/ehci-hub.c	2013-01-04 04:01:35.000000000 -0800
++++ drivers/usb/host/ehci-hub.c	2013-03-19 04:00:56.000000000 -0700
+@@ -553,12 +465,11 @@
+ 			status = STS_PCD;
+ 		}
+ 	}
+-	/* FIXME autosuspend idle root hubs */
++	
+ 	spin_unlock_irqrestore (&ehci->lock, flags);
+ 	return status ? retval : 0;
+ }
+ 
+-/*-------------------------------------------------------------------------*/
+ 
+ static void
+ ehci_hub_descriptor (

@@ -1,0 +1,29 @@
+--- mm/page_alloc.c	2013-01-04 04:01:34.000000000 -0800
++++ mm/page_alloc.c	2013-03-19 04:00:54.000000000 -0700
+@@ -3288,13 +2303,6 @@
+ }
+ 
+ #ifndef CONFIG_SPARSEMEM
+-/*
+- * Calculate the size of the zone->blockflags rounded to an unsigned long
+- * Start by making sure zonesize is a multiple of pageblock_order by rounding
+- * up. Then use 1 NR_PAGEBLOCK_BITS worth of bits per pageblock, finally
+- * round what is now in bits to nearest long in bits, then return it in
+- * bytes.
+- */
+ static unsigned long __init usemap_size(unsigned long zonesize)
+ {
+ 	unsigned long usemapsize;
+@@ -3319,11 +2327,10 @@
+ #else
+ static inline void setup_usemap(struct pglist_data *pgdat,
+ 				struct zone *zone, unsigned long zonesize) {}
+-#endif /* CONFIG_SPARSEMEM */
++#endif 
+ 
+ #ifdef CONFIG_HUGETLB_PAGE_SIZE_VARIABLE
+ 
+-/* Return a sensible default order for the pageblock size. */
+ static inline int pageblock_default_order(void)
+ {
+ 	if (HPAGE_SHIFT > PAGE_SHIFT)

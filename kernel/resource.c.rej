@@ -1,0 +1,15 @@
+--- kernel/resource.c	2013-01-04 04:01:32.000000000 -0800
++++ kernel/resource.c	2013-03-19 04:00:53.000000000 -0700
+@@ -675,10 +555,10 @@
+ 	if (!conflict)
+ 		return;
+ 
+-	/* failed, split and try again */
++	
+ 	kfree(res);
+ 
+-	/* conflict covered whole area */
++	
+ 	if (conflict->start <= start && conflict->end >= end)
+ 		return;
+ 

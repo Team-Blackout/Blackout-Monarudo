@@ -1,6 +1,3 @@
-/*
- * High-level sync()-related operations
- */
 
 #include <linux/kernel.h>
 #include <linux/file.h>
@@ -24,19 +21,8 @@ extern bool early_suspend_active;
 #define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
 			SYNC_FILE_RANGE_WAIT_AFTER)
 
-/*
- * Do the filesystem syncing work. For simple filesystems
- * writeback_inodes_sb(sb) just dirties buffers with inodes so we have to
- * submit IO for these buffers via __sync_blockdev(). This also speeds up the
- * wait == 1 case since in that case write_inode() functions do
- * sync_dirty_buffer() and thus effectively write one block at a time.
- */
 static int __sync_filesystem(struct super_block *sb, int wait)
 {
-	/*
-	 * This should be safe, as we require bdi backing to actually
-	 * write out data in the first place
-	 */
 	if (sb->s_bdi == &noop_backing_dev_info)
 		return 0;
 
@@ -53,28 +39,20 @@ static int __sync_filesystem(struct super_block *sb, int wait)
 	return __sync_blockdev(sb->s_bdev, wait);
 }
 
-/*
- * Write out and wait upon all dirty data associated with this
- * superblock.  Filesystem data as well as the underlying block
- * device.  Takes the superblock lock.
- */
 int sync_filesystem(struct super_block *sb)
 {
 	int ret;
 
-	/*
-	 * We need to be protected against the filesystem going from
-	 * r/o to r/w or vice versa.
-	 */
 	WARN_ON(!rwsem_is_locked(&sb->s_umount));
 
-	/*
-	 * No point in syncing out anything if the filesystem is read-only.
-	 */
 	if (sb->s_flags & MS_RDONLY)
 		return 0;
 
-	ret = __sync_filesystem(sb, 0);
+	if (atomic_read(&vfs_emergency_remount)) {
+		pr_info("%s: force sync fs in wait mode\n", __func__);
+		ret = __sync_filesystem(sb, 1);
+	} else
+		ret = __sync_filesystem(sb, 0);
 	if (ret < 0)
 		return ret;
 	return __sync_filesystem(sb, 1);
@@ -111,10 +89,6 @@ SYSCALL_DEFINE0(sync)
 
 static void do_sync_work(struct work_struct *work)
 {
-	/*
-	 * Sync twice to reduce the possibility we skipped some inodes / pages
-	 * because they were temporarily locked
-	 */
 	sync_filesystems(0);
 	sync_filesystems(0);
 	printk("Emergency Sync complete\n");
@@ -132,9 +106,6 @@ void emergency_sync(void)
 	}
 }
 
-/*
- * sync a single super
- */
 SYSCALL_DEFINE1(syncfs, int, fd)
 {
 	struct file *file;
@@ -230,14 +201,6 @@ SYSCALL_DEFINE1(fdatasync, unsigned int, fd)
 	return do_fsync(fd, 1);
 }
 
-/**
- * generic_write_sync - perform syncing after a write if file / inode is sync
- * @file:	file to which the write happened
- * @pos:	offset where the write started
- * @count:	length of the write
- *
- * This is just a simple wrapper about our general syncing function.
- */
 int generic_write_sync(struct file *file, loff_t pos, loff_t count)
 {
 	if (!(file->f_flags & O_DSYNC) && !IS_SYNC(file->f_mapping->host))
@@ -325,17 +288,10 @@ SYSCALL_DEFINE(sync_file_range)(int fd, loff_t offset, loff_t nbytes,
 
 	if (sizeof(pgoff_t) == 4) {
 		if (offset >= (0x100000000ULL << PAGE_CACHE_SHIFT)) {
-			/*
-			 * The range starts outside a 32 bit machine's
-			 * pagecache addressing capabilities.  Let it "succeed"
-			 */
 			ret = 0;
 			goto out;
 		}
 		if (endbyte >= (0x100000000ULL << PAGE_CACHE_SHIFT)) {
-			/*
-			 * Out to EOF
-			 */
 			nbytes = 0;
 		}
 	}
@@ -343,7 +299,7 @@ SYSCALL_DEFINE(sync_file_range)(int fd, loff_t offset, loff_t nbytes,
 	if (nbytes == 0)
 		endbyte = LLONG_MAX;
 	else
-		endbyte--;		/* inclusive */
+		endbyte--;		
 
 	ret = -EBADF;
 	file = fget_light(fd, &fput_needed);
@@ -396,8 +352,6 @@ asmlinkage long SyS_sync_file_range(long fd, loff_t offset, loff_t nbytes,
 SYSCALL_ALIAS(sys_sync_file_range, SyS_sync_file_range);
 #endif
 
-/* It would be nice if people remember that not all the world's an i386
-   when they introduce new system calls */
 SYSCALL_DEFINE(sync_file_range2)(int fd, unsigned int flags,
 				 loff_t offset, loff_t nbytes)
 {

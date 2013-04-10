@@ -1,0 +1,50 @@
+--- kernel/time/timekeeping.c	2013-01-04 04:01:33.000000000 -0800
++++ kernel/time/timekeeping.c	2013-03-19 04:00:53.000000000 -0700
+@@ -343,18 +250,13 @@
+ 
+ 	write_sequnlock_irqrestore(&timekeeper.lock, flags);
+ 
+-	/* signal hrtimers about time change */
++	
+ 	clock_was_set();
+ 
+ 	return 0;
+ }
+ EXPORT_SYMBOL(timekeeping_inject_offset);
+ 
+-/**
+- * change_clocksource - Swaps clocksources if a new one is available
+- *
+- * Accumulates current time interval and initializes new clocksource
+- */
+ static int change_clocksource(void *data)
+ {
+ 	struct clocksource *new, *old;
+@@ -708,7 +420,7 @@
+ 			clock_was_set_delayed();
+ 	}
+ 
+-	/* Accumulate raw time */
++	
+ 	raw_nsecs = timekeeper.raw_interval << shift;
+ 	raw_nsecs += timekeeper.raw_time.tv_nsec;
+ 	if (raw_nsecs >= NSEC_PER_SEC) {
+@@ -751,17 +459,9 @@
+ 	timekeeper.xtime_nsec = (s64)timekeeper.xtime.tv_nsec <<
+ 						timekeeper.shift;
+ 
+-	/*
+-	 * With NO_HZ we may have to accumulate many cycle_intervals
+-	 * (think "ticks") worth of time at once. To do this efficiently,
+-	 * we calculate the largest doubling multiple of cycle_intervals
+-	 * that is smaller than the offset.  We then accumulate that
+-	 * chunk in one go, and then try to consume the next smaller
+-	 * doubled multiple.
+-	 */
+ 	shift = ilog2(offset) - ilog2(timekeeper.cycle_interval);
+ 	shift = max(0, shift);
+-	/* Bound shift to one less than what overflows tick_length */
++	
+ 	maxshift = (64 - (ilog2(ntp_tick_length())+1)) - 1;
+ 	shift = min(shift, maxshift);
+ 	while (offset >= timekeeper.cycle_interval) {
