@@ -33,6 +33,11 @@ modules.builtin
 *.patch
 *.gcno
 *.xzkern
+*.rej
+*.back
+*.bak
+*.orig
+*.zip
 
 #
 # Top-level generic files

@@ -263,8 +263,6 @@ void mdp4_dsi_video_vsync_ctrl(struct fb_info *info, int enable)
 	if (vctrl->vsync_irq_enabled == enable)
 		return;
 
-	
-
 	pr_debug("%s: vsync enable=%d\n", __func__, enable);
 
 	vctrl->vsync_irq_enabled = enable;
@@ -725,27 +723,22 @@ int mdp4_dsi_video_off(struct platform_device *pdev)
 	mdp_histogram_ctrl_all(FALSE);
 
 	if (pipe) {
-		/* sanity check, free pipes besides base layer */
+		
 		mdp4_overlay_unset_mixer(pipe->mixer_num);
 		if (mfd->ref_cnt == 0) {
-			/* adb stop */
+			
 			if (pipe->pipe_type == OVERLAY_TYPE_BF)
 				mdp4_overlay_borderfill_stage_down(pipe);
 			vctrl->base_pipe = NULL;
 		} else {
-			/* system suspending */
-			mdp4_mixer_stage_down(vctrl->base_pipe);
+			
+			mdp4_mixer_stage_down(vctrl->base_pipe, 1);
 			mdp4_overlay_iommu_pipe_free(
 				vctrl->base_pipe->pipe_ndx, 1);
 		}
 	}
 
-	if (vctrl->vsync_irq_enabled) {
-		vctrl->vsync_irq_enabled = 0;
-		vsync_irq_disable(INTR_PRIMARY_VSYNC, MDP_PRIM_VSYNC_TERM);
-	}
-
-	/* mdp clock off */
+	
 	mdp_clk_ctrl(0);
 	mdp_pipe_ctrl(MDP_OVERLAY0_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);
 
@@ -1014,18 +1007,26 @@ static void mdp4_dsi_video_do_blt(struct msm_fb_data_type *mfd, int enable)
 
 	if (mdp_ov0_blt_ctl == MDP4_BLT_SWITCH_TG_OFF) {
 		int tg_enabled;
-		long long  vtime;
+		pr_debug("%s: blt enabled by switching TG off\n", __func__);
 		tg_enabled = inpdw(MDP_BASE + DSI_VIDEO_BASE) & 0x01;
 		if (tg_enabled) {
-			mdp4_dsi_video_wait4vsync(0, &vtime);
-			MDP_OUTP(MDP_BASE + DSI_VIDEO_BASE, 0);
 			mdp4_dsi_video_wait4dmap_done(0);
+			MDP_OUTP(MDP_BASE + DSI_VIDEO_BASE, 0);
+			msleep(20);
+			mipi_dsi_controller_cfg(0);
 		}
 		mdp4_overlayproc_cfg(pipe);
 		mdp4_overlay_dmap_xy(pipe);
 		vctrl->blt_change = 0;
 		if (tg_enabled) {
+			if (pipe->ov_blt_addr) {
+				if ((inpdw(MDP_BASE + DTV_BASE) & 0x1) == 0) {
+					outpdw(MDP_BASE + 0x0004, 0); 
+					msleep(10); 
+				}
+			}
 			mipi_dsi_sw_reset();
+			mipi_dsi_controller_cfg(1);
 			MDP_OUTP(MDP_BASE + DSI_VIDEO_BASE, 1);
 		}
 	}

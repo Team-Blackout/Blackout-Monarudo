@@ -359,6 +359,8 @@ static void adreno_iommu_setstate(struct kgsl_device *device,
 			KGSL_IOMMU_CONTEXT_PRIV,
 			device->mmu.setstate_memory.gpuaddr +
 			KGSL_IOMMU_SETSTATE_NOP_OFFSET);
+		
+		cmds += adreno_add_idle_cmds(adreno_dev, cmds);
 
 	sizedwords += (cmds - &link[0]);
 	if (sizedwords) {
@@ -373,6 +375,10 @@ static void adreno_iommu_setstate(struct kgsl_device *device,
 			&link[0], sizedwords);
 		kgsl_mmu_disable_clk_on_ts(&device->mmu,
 		adreno_dev->ringbuffer.timestamp[KGSL_MEMSTORE_GLOBAL], true);
+	}
+	if (sizedwords > (sizeof(link)/sizeof(unsigned int))) {
+		KGSL_DRV_ERR(device, "Temp command buffer overflow\n");
+		BUG();
 	}
 done:
 	if (num_iommu_units)
