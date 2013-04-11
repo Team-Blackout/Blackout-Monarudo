@@ -2,6 +2,7 @@
 
 	make -j8 && \
 	make dna/update-this-version.zip && \
+	make kcontrol/gpu_msm && \
 	echo && echo "*********** COMPLETE *************" && echo
 	echo && echo "********EPIC FUCKING WIN**********" && echo
 	echo && echo "*****Please Collect update zip****" && echo

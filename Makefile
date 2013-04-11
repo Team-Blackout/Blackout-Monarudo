@@ -1590,6 +1590,7 @@ $(DNA_ZIP): arch/arm/boot/zImage dna/aroma/updater-script $(CERT)
 	-rm -rf $(UPDATE_ROOT)
 	mkdir -p $(UPDATE_ROOT)/system/lib/modules
 	cp `find . -name '*.ko'` $(UPDATE_ROOT)/system/lib/modules
+	cp `find kcontrol/ -name '*.ko'` $(UPDATE_ROOT)/system/lib/modules
 	cp -r dna/init/ $(UPDATE_ROOT)/system/etc
 	mkdir -p $(UPDATE_ROOT)/META-INF/com/google/android
 	cp -r dna/tools $(UPDATE_ROOT)/tools

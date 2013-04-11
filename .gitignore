@@ -51,6 +51,7 @@ modules.builtin
 /Module.markers
 /Module.symvers
 arch/arm/boot/compressed
+kcontrol
 
 #
 # Debian directory (make deb-pkg)
