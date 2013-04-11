@@ -50,6 +50,7 @@ modules.builtin
 /System.map
 /Module.markers
 /Module.symvers
+arch/arm/boot/compressed
 
 #
 # Debian directory (make deb-pkg)
