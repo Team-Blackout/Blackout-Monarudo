@@ -38,7 +38,7 @@
 #include <linux/jiffies.h>
 #include <mach/board.h>
 
-#define D(x...) pr_info(x)
+#define D(x...) pr_debug(x)
 
 #define I2C_RETRY_COUNT 10
 
@@ -120,7 +120,6 @@ struct cm3629_info {
 	uint8_t ps_conf2_val_from_board;
 	uint8_t ps_conf3_val;
 	uint8_t ps_calibration_rule; 
-	int ps_pocket_mode;
 
 	unsigned long j_start;
 	unsigned long j_end;
@@ -158,8 +157,7 @@ static int ps_hal_enable, ps_drv_enable;
 static int lightsensor_enable(struct cm3629_info *lpi);
 static int lightsensor_disable(struct cm3629_info *lpi);
 static void psensor_initial_cmd(struct cm3629_info *lpi);
-static int ps_near;
-static int pocket_mode_flag, psensor_enable_by_touch;
+static int psensor_enable_by_touch;
 #if (0)
 static int I2C_RxData(uint16_t slaveAddr, uint8_t *rxData, int length)
 {
@@ -533,8 +531,8 @@ static void report_psensor_input_event(struct cm3629_info *lpi, int interrupt_fl
 	
 
 	ret = get_ps_adc_value(&ps1_adc, &ps2_adc);
-	if (pocket_mode_flag == 1 || psensor_enable_by_touch == 1) {
-		D("[PS][cm3629] pocket_mode_flag: %d, psensor_enable_by_touch: %d", pocket_mode_flag, psensor_enable_by_touch);
+	if (psensor_enable_by_touch == 1) {
+		D("[PS][cm3629] psensor_enable_by_touch: %d", psensor_enable_by_touch);
 		while (index <= 10 && ps1_adc == 0) {
 			D("[PS][cm3629]ps1_adc = 0 retry");
 			get_ps_adc_value(&ps1_adc, &ps2_adc);
@@ -569,7 +567,6 @@ static void report_psensor_input_event(struct cm3629_info *lpi, int interrupt_fl
 	} else {
 		val = (interrupt_flag == 2) ? 0 : 1;
 	}
-	ps_near = !val;
 
 	if (lpi->ps_debounce == 1 && lpi->mfg_mode != NO_IGNORE_BOOT_MODE) {
 		if (val == 0) {
@@ -586,17 +583,10 @@ static void report_psensor_input_event(struct cm3629_info *lpi, int interrupt_fl
 	}
 	D("[PS][cm3629] proximity %s, ps_adc=%d, , High thd= %d, interrupt_flag %d\n",
 	  val ? "FAR" : "NEAR", ps_adc, ps_thd_set, interrupt_flag);
-	if ((lpi->enable_polling_ignore == 1) && (val == 0) &&
-		(lpi->mfg_mode != NO_IGNORE_BOOT_MODE) &&
-	    (time_before(lpi->j_end, (lpi->j_start + NEAR_DELAY_TIME)))) {
-		D("[PS][cm3629] Ignore NEAR event\n");
-		lpi->ps_pocket_mode = 1;
-	} else {
 		
 		input_report_abs(lpi->ps_input_dev, ABS_DISTANCE, val);
 		input_sync(lpi->ps_input_dev);
 		blocking_notifier_call_chain(&psensor_notifier_list, val+2, NULL);
-	}
 }
 
 static void enable_als_interrupt(void)
@@ -1027,7 +1017,6 @@ static int psensor_disable(struct cm3629_info *lpi)
 	}
 	lpi->ps_conf1_val = lpi->ps_conf1_val_from_board;
 	lpi->ps_conf2_val = lpi->ps_conf2_val_from_board;
-	lpi->ps_pocket_mode = 0;
 
 	ret = irq_set_irq_wake(lpi->irq, 0);
 	if (ret < 0) {
@@ -1411,8 +1400,8 @@ static ssize_t ps_adc_show(struct device *dev,
 	}
 
 	ret = sprintf(buf, "ADC[0x%02X], ENABLE = %d, intr_pin = %d, "
-		      "ps_pocket_mode = %d, model = %s, ADC2[0x%02X]\n",
-		      ps_adc1, lpi->ps_enable, int_gpio, lpi->ps_pocket_mode,
+		      "model = %s, ADC2[0x%02X]\n",
+		      ps_adc1, lpi->ps_enable, int_gpio,
 		      (lpi->model == CAPELLA_CM36282) ? "CM36282" : "CM36292",
 		      ps_adc2);
 
@@ -2207,49 +2196,6 @@ err_unregister_ps_input_device:
 err_free_ps_input_device:
 	input_free_device(lpi->ps_input_dev);
 	return ret;
-}
-
-int power_key_check_in_pocket(void)
-{
-	struct cm3629_info *lpi = lp_info;
-	int ls_dark;
-
-	uint32_t ls_adc = 0;
-	int ls_level = 0;
-	int i;
-	if (!is_probe_success) {
-		D("[cm3629] %s return by cm3629 probe fail\n", __func__);
-		return 0;
-	}
-	pocket_mode_flag = 1;
-	D("[cm3629] %s +++\n", __func__);
-	
-	psensor_enable(lpi);
-	D("[cm3629] %s ps_near %d\n", __func__, ps_near);
-	psensor_disable(lpi);
-
-	
-	mutex_lock(&als_get_adc_mutex);
-	get_ls_adc_value(&ls_adc, 0);
-	enable_als_interrupt();
-	mutex_unlock(&als_get_adc_mutex);
-	for (i = 0; i < 10; i++) {
-		if (ls_adc <= (*(lpi->adc_table + i))) {
-			ls_level = i;
-			if (*(lpi->adc_table + i))
-				break;
-		}
-		if (i == 9) {
-			ls_level = i;
-			break;
-		}
-	}
-	D("[cm3629] %s ls_adc %d, ls_level %d\n", __func__, ls_adc, ls_level);
-	ls_dark = (ls_level <= lpi->dark_level) ? 1 : 0;
-
-	D("[cm3629] %s --- ls_dark %d\n", __func__, ls_dark);
-	pocket_mode_flag = 0;
-	return (ls_dark && ps_near);
 }
 
 int psensor_enable_by_touch_driver(int on)
