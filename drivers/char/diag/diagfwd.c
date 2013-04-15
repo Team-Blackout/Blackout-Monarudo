@@ -288,9 +288,11 @@ drop:
 				APPEND_DEBUG('j');
 				if (diag7k_debug_mask) {
 					print_out_reason = 1;   
+#if DIAG_XPST
 				} else if (driver->debug_dmbytes_recv > 0) {
 					driver->debug_dmbytes_recv--;
 					print_out_reason = 2;           
+#endif
 				} else if(driver->qxdmusb_drop &&
 						driver->logging_mode == USB_MODE) {
 					print_out_reason = 3;   
