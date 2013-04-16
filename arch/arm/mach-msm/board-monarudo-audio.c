@@ -56,7 +56,7 @@ int monarudo_support_beats(void)
 	 * [0] raised means support 1V headset
 	 * [7-4] set as "1000" stands for PVT device */
 //	if (((system_rev&0x1) == 0x1) && ((system_rev>>4&0xF) == 0x8))
-		return 1;
+		return 0;
 //	else
 //		return 0;
 }

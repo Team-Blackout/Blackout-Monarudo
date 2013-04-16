@@ -82,6 +82,10 @@ static int last_spkamp_state;
 struct rt5501_config RT5501_AMP_ON = {6,{{0x1,0x22},{0x2,0x00},{0x7,0x7f},{0x9,0x1},{0xa,0x0},{0xb,0xc7},}};
 struct rt5501_config RT5501_AMP_INIT = {11,{{0,0xc0},{0x81,0x30},{0x87,0xf6},{0x93,0x8d},{0x95,0x7d},{0xa4,0x52},\
                                         {0x96,0xae},{0x97,0x13},{0x99,0x35},{0x9b,0x68},{0x9d,0x68},}};
+static char BEATS_AMP_ON[] =
+			{0x00, 0x8C, 0x25, 0x57, 0x73, 0x4D, 0x0D};
+static char BEATS_AMP_OFF[] =
+			{0x00, 0x8C, 0x25, 0x57, 0x73, 0x4D, 0x0D};
 
 struct rt5501_config RT5501_AMP_MUTE = {1,{{0x1,0xC7},}};;
 struct rt5501_config RT5501_AMP_OFF = {1,{{0x0,0x1},}};
@@ -757,6 +761,24 @@ void set_rt5501_amp(int on)
     }
 
     mutex_unlock(&rt5501_query.gpiolock);
+}
+
+void set_beats_on(int en)
+{
+	printk(KERN_INFO "%s: %d\n", __func__, en);
+	en = 1;
+	printk(KERN_INFO "BEATS HACK - %s: %d\n", __func__, en);
+	mutex_lock(&hp_amp_lock);
+	if (en) {
+		rt5501_i2c_write_for_read(BEATS_AMP_ON, AMP_ON_CMD_LEN);
+		printk(KERN_INFO "%s: en(%d) reg_value[5]=%2x, reg_value[6]=%2x\n", __func__,  \
+				en, BEATS_AMP_ON[5], BEATS_AMP_ON[6]);
+	} else {
+		rt5501_i2c_write_for_read(BEATS_AMP_OFF, AMP_ON_CMD_LEN);
+		printk(KERN_INFO "%s: en(%d)  reg_value[5]=%2x, reg_value[6]=%2x\n", __func__,  \
+				en, BEATS_AMP_OFF[5], BEATS_AMP_OFF[6]);
+	}
+	mutex_unlock(&hp_amp_lock);
 }
 
 static int update_amp_parameter(int mode)

@@ -625,12 +625,12 @@ static void mic_detect_work_func(struct work_struct *work)
 	case HEADSET_NO_MIC:
 		mic = HEADSET_BEATS;
 		new_state |= BIT_HEADSET_NO_MIC;
-		HS_LOG("HEADSET_BEATS");
+		HS_LOG("HEADSET_BEATS_SOLO");
 		break;
 	case HEADSET_MIC:
 		mic = HEADSET_BEATS;
 		new_state |= BIT_HEADSET;
-		HS_LOG("HEADSET_BEATS");
+		HS_LOG("HEADSET_BEATS_SOLO");
 		break;
 	case HEADSET_METRICO:
 		new_state |= BIT_HEADSET;
@@ -1377,11 +1377,11 @@ static ssize_t headset_simulate_store(struct device *dev,
 
 	if (strncmp(buf, "headset_beats", count - 1) == 0) {
 		HS_LOG("Headset simulation: headset_beats");
-		hi->hs_35mm_type = HEADSET_BEATS;
+		hi->hs_35mm_type = HEADSET_BEATS_SOLO;
 		state |= BIT_HEADSET_NO_MIC;
 	} else if (strncmp(buf, "headset_beats", count - 1) == 0) {
 		HS_LOG("Headset simulation: headset_beats");
-		hi->hs_35mm_type = HEADSET_BEATS;
+		hi->hs_35mm_type = HEADSET_BEATS_SOLO;
 		state |= BIT_HEADSET;
 	} else if (strncmp(buf, "headset_metrico", count - 1) == 0) {
 		HS_LOG("Headset simulation: headset_metrico");
@@ -1389,7 +1389,7 @@ static ssize_t headset_simulate_store(struct device *dev,
 		state |= BIT_HEADSET;
 	} else if (strncmp(buf, "headset_beats", count - 1) == 0) {
 		HS_LOG("Headset simulation: headset_beats");
-		hi->hs_35mm_type = HEADSET_BEATS;
+		hi->hs_35mm_type = HEADSET_BEATS_SOLO;
 		state |= BIT_HEADSET_NO_MIC;
 	} else if (strncmp(buf, "headset_tv_out", count - 1) == 0) {
 		HS_LOG("Headset simulation: headset_tv_out");
@@ -1403,7 +1403,7 @@ static ssize_t headset_simulate_store(struct device *dev,
 		hi->hs_35mm_type = HEADSET_INDICATOR;
 	} else if (strncmp(buf, "headset_beats", count - 1) == 0) {
 		HS_LOG("Headset simulation: headset_beats");
-		hi->hs_35mm_type = HEADSET_BEATS;
+		hi->hs_35mm_type = HEADSET_BEATS_SOLO;
 		state |= BIT_HEADSET;
 	} else if (strncmp(buf, "headset_beats_solo", count - 1) == 0) {
 		HS_LOG("Headset simulation: headset_beats_solo");
