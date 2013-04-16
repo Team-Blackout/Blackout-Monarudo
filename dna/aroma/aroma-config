@@ -19,7 +19,7 @@ ini_set("rom_name",             "Beastmode Viverrine");
 ini_set("rom_version",          "@@VERSION@@");
 ini_set("rom_author",           "Zarboz");
 ini_set("rom_device",           "Droid DNA VZW");
-ini_set("rom_date",             "March, 26 2012");
+ini_set("rom_date",             "April, 15 2012");
 
 splash(
     2000,
