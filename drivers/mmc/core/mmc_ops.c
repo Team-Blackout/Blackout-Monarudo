@@ -383,7 +383,7 @@ int mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
 {
 	int err;
 	struct mmc_command cmd = {0};
-	u32 status;
+	u32 status ;
 
 	BUG_ON(!card);
 	BUG_ON(!card->host);
