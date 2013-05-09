@@ -139,10 +139,20 @@ static int synaptics_init_panel(struct synaptics_ts_data *ts);
 
 static irqreturn_t synaptics_irq_thread(int irq, void *ptr);
 
+bool scr_suspended = false;
+extern uint8_t touchscreen_is_on(void)
+{
+if (scr_suspended == false)
+{
+return 1;
+}
+return 0;
+}
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
 int s2w_switch = 1;
-bool scr_suspended = false, exec_count = true;
+exec_count = true;
 bool scr_on_touch = false, led_exec_count = false, barrier[2] = {false, false};
+
 static struct input_dev * sweep2wake_pwrdev;
 static struct led_classdev * sweep2wake_leddev;
 static DEFINE_MUTEX(pwrlock);
@@ -1349,6 +1359,18 @@ static DEVICE_ATTR(reset, (S_IWUSR),
 	0, syn_reset);
 
 #endif
+
+        	if (s2w_switch == 0)
+                printk(KERN_INFO "[SWEEP2WAKE]: Disabled.\n");
+            else if (s2w_switch > 0)
+                printk(KERN_INFO "[SWEEP2WAKE]: Enabled.\n");
+
+
+        	if (l2m_switch == 0)
+                printk(KERN_INFO "[LOGO2MENU]: Disabled.\n");
+            else if (l2m_switch == 1)
+                printk(KERN_INFO "[LOGO2MENU]: Enabled.\n");
+
 
 enum SR_REG_STATE{
 	ALLOCATE_DEV_FAIL = -2,
@@ -2831,8 +2853,9 @@ static int synaptics_ts_suspend(struct i2c_client *client, pm_message_t mesg)
 {
 	int ret;
 	struct synaptics_ts_data *ts = i2c_get_clientdata(client);
+    scr_suspended = true;
+#ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
 	
-#ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE      
 	if (s2w_switch > 0) {
 	       scr_suspended = true;
 		enable_irq_wake(client->irq);
@@ -2985,10 +3008,11 @@ static int synaptics_ts_resume(struct i2c_client *client)
 {
 	int ret;
 	struct synaptics_ts_data *ts = i2c_get_clientdata(client);
+    scr_suspended = false;
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE  
         if (s2w_switch > 0) {
                 //screen on, disable_irq_wake
-                scr_suspended = false;
+               
                 disable_irq_wake(client->irq);
         }
 #endif
