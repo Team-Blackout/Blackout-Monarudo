@@ -1574,40 +1574,7 @@ endif
 clean := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.clean obj
 
 endif	# skip-makefile
-# Droid DNA specific target to build the update.zip
 
-DNA_ZIP = dna/update/$(BEASTMODE_VERSION).zip
-UPDATE_ROOT = dna/update
-
-
-dna/update-this-version.zip:
-	make $(DNA_ZIP)
-
-$(CERT):
-	
-
-$(DNA_ZIP): arch/arm/boot/zImage dna/aroma/updater-script $(CERT)
-	-rm -rf $(UPDATE_ROOT)
-	mkdir -p $(UPDATE_ROOT)/system/lib/modules
-	cp `find . -name '*.ko'` $(UPDATE_ROOT)/system/lib/modules
-	cp `find kcontrol/ -name '*.ko'` $(UPDATE_ROOT)/system/lib/modules
-	cp -r dna/init/ $(UPDATE_ROOT)/system/etc
-	mkdir -p $(UPDATE_ROOT)/META-INF/com/google/android
-	cp -r dna/tools $(UPDATE_ROOT)/tools
-	mkdir -p $(UPDATE_ROOT)/boot
-	cp arch/arm/boot/zImage $(UPDATE_ROOT)/boot
-	cp dna/aroma/update-binary $(UPDATE_ROOT)/META-INF/com/google/android
-	cp dna/aroma/update-binary-installer $(UPDATE_ROOT)/META-INF/com/google/android
-	cp -r dna/aroma/aroma $(UPDATE_ROOT)/META-INF/com/google/android
-	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/aroma/aroma-config > $(UPDATE_ROOT)/META-INF/com/google/android/aroma-config
-	sed 's/@@VERSION@@/$(BEASTMODE_VERSION)/' < dna/aroma/updater-script > $(UPDATE_ROOT)/META-INF/com/google/android/updater-script
-	git log --oneline --since=04/05/2013 > $(UPDATE_ROOT)/META-INF/com/google/android/aroma/changelog.txt
-	-rm -f dna/*.zip
-	cd $(UPDATE_ROOT) && zip -r ../out/$(BEASTMODE_VERSION).zip .
-	 $
-	
-	
-	
 PHONY += FORCE
 FORCE:
 
