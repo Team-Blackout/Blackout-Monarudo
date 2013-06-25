@@ -25,7 +25,8 @@
 
 #define VIB_PWM_DBG(fmt, ...) \
 		({ if (0) printk(KERN_DEBUG "[VIB_PWM]" fmt, ##__VA_ARGS__); })
-#define VIB_PWM_INFO VIB_PWM_DBG
+#define VIB_PWM_INFO(fmt, ...) \
+		printk(KERN_INFO "[VIB_PWM]" fmt, ##__VA_ARGS__)
 #define VIB_PWM_ERR(fmt, ...) \
 		printk(KERN_ERR "[VIB_PWM][ERR]" fmt, ##__VA_ARGS__)
 
@@ -251,7 +252,7 @@ static int pm8xxx_vib_suspend(struct device *dev)
 	VIB_PWM_INFO("%s \n",__func__);
 	hrtimer_cancel(&vib->vib_timer);
 	cancel_work_sync(&vib->work);
-	
+	/* turn-off vibrator */
 	pm8xxx_vib_set_off(vib);
 	if (vib->vdd_gpio)
 		gpio_direction_output(vib->vdd_gpio, DISABLE_VDD);

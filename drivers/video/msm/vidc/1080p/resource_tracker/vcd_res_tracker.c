@@ -27,8 +27,8 @@
 
 #define PIL_FW_SIZE 0x200000
 
-static unsigned int vidc_clk_table[5] = {
-	48000000, 133330000, 200000000, 228570000, 266670000,
+static unsigned int vidc_clk_table[4] = {
+	48000000, 133330000, 200000000, 228570000,
 };
 static unsigned int restrk_mmu_subsystem[] =	{
 		MSM_SUBSYSTEM_VIDEO, MSM_SUBSYSTEM_VIDEO_FWARE};
@@ -69,7 +69,7 @@ static void *res_trk_pmem_map
 	if (res_trk_get_enable_ion() && addr->alloc_handle) {
 		kernel_vaddr = (unsigned long *) ion_map_kernel(
 					ddl_context->video_ion_client,
-					addr->alloc_handle);
+					addr->alloc_handle, UNCACHED);
 		if (IS_ERR_OR_NULL(kernel_vaddr)) {
 			DDL_MSG_ERROR("%s():DDL ION client map failed\n",
 						 __func__);
@@ -84,11 +84,10 @@ static void *res_trk_pmem_map
 				0,
 				&iova,
 				&buffer_size,
-				0, 0);
-		if (ret || !iova) {
-			DDL_MSG_ERROR(
-			"%s():DDL ION client iommu map failed, ret = %d iova = 0x%lx\n",
-			__func__, ret, iova);
+				UNCACHED, 0);
+		if (ret) {
+			DDL_MSG_ERROR("%s():DDL ION client iommu map failed\n",
+						 __func__);
 			goto ion_unmap_bail_out;
 		}
 		addr->mapped_buffer = NULL;
@@ -209,8 +208,7 @@ static int res_trk_pmem_alloc
 			addr->alloc_handle = ion_alloc(
 					ddl_context->video_ion_client,
 					 alloc_size, SZ_4K,
-					res_trk_get_mem_type(),
-					res_trk_get_ion_flags());
+					res_trk_get_mem_type());
 			if (IS_ERR_OR_NULL(addr->alloc_handle)) {
 				DDL_MSG_ERROR("%s() :DDL ION alloc failed\n",
 						__func__);
@@ -628,7 +626,7 @@ u32 res_trk_set_perf_level(u32 req_perf_lvl, u32 *pn_set_perf_lvl,
 		vidc_freq = vidc_clk_table[2];
 		*pn_set_perf_lvl = RESTRK_1080P_MAX_PERF_LEVEL;
 	} else {
-		vidc_freq = vidc_clk_table[4];
+		vidc_freq = vidc_clk_table[3];
 		*pn_set_perf_lvl = RESTRK_1080P_TURBO_PERF_LEVEL;
 	}
 
@@ -648,10 +646,6 @@ u32 res_trk_set_perf_level(u32 req_perf_lvl, u32 *pn_set_perf_lvl,
 		VCDRES_MSG_MED("%s(): Setting vidc freq to %u\n",
 			__func__, vidc_freq);
 		if (!res_trk_sel_clk_rate(vidc_freq)) {
-			if (vidc_freq == vidc_clk_table[4]) {
-				if (res_trk_sel_clk_rate(vidc_clk_table[3]))
-					goto ret;
-			}
 			VCDRES_MSG_ERROR("%s(): res_trk_sel_clk_rate FAILED\n",
 				__func__);
 			*pn_set_perf_lvl = 0;
@@ -659,7 +653,7 @@ u32 res_trk_set_perf_level(u32 req_perf_lvl, u32 *pn_set_perf_lvl,
 		}
 	}
 #endif
-ret:	VCDRES_MSG_MED("%s() set perl level : %d", __func__, *pn_set_perf_lvl);
+	VCDRES_MSG_MED("%s() set perl level : %d", __func__, *pn_set_perf_lvl);
 	return true;
 }
 
@@ -850,23 +844,6 @@ int res_trk_get_mem_type(void)
 			ION_HEAP(ION_IOMMU_HEAP_ID));
 	}
 	return mem_type;
-}
-
-unsigned int res_trk_get_ion_flags(void)
-{
-	unsigned int flags = 0;
-	if (resource_context.res_mem_type == DDL_FW_MEM)
-		return flags;
-
-	if (resource_context.vidc_platform_data->enable_ion) {
-		if (res_trk_check_for_sec_session()) {
-			if (resource_context.res_mem_type != DDL_FW_MEM)
-				flags |= ION_SECURE;
-			else if (res_trk_is_cp_enabled())
-				flags |= ION_SECURE;
-		}
-	}
-	return flags;
 }
 
 u32 res_trk_is_cp_enabled(void)
